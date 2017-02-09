@@ -1,27 +1,22 @@
 module GameRoom exposing (..)
 
-import Html exposing (Html, beginnerProgram, div, text)
+import Html exposing (Html, map, beginnerProgram, div, text)
 import Json.Encode as JE
 import Json.Decode as JD
 import Ports
+import Models
 
 
 -- Models
 
 
 type alias Spec problemType guessType =
-    { view : Model problemType guessType -> Html (Msg guessType)
+    { view : Models.Model problemType guessType -> Html guessType
     , isGuessCorrect : problemType -> guessType -> Bool
     , guessEncoder : guessType -> JE.Value
     , guessDecoder : JD.Decoder guessType
     , problemEncoder : problemType -> JE.Value
     , problemDecoder : JD.Decoder problemType
-    }
-
-
-type alias Model problemType guessType =
-    { guess : Maybe guessType
-    , problem : Maybe problemType
     }
 
 
@@ -39,16 +34,31 @@ type Msg guessType
 -- Program
 
 
-program : Spec problemType guessType -> Program Never (Model problemType guessType) (Msg guessType)
-program { view, isGuessCorrect } =
+program :
+    Spec problemType guessType
+    -> Program Never (Models.Model problemType guessType) (Msg guessType)
+program { view, isGuessCorrect, guessDecoder, problemDecoder } =
     Html.program
-        { init = ( { guess = Nothing, problem = Nothing }, Cmd.none )
-        , view = view
+        { init = ( { playerId = "alfred", room = Nothing }, Cmd.none )
+        , view = (map Guess) << view
         , update =
             (\msg model ->
                 case msg of
+                    ReceiveUpdate roomString ->
+                        let
+                            roomRes =
+                                roomString
+                                    |> JD.decodeString (Models.roomDecoder problemDecoder guessDecoder)
+                                    |> Result.toMaybe
+                        in
+                            ( { model | room = roomRes }, Cmd.none )
+
                     Guess guess ->
-                        ( { model | guess = Just guess }, Ports.update (toString model) )
+                        let
+                            _ =
+                                Debug.log "guess" guess
+                        in
+                            ( model, Cmd.none )
 
                     _ ->
                         ( model, Cmd.none )

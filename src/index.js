@@ -1,6 +1,6 @@
 require('./main.css');
 var Elm = require('./Main.elm');
-require('./db');
+var db = require('./db');
 
 var app = Elm.Main.embed(document.getElementById('root'));
 
@@ -10,6 +10,9 @@ function talkToGame(ports) {
   ports.create.subscribe(log);
   ports.disconnect.subscribe(log);
   ports.reconnect.subscribe(log);
+  db.getRoom('theroom').then(function(room) {
+    ports.updated.send(JSON.stringify(room));
+  });
 }
 
 talkToGame(app.ports);

@@ -10,6 +10,21 @@ var firebaseApp = firebase.initializeApp(config);
 
 var database = firebaseApp.database();
 
-database.ref('/test').once('value').then(function(snapshot) {
-  console.log(snapshot.val());
-}).catch(console.log.bind(console));
+module.exports = {
+  updateRoom: function(room) {
+    return database.ref('/rooms/' + room.id).update(room);
+  },
+  getRoom: function(roomId) {
+    return database.ref('/rooms/' + roomId).once('value').then(function(snapshot) {
+      return snapshot.val();
+    });
+  },
+  subscribeToRoom: function(roomId, next) {
+    return database.ref('/rooms/' + roomId).on('value', function(snapshot) {
+      next(snapshot.val());
+    });
+  },
+  unsubscribeFromRoom : function(roomId) {
+    return database.ref('/rooms/' + roomId).off();
+  }
+};
