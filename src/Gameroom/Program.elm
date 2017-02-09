@@ -22,19 +22,14 @@ program spec =
                         Router.parse loc
 
                     cmd =
-                        cmdOnRouteChange route
+                        cmdOnRouteChange route Nothing
                 in
-                    ( { playerId = "alfred", room = Nothing, route = route }, cmd )
+                    ( { route = route }, cmd )
             )
         , view = view spec
         , update = update spec
         , subscriptions =
             (\model ->
-                case model.route of
-                    Router.Game roomId playerId Nothing ->
-                        Ports.roomUpdated ReceiveUpdate
-
-                    _ ->
-                        Sub.none
+                Ports.roomUpdated ReceiveUpdate
             )
         }

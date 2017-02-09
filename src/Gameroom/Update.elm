@@ -10,8 +10,8 @@ import Ports
 import Router
 
 
-cmdOnRouteChange : Router.Route problemType guessType -> Cmd (Msg problemType guessType)
-cmdOnRouteChange route =
+cmdOnRouteChange : Router.Route problemType guessType -> Maybe (Router.Route problemType guessType) -> Cmd (Msg problemType guessType)
+cmdOnRouteChange route maybePreviousRoute =
     case route of
         Router.Game roomId playerId Nothing ->
             Ports.connectToRoom roomId
@@ -29,8 +29,16 @@ update spec msg model =
                     roomString
                         |> JD.decodeString (Room.decoder spec.problemDecoder spec.guessDecoder)
                         |> Result.toMaybe
+
+                route =
+                    case model.route of
+                        Router.Game roomId playerId room ->
+                            Router.Game roomId playerId roomRes
+
+                        _ ->
+                            model.route
             in
-                ( { model | room = roomRes }, Cmd.none )
+                ( { model | route = route }, Cmd.none )
 
         Guess guess ->
             let
@@ -41,7 +49,7 @@ update spec msg model =
 
         ChangeRoute route ->
             ( { model | route = route }
-            , cmdOnRouteChange route
+            , cmdOnRouteChange route (Just model.route)
             )
 
         Navigate newUrl ->
