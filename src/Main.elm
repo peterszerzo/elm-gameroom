@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html exposing (Html, beginnerProgram, div, button, text, h1, p, span)
+import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Models.Spec exposing (Spec)
