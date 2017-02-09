@@ -3,11 +3,11 @@ module Main exposing (..)
 import Html exposing (Html, beginnerProgram, div, button, text, h1, p, span)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import Models
+import Models.Spec exposing (Spec)
+import Models.Main exposing (Model)
 import Json.Encode as JE
 import Json.Decode as JD
 import Program
-import Models exposing (Spec)
 import Messages exposing (Msg)
 
 
@@ -32,6 +32,6 @@ gameSpec =
     }
 
 
-main : Program Never (Models.Model String Int) (Msg Int)
+main : Program Never (Model String Int) (Msg String Int)
 main =
     Program.program gameSpec

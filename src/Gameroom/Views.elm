@@ -1,13 +1,16 @@
 module Views exposing (view)
 
 import Dict
-import Html exposing (Html, div, text)
+import Html exposing (Html, div, text, button)
 import Html.Attributes exposing (class)
-import Models exposing (Model, Spec, Room)
+import Html.Events exposing (onClick)
+import Models.Main exposing (Model)
+import Models.Spec exposing (Spec)
+import Models.Room exposing (Room)
 import Messages exposing (Msg(..))
 
 
-scoreboard : String -> Room problemType guessType -> Html (Msg guessType)
+scoreboard : String -> Room problemType guessType -> Html (Msg problemType guessType)
 scoreboard playerId room =
     div [ class "scoreboard" ]
         [ Dict.get playerId room.players
@@ -16,7 +19,7 @@ scoreboard playerId room =
         ]
 
 
-view : Spec problemType guessType -> Model problemType guessType -> Html (Msg guessType)
+view : Spec problemType guessType -> Model problemType guessType -> Html (Msg problemType guessType)
 view spec model =
     let
         gameView =
@@ -27,6 +30,7 @@ view spec model =
                 Nothing ->
                     div [] []
     in
-        div []
-            [ gameView
+        div [ class "container" ]
+            [ button [ onClick (Navigate "/tutorial") ] [ text "hello!" ]
+            , gameView
             ]

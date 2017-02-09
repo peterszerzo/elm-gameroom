@@ -6,12 +6,10 @@ var app = Elm.Main.embed(document.getElementById('root'));
 
 function talkToGame(ports) {
   var log = console.log.bind(console);
-  ports.update.subscribe(log);
-  ports.create.subscribe(log);
-  ports.disconnect.subscribe(log);
-  ports.reconnect.subscribe(log);
-  db.getRoom('theroom').then(function(room) {
-    ports.updated.send(JSON.stringify(room));
+  ports.connectToRoom.subscribe(function(roomId) {
+    db.getRoom(roomId).then(function(room) {
+      ports.roomUpdated.send(JSON.stringify(room));
+    });
   });
 }
 

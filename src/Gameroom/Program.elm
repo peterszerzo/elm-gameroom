@@ -1,21 +1,40 @@
 module Program exposing (..)
 
-import Html
-import Models exposing (Spec)
+import Navigation
+import Models.Spec exposing (Spec)
+import Models.Main exposing (Model)
 import Messages exposing (Msg(..))
-import Update exposing (update)
+import Update exposing (update, cmdOnRouteChange)
 import Ports
+import Router
 import Views exposing (view)
 
 
 program :
     Spec problemType guessType
-    -> Program Never (Models.Model problemType guessType) (Msg guessType)
+    -> Program Never (Model problemType guessType) (Msg problemType guessType)
 program spec =
-    Html.program
-        { init = ( { playerId = "alfred", room = Nothing }, Cmd.none )
+    Navigation.program (ChangeRoute << Router.parse)
+        { init =
+            (\loc ->
+                let
+                    route =
+                        Router.parse loc
+
+                    cmd =
+                        cmdOnRouteChange route
+                in
+                    ( { playerId = "alfred", room = Nothing, route = route }, cmd )
+            )
         , view = view spec
         , update = update spec
         , subscriptions =
-            (\model -> Ports.updated ReceiveUpdate)
+            (\model ->
+                case model.route of
+                    Router.Game roomId playerId Nothing ->
+                        Ports.roomUpdated ReceiveUpdate
+
+                    _ ->
+                        Sub.none
+            )
         }
