@@ -4,6 +4,7 @@ import Html exposing (Html, beginnerProgram, div, button, text)
 import Html.Events exposing (onClick)
 import GameRoom
 import Json.Encode as JE
+import Json.Decode as JD
 
 
 gameSpec : GameRoom.Spec String Int
@@ -18,11 +19,11 @@ gameSpec =
                     [ text "Guess 0" ]
                 ]
         )
-    , isGuessCorrect = (\problem guess -> True)
-    , guessEncoder = (\guess -> JE.int 0)
-    , guessDecoder = (\jdVal -> 0)
-    , problemEncoder = (\problem -> JE.int 0)
-    , problemDecoder = (\jdVal -> "problem")
+    , isGuessCorrect = (\problem guess -> (guess == 0))
+    , guessEncoder = (JE.int)
+    , guessDecoder = (JD.int)
+    , problemEncoder = (JE.string)
+    , problemDecoder = (JD.string)
     }
 
 

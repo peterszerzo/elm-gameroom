@@ -13,9 +13,9 @@ type alias Spec problemType guessType =
     { view : Model problemType guessType -> Html (Msg guessType)
     , isGuessCorrect : problemType -> guessType -> Bool
     , guessEncoder : guessType -> JE.Value
-    , guessDecoder : JD.Value -> guessType
+    , guessDecoder : JD.Decoder guessType
     , problemEncoder : problemType -> JE.Value
-    , problemDecoder : JD.Value -> problemType
+    , problemDecoder : JD.Decoder problemType
     }
 
 
