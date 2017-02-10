@@ -2,7 +2,7 @@ module Views exposing (view)
 
 import Dict
 import Html exposing (Html, div, text, button, h1)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Models.Main exposing (Model)
 import Models.Spec exposing (Spec)
@@ -20,10 +20,22 @@ scoreboard playerId room =
         ]
 
 
+centeredStyle : List ( String, String )
+centeredStyle =
+    [ ( "max-width", "600px" )
+    , ( "max-height", "600px" )
+    , ( "position", "absolute" )
+    , ( "top", "50%" )
+    , ( "left", "50%" )
+    , ( "transform", "translate3d(-50%, -50%, 0)" )
+    , ( "text-align", "center" )
+    ]
+
+
 home : Html (Msg problemType guessType)
 home =
-    div []
-        [ h1 [] [ text "Hello" ]
+    div [ style centeredStyle ]
+        [ h1 [] [ text "elm-gameroom" ]
         , button [ onClick (Navigate "/tutorial") ] [ text "Tutorial" ]
         , button [ onClick (Navigate "/new") ] [ text "New room" ]
         ]

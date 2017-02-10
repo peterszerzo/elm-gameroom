@@ -1,4 +1,4 @@
-module Program exposing (..)
+module Gameroom exposing (..)
 
 import Navigation
 import Models.Spec exposing (Spec)

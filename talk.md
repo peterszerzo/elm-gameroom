@@ -2,31 +2,59 @@ Elm-Europe 2017 talk draft
 
 # Multiplayer guessing game in 200 lines
 
-DRY multiplayer guessing game. Add game spec and generic realtime backend.
+## One winter evening in Canada..
 
-## lettero.co
+After a long day volunteering on a farm, I play an annoying word game.
 
-This is an abstraction from https://lettero.co.
+Two years later, I reproduced it in Elm.
 
-### Custom game, no server-side code
+https://lettero.co
 
-But who calls the shots and reconciles rounds?
+### My favorite thing about Lettero: no server-side code
+
+Just a generic realtime database, like Firebase or Horizon.
+
+Wait, but who calls the shots and reconciles game rounds?
 
 Convenient use-case: all players need to be online at all times. If any disconnects, stop the show until they reconnect.
 
-Designate one of the clients as judge - reconcile and control game from that specific client.
+So just designate one of the clients as game host - reconcile and control game from that specific client.
+
+### Can we abstract this?
 
 ## elm-gameroom
 
-https://runelm.io/c/pxy
+### What do we need to describe a game like this?
+
+* some data structure describing the current game problem `"insurance"`
+* some data structure describing any player's guess `1`
+* a view describing how the screen looks like based on the current problem and the players' guesses (nice-to-have: also react to user input and report back if a guess is made)
+* a way to decide if the guess was correct (`1 !== 0`. Too bad..)
+* a way to generate random game problems
+
+### How does this look like in Elm, for Lettero?
+
+* `type alias ProblemType = ...`
+* `type alias GuessType = ...`
+* `view : List GuessType -> ProblemType -> Html GuessType`
+* `isGuessCorrect : ProblemType -> GuessType -> Bool`
+* `problemGenerator : Random.Generator ProblemType`
+
+### Anything else?
+
+Gotta persist information between players. So we need some encoders and decoders.
+
+### Can we generalize?
 
 ```elm
-game : GameRoom.Game Int
-game =
-    { view = (\guess -> div [] [ text ("You guessed " ++ (toString guess)) ])
-    , guessEncoder = (\guess -> JE.int 0)
-    , guessDecoder = (\jdVal -> 0)
-    , isGuessCorrect = (\guess -> True)
+type alias Spec problemType guessType =
+    { view : ... -> Html.Html guessType
+    , isGuessCorrect : problemType -> guessType -> Bool
+    , problemGenerator : Random.Generator problemType
+    , problemEncoder : Maybe problemType -> JE.Value
+    , problemDecoder : JD.Decoder (Maybe problemType)
+    , guessEncoder : guessType -> JE.Value
+    , guessDecoder : JD.Decoder guessType
     }
 ```
 
@@ -106,3 +134,5 @@ Migrating code:
 3. If breaking up is not an option, well, devise a case-specific strategy.
 
 ## Did it work?
+
+Yes. `elm-gameroom` is powering 10 games across the conference.

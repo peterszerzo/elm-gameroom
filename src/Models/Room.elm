@@ -14,7 +14,7 @@ type RoundStatus
 type alias Round problemType =
     { no : Int
     , status : RoundStatus
-    , problem : problemType
+    , problem : Maybe problemType
     }
 
 
@@ -24,13 +24,13 @@ type alias Room problemType guessType =
     , round :
         { no : Int
         , status : RoundStatus
-        , problem : problemType
+        , problem : Maybe problemType
         }
     , players : Dict.Dict String (Player.Player guessType)
     }
 
 
-decoder : JD.Decoder problemType -> JD.Decoder guessType -> JD.Decoder (Room problemType guessType)
+decoder : JD.Decoder (Maybe problemType) -> JD.Decoder guessType -> JD.Decoder (Room problemType guessType)
 decoder problemDecoder guessDecoder =
     JD.map4 Room
         (JD.field "id" JD.string)
@@ -39,7 +39,7 @@ decoder problemDecoder guessDecoder =
         (JD.field "players" (JD.dict (Player.decoder guessDecoder)))
 
 
-roundDecoder : JD.Decoder problemType -> JD.Decoder (Round problemType)
+roundDecoder : JD.Decoder (Maybe problemType) -> JD.Decoder (Round problemType)
 roundDecoder problemDecoder =
     JD.map3 Round
         (JD.field "no" JD.int)
