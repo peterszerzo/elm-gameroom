@@ -1,0 +1,9 @@
+.word span {
+  cursor: pointer;
+  display: inline-block;
+  padding: 20px 25px;
+  border-radius: 50%;
+  border: 1px solid #eee;
+  margin: 10px;
+  font-family: monospace;
+}

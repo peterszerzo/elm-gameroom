@@ -1,31 +1,37 @@
 module Main exposing (..)
 
-import Html exposing (Html, beginnerProgram, div, button, text)
+import Html exposing (Html, div, text, span)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import GameRoom
+import Models.Spec exposing (Spec)
+import Models.Main exposing (Model)
 import Json.Encode as JE
+import Json.Decode as JD
+import Program
+import Messages exposing (Msg)
 
 
-gameSpec : GameRoom.Spec String Int
+gameSpec : Spec String Int
 gameSpec =
     { view =
-        (\model ->
+        (\playerId room ->
             div []
-                [ text (toString model.guess)
-                , button
-                    [ onClick (GameRoom.Guess 0)
-                    ]
-                    [ text "Guess 0" ]
+                [ text ("round no. " ++ (toString room.round.no))
+                , div [ class "word " ]
+                    (room.round.problem
+                        |> String.toList
+                        |> List.indexedMap (\index c -> span [ onClick index ] [ text (String.fromChar c) ])
+                    )
                 ]
         )
-    , isGuessCorrect = (\problem guess -> True)
-    , guessEncoder = (\guess -> JE.int 0)
-    , guessDecoder = (\jdVal -> 0)
-    , problemEncoder = (\problem -> JE.int 0)
-    , problemDecoder = (\jdVal -> "problem")
+    , isGuessCorrect = (\problem guess -> (guess == 0))
+    , guessEncoder = (JE.int)
+    , guessDecoder = (JD.int)
+    , problemEncoder = (JE.string)
+    , problemDecoder = (JD.string)
     }
 
 
-main : Program Never (GameRoom.Model String Int) (GameRoom.Msg Int)
+main : Program Never (Model String Int) (Msg String Int)
 main =
-    GameRoom.program gameSpec
+    Program.program gameSpec
