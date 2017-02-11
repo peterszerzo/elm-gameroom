@@ -3,13 +3,14 @@ module Router exposing (..)
 import Navigation
 import UrlParser exposing (..)
 import Models.Room exposing (Room)
+import Models.NewRoom as NewRoom
 
 
 type Route problemType guessType
     = Home
     | About
     | Tutorial
-    | NewRoom
+    | NewRoomRoute NewRoom.NewRoom
     | Game String String (Maybe (Room problemType guessType))
     | NotFound
 
@@ -54,7 +55,7 @@ matchers =
             </> string
             </> string
             |> map (\roomId playerId -> Game roomId playerId Nothing)
-        , s newRoomPath |> map NewRoom
+        , s newRoomPath |> map (NewRoomRoute { roomId = "", playerIds = [ "", "" ] })
         ]
 
 

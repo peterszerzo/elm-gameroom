@@ -2,9 +2,10 @@ module Update exposing (..)
 
 import Navigation
 import Random
-import Messages exposing (Msg(..))
+import Messages exposing (..)
 import Models.Main exposing (Model)
 import Models.Room as Room
+import Models.NewRoom as NewRoom
 import Models.Spec exposing (Spec)
 import Json.Decode as JD
 import Ports
@@ -19,6 +20,32 @@ cmdOnRouteChange route maybePreviousRoute =
 
         _ ->
             Cmd.none
+
+
+updateNewRoom : NewRoomMsg -> NewRoom.NewRoom -> NewRoom.NewRoom
+updateNewRoom msg model =
+    case msg of
+        ChangeRoomId newRoomId ->
+            { model | roomId = newRoomId }
+
+        ChangePlayerId index value ->
+            { model
+                | playerIds =
+                    List.indexedMap
+                        (\index_ oldValue ->
+                            if index_ == index then
+                                value
+                            else
+                                oldValue
+                        )
+                        model.playerIds
+            }
+
+        AddPlayer ->
+            { model | playerIds = model.playerIds ++ [ "" ] }
+
+        _ ->
+            model
 
 
 updateGameRoom : (Maybe (Room.Room problemType guessType) -> Maybe (Room.Room problemType guessType)) -> Model problemType guessType -> Model problemType guessType
@@ -77,6 +104,19 @@ update spec msg model =
         ChangeRoute route ->
             ( { model | route = route }
             , cmdOnRouteChange route (Just model.route)
+            )
+
+        NewRoomMsgContainer newRoomMsg ->
+            ( { model
+                | route =
+                    case model.route of
+                        Router.NewRoomRoute newRoom ->
+                            Router.NewRoomRoute (updateNewRoom newRoomMsg newRoom)
+
+                        _ ->
+                            model.route
+              }
+            , Cmd.none
             )
 
         Navigate newUrl ->

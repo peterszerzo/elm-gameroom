@@ -7,7 +7,7 @@ import Messages exposing (Msg(..))
 import Update exposing (update, cmdOnRouteChange)
 import Ports
 import Router
-import Views exposing (view)
+import Views.Main exposing (view)
 
 
 program :
