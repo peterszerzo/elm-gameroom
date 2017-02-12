@@ -4,7 +4,7 @@ import Navigation
 import Models.Spec exposing (Spec)
 import Models.Main exposing (Model)
 import Messages exposing (Msg(..))
-import Update exposing (update, cmdOnRouteChange)
+import Update.Main exposing (update, cmdOnRouteChange)
 import Ports
 import Router
 import Views.Main exposing (view)
@@ -30,6 +30,6 @@ program spec =
         , update = update spec
         , subscriptions =
             (\model ->
-                Ports.roomUpdated ReceiveUpdate
+                Ports.roomUpdated ReceiveGameRoomUpdate
             )
         }

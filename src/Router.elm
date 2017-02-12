@@ -2,16 +2,16 @@ module Router exposing (..)
 
 import Navigation
 import UrlParser exposing (..)
-import Models.Room exposing (Room)
-import Models.NewRoom as NewRoom
+import Models.NewRoom
+import Models.Game
 
 
 type Route problemType guessType
     = Home
     | About
     | Tutorial
-    | NewRoomRoute NewRoom.NewRoom
-    | Game String String (Maybe (Room problemType guessType))
+    | NewRoomRoute Models.NewRoom.NewRoom
+    | Game (Models.Game.Game problemType guessType)
     | NotFound
 
 
@@ -54,7 +54,7 @@ matchers =
         , s roomsPath
             </> string
             </> string
-            |> map (\roomId playerId -> Game roomId playerId Nothing)
+            |> map (\roomId playerId -> Game { roomId = roomId, playerId = playerId, room = Nothing })
         , s newRoomPath |> map (NewRoomRoute { roomId = "", playerIds = [ "", "" ] })
         ]
 

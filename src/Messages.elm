@@ -10,11 +10,15 @@ type NewRoomMsg
     | RemovePlayer Int
 
 
-type Msg problemType guessType
+type GameMsg problemType guessType
     = Guess guessType
-    | Disconnect
     | ReceiveUpdate String
     | ReceiveNewProblem problemType
+
+
+type Msg problemType guessType
+    = ReceiveGameRoomUpdate String
     | ChangeRoute (Router.Route problemType guessType)
+    | GameMsgContainer (GameMsg problemType guessType)
     | NewRoomMsgContainer NewRoomMsg
     | Navigate String
