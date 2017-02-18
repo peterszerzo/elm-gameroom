@@ -54,7 +54,7 @@ matchers =
         , s roomsPath
             </> string
             </> string
-            |> map (\roomId playerId -> Game { roomId = roomId, playerId = playerId, room = Nothing })
+            |> map (\roomId playerId -> Game { roomId = roomId, playerId = playerId, room = Nothing, roundTime = 0 })
         , s newRoomPath |> map (NewRoomRoute { roomId = "", playerIds = [ "", "" ] })
         ]
 

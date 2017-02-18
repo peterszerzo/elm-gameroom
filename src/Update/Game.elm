@@ -1,5 +1,6 @@
 module Update.Game exposing (..)
 
+import Dict
 import Messages exposing (..)
 import Models.Room as Room
 import Models.Game exposing (Game)
@@ -40,4 +41,19 @@ update spec msg model =
             }
 
         Guess guess ->
-            model
+            { model
+                | room =
+                    model.room
+                        |> Maybe.map
+                            (\rm ->
+                                { rm
+                                    | players =
+                                        Dict.update model.playerId
+                                            (Maybe.map (\player -> { player | guess = Just { value = guess, madeAt = model.roundTime } }))
+                                            rm.players
+                                }
+                            )
+            }
+
+        Tick time ->
+            { model | roundTime = model.roundTime + 1 }

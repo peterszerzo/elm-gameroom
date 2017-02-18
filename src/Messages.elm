@@ -12,6 +12,7 @@ type NewRoomMsg
 
 type GameMsg problemType guessType
     = Guess guessType
+    | Tick Float
     | ReceiveUpdate String
     | ReceiveNewProblem problemType
 

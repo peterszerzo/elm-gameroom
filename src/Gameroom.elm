@@ -1,5 +1,6 @@
 module Gameroom exposing (..)
 
+import Time
 import Navigation
 import Models.Spec exposing (Spec)
 import Models.Main exposing (Model)
@@ -30,6 +31,14 @@ program spec =
         , update = update spec
         , subscriptions =
             (\model ->
-                Ports.roomUpdated ReceiveGameRoomUpdate
+                Sub.batch
+                    [ Ports.roomUpdated ReceiveGameRoomUpdate
+                    , case model.route of
+                        Router.Game _ ->
+                            Time.every (50 * Time.millisecond) (\t -> GameMsgContainer (Messages.Tick t))
+
+                        _ ->
+                            Sub.none
+                    ]
             )
         }
