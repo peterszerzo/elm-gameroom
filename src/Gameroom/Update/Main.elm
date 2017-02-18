@@ -1,14 +1,14 @@
-module Update.Main exposing (..)
+module Gameroom.Update.Main exposing (..)
 
 import Random
 import Navigation
-import Messages exposing (..)
-import Models.Main exposing (Model)
-import Models.Spec exposing (Spec)
-import Ports
-import Router
-import Update.NewRoom
-import Update.Game
+import Gameroom.Messages exposing (..)
+import Gameroom.Models.Main exposing (Model)
+import Gameroom.Models.Spec exposing (Spec)
+import Gameroom.Ports as Ports
+import Gameroom.Router as Router
+import Gameroom.Modules.NewRoom.Update as NewRoomUpdate
+import Gameroom.Modules.Game.Update as GameUpdate
 
 
 cmdOnRouteChange : Router.Route problemType guessType -> Maybe (Router.Route problemType guessType) -> Cmd (Msg problemType guessType)
@@ -29,7 +29,7 @@ update spec msg model =
                 newRoute =
                     case model.route of
                         Router.Game game ->
-                            Router.Game (Update.Game.update spec (ReceiveUpdate roomString) game)
+                            Router.Game (GameUpdate.update spec (ReceiveUpdate roomString) game)
 
                         _ ->
                             model.route
@@ -46,7 +46,7 @@ update spec msg model =
                 | route =
                     case model.route of
                         Router.Game game ->
-                            Router.Game (Update.Game.update spec gameMsg game)
+                            Router.Game (GameUpdate.update spec gameMsg game)
 
                         _ ->
                             model.route
@@ -59,7 +59,7 @@ update spec msg model =
                 | route =
                     case model.route of
                         Router.NewRoomRoute newRoom ->
-                            Router.NewRoomRoute (Update.NewRoom.update newRoomMsg newRoom)
+                            Router.NewRoomRoute (NewRoomUpdate.update newRoomMsg newRoom)
 
                         _ ->
                             model.route

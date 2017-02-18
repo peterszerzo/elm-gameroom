@@ -1,10 +1,10 @@
-module Models.Spec exposing (..)
+module Gameroom.Models.Spec exposing (..)
 
 import Html
 import Random
 import Json.Decode as JD
 import Json.Encode as JE
-import Models.Room exposing (Room)
+import Gameroom.Models.Room exposing (Room)
 
 
 -- Client-defined game spec

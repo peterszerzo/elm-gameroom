@@ -1,7 +1,7 @@
-module Models.Player exposing (..)
+module Gameroom.Models.Player exposing (..)
 
-import Models.Guess as Guess
 import Json.Decode as JD
+import Gameroom.Models.Guess as Guess
 
 
 type alias Player guessType =

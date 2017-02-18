@@ -1,6 +1,6 @@
-module Messages exposing (..)
+module Gameroom.Messages exposing (..)
 
-import Router
+import Gameroom.Router as Router
 
 
 type NewRoomMsg

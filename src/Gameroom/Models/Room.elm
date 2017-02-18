@@ -1,8 +1,8 @@
-module Models.Room exposing (..)
+module Gameroom.Models.Room exposing (..)
 
 import Dict
-import Models.Player as Player
 import Json.Decode as JD
+import Gameroom.Models.Player as Player
 
 
 type RoundStatus

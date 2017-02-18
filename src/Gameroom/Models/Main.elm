@@ -1,6 +1,6 @@
-module Models.Main exposing (..)
+module Gameroom.Models.Main exposing (..)
 
-import Router
+import Gameroom.Router as Router
 
 
 type alias Model problemType guessType =

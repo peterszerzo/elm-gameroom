@@ -1,4 +1,3 @@
-require('./index.css');
 var Elm = require('./Main.elm');
 var db = require('./db');
 

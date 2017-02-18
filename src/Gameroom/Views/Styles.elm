@@ -1,4 +1,4 @@
-module Views.Styles exposing (..)
+module Gameroom.Views.Styles exposing (..)
 
 
 centered : List ( String, String )

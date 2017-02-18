@@ -1,18 +1,18 @@
-module Update.Game exposing (..)
+module Gameroom.Modules.Game.Update exposing (..)
 
 import Dict
-import Messages exposing (..)
-import Models.Room as Room
-import Models.Game exposing (Game)
-import Models.Spec exposing (Spec)
+import Gameroom.Messages exposing (GameMsg(..))
+import Gameroom.Models.Room as Room
+import Gameroom.Models.Spec exposing (Spec)
+import Gameroom.Modules.Game.Models exposing (Model)
 import Json.Decode as JD
 
 
 update :
     Spec problemType guessType
-    -> Messages.GameMsg problemType guessType
-    -> Game problemType guessType
-    -> Game problemType guessType
+    -> GameMsg problemType guessType
+    -> Model problemType guessType
+    -> Model problemType guessType
 update spec msg model =
     case msg of
         ReceiveUpdate roomString ->

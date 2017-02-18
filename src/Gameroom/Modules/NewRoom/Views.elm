@@ -1,14 +1,14 @@
-module Views.NewRoom exposing (..)
+module Gameroom.Modules.NewRoom.Views exposing (..)
 
 import Html exposing (Html, div, text, button, h1, label, input, fieldset)
 import Html.Attributes exposing (class, style, type_, value, id, for)
 import Html.Events exposing (onClick, onInput)
-import Models.NewRoom as NewRoom
-import Messages exposing (Msg(..), NewRoomMsg(..))
-import Views.Styles as Styles
+import Gameroom.Modules.NewRoom.Models exposing (Model)
+import Gameroom.Messages exposing (Msg(..), NewRoomMsg(..))
+import Gameroom.Views.Styles as Styles
 
 
-view : NewRoom.NewRoom -> Html NewRoomMsg
+view : Model -> Html NewRoomMsg
 view model =
     div [ style Styles.centered ]
         [ label [ for "roomid", style Styles.label ]

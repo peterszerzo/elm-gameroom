@@ -6,7 +6,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Json.Encode as JE
 import Json.Decode as JD
-import Models.Spec exposing (Spec)
+import Gameroom exposing (Spec)
 
 
 type alias ProblemType =

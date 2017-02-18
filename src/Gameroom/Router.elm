@@ -1,17 +1,17 @@
-module Router exposing (..)
+module Gameroom.Router exposing (..)
 
 import Navigation
 import UrlParser exposing (..)
-import Models.NewRoom
-import Models.Game
+import Gameroom.Modules.NewRoom.Models as NewRoom
+import Gameroom.Modules.Game.Models as Game
 
 
 type Route problemType guessType
     = Home
     | About
     | Tutorial
-    | NewRoomRoute Models.NewRoom.NewRoom
-    | Game (Models.Game.Game problemType guessType)
+    | NewRoomRoute NewRoom.Model
+    | Game (Game.Model problemType guessType)
     | NotFound
 
 

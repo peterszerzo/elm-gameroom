@@ -1,4 +1,4 @@
-module Models.Guess exposing (..)
+module Gameroom.Models.Guess exposing (..)
 
 import Json.Decode as JD
 

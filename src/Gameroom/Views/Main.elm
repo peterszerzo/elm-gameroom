@@ -1,14 +1,14 @@
-module Views.Main exposing (view)
+module Gameroom.Views.Main exposing (view)
 
 import Html exposing (Html, div, text, button, h1, label, input, fieldset)
 import Html.Attributes exposing (class, style, type_, value, id, for)
-import Models.Main exposing (Model)
-import Models.Spec exposing (Spec)
-import Messages exposing (Msg(..), NewRoomMsg(..), GameMsg(..))
-import Router
-import Views.Home as Home
-import Views.NewRoom
-import Views.Game
+import Gameroom.Models.Main exposing (Model)
+import Gameroom.Models.Spec exposing (Spec)
+import Gameroom.Messages exposing (Msg(..), NewRoomMsg(..), GameMsg(..))
+import Gameroom.Router as Router
+import Gameroom.Views.Home as HomeView
+import Gameroom.Modules.NewRoom.Views as NewRoomView
+import Gameroom.Modules.Game.Views as GameView
 
 
 view : Spec problemType guessType -> Model problemType guessType -> Html (Msg problemType guessType)
@@ -17,14 +17,14 @@ view spec model =
         content =
             case model.route of
                 Router.Game game ->
-                    Views.Game.view spec game
+                    GameView.view spec game
                         |> Html.map GameMsgContainer
 
                 Router.Home ->
-                    Home.view
+                    HomeView.view
 
                 Router.NewRoomRoute newRoomModel ->
-                    Views.NewRoom.view newRoomModel
+                    NewRoomView.view newRoomModel
                         |> Html.map NewRoomMsgContainer
 
                 _ ->
