@@ -4,6 +4,7 @@ import Dict
 import Json.Decode as JD
 import Json.Encode as JE
 import Gameroom.Models.Guess as Guess
+import Gameroom.Constants exposing (nullString)
 
 
 type alias Player guessType =
@@ -41,7 +42,7 @@ encoder guessEncoder player =
         , ( "guess"
           , case player.guess of
                 Nothing ->
-                    JE.string "null"
+                    JE.string nullString
 
                 Just guess ->
                     JE.object [ ( "value", guessEncoder guess.value ), ( "madeAt", JE.float guess.madeAt ) ]
@@ -72,11 +73,13 @@ decoder guessDecoder =
                 [ JD.string
                     |> JD.andThen
                         (\s ->
-                            if s == "null" then
+                            if s == nullString then
                                 JD.succeed Nothing
                             else
                                 JD.fail "Guess not recognized"
                         )
+                , Guess.withTimestampDecoder guessDecoder
+                    |> JD.andThen (\g -> JD.succeed (Just g))
                 ]
             )
         )

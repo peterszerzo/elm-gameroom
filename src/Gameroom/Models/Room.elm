@@ -4,6 +4,7 @@ import Dict
 import Json.Decode as JD
 import Json.Encode as JE
 import Gameroom.Models.Player as Player
+import Gameroom.Constants exposing (nullString)
 
 
 -- Type definitions
@@ -51,7 +52,7 @@ create roomId playerIds =
 -- Encoders
 
 
-encoder : (Maybe problemType -> JE.Value) -> (guessType -> JE.Value) -> (Room problemType guessType -> JE.Value)
+encoder : (problemType -> JE.Value) -> (guessType -> JE.Value) -> (Room problemType guessType -> JE.Value)
 encoder problemEncoder guessEncoder room =
     JE.object
         [ ( "id", JE.string room.id )
@@ -61,7 +62,7 @@ encoder problemEncoder guessEncoder room =
         ]
 
 
-roundEncoder : (Maybe problemType -> JE.Value) -> (Round problemType -> JE.Value)
+roundEncoder : (problemType -> JE.Value) -> (Round problemType -> JE.Value)
 roundEncoder problemEncoder round =
     JE.object
         [ ( "no", JE.int round.no )
@@ -78,7 +79,14 @@ roundEncoder problemEncoder round =
             )
                 |> JE.string
           )
-        , ( "problem", problemEncoder round.problem )
+        , ( "problem"
+          , case round.problem of
+                Nothing ->
+                    JE.string nullString
+
+                Just problem ->
+                    problemEncoder problem
+          )
         ]
 
 
@@ -86,7 +94,7 @@ roundEncoder problemEncoder round =
 -- Decoders
 
 
-decoder : JD.Decoder (Maybe problemType) -> JD.Decoder guessType -> JD.Decoder (Room problemType guessType)
+decoder : JD.Decoder problemType -> JD.Decoder guessType -> JD.Decoder (Room problemType guessType)
 decoder problemDecoder guessDecoder =
     JD.map4 Room
         (JD.field "id" JD.string)
@@ -95,7 +103,7 @@ decoder problemDecoder guessDecoder =
         (JD.field "players" (JD.dict (Player.decoder guessDecoder)))
 
 
-roundDecoder : JD.Decoder (Maybe problemType) -> JD.Decoder (Round problemType)
+roundDecoder : JD.Decoder problemType -> JD.Decoder (Round problemType)
 roundDecoder problemDecoder =
     JD.map3 Round
         (JD.field "no" JD.int)
@@ -116,4 +124,18 @@ roundDecoder problemDecoder =
                     )
             )
         )
-        (JD.field "problem" problemDecoder)
+        (JD.field "problem" <|
+            JD.oneOf
+                [ JD.string
+                    |> JD.andThen
+                        (\s ->
+                            if s == nullString then
+                                JD.succeed Nothing
+                            else
+                                JD.fail "Not recognized."
+                        )
+                , problemDecoder
+                    |> JD.andThen
+                        (\pb -> JD.succeed (Just pb))
+                ]
+        )

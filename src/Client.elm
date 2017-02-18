@@ -52,26 +52,17 @@ gameSpec =
                 ]
         )
     , isGuessCorrect = (\problem guess -> (guess == 0))
-    , guessEncoder = (JE.int)
-    , guessDecoder = (JD.int)
+    , guessEncoder = JE.int
+    , guessDecoder = JD.int
     , problemGenerator =
         Random.int 0 (List.length words - 1)
             |> Random.map
                 (\i ->
-                    words |> List.drop i |> List.head |> Maybe.withDefault "perrywinkle"
+                    words
+                        |> List.drop i
+                        |> List.head
+                        |> Maybe.withDefault "perrywinkle"
                 )
-    , problemEncoder =
-        (\problem ->
-            problem |> Maybe.map JE.string |> Maybe.withDefault (JE.string "null")
-        )
-    , problemDecoder =
-        (JD.string
-            |> JD.andThen
-                (\s ->
-                    if s == "null" then
-                        JD.succeed Nothing
-                    else
-                        JD.succeed (Just s)
-                )
-        )
+    , problemEncoder = JE.string
+    , problemDecoder = JD.string
     }
