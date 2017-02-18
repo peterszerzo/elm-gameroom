@@ -20,6 +20,7 @@ update spec msg model =
                 | room =
                     roomString
                         |> JD.decodeString (Room.decoder spec.problemDecoder spec.guessDecoder)
+                        |> Debug.log "a"
                         |> Result.toMaybe
             }
 

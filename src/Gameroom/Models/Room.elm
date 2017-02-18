@@ -2,7 +2,11 @@ module Gameroom.Models.Room exposing (..)
 
 import Dict
 import Json.Decode as JD
+import Json.Encode as JE
 import Gameroom.Models.Player as Player
+
+
+-- Type definitions
 
 
 type RoundStatus
@@ -28,6 +32,58 @@ type alias Room problemType guessType =
         }
     , players : Dict.Dict String (Player.Player guessType)
     }
+
+
+
+-- Helpers
+
+
+create : String -> List String -> Room problemType guessType
+create roomId playerIds =
+    { id = roomId
+    , host = playerIds |> List.head |> Maybe.withDefault ""
+    , round = { no = 0, status = Prep, problem = Nothing }
+    , players = Dict.fromList (List.map (\playerId -> ( playerId, Player.create playerId )) playerIds)
+    }
+
+
+
+-- Encoders
+
+
+encoder : (Maybe problemType -> JE.Value) -> (guessType -> JE.Value) -> (Room problemType guessType -> JE.Value)
+encoder problemEncoder guessEncoder room =
+    JE.object
+        [ ( "id", JE.string room.id )
+        , ( "host", JE.string room.host )
+        , ( "players", Player.collectionEncoder guessEncoder room.players )
+        , ( "round", roundEncoder problemEncoder room.round )
+        ]
+
+
+roundEncoder : (Maybe problemType -> JE.Value) -> (Round problemType -> JE.Value)
+roundEncoder problemEncoder round =
+    JE.object
+        [ ( "no", JE.int round.no )
+        , ( "status"
+          , (case round.status of
+                Prep ->
+                    "prep"
+
+                Active ->
+                    "active"
+
+                Cooldown ->
+                    "cooldown"
+            )
+                |> JE.string
+          )
+        , ( "problem", problemEncoder round.problem )
+        ]
+
+
+
+-- Decoders
 
 
 decoder : JD.Decoder (Maybe problemType) -> JD.Decoder guessType -> JD.Decoder (Room problemType guessType)

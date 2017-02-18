@@ -9,6 +9,9 @@ function talkToGame(ports) {
       ports.roomUpdated.send(JSON.stringify(room));
     });
   });
+  ports.createRoom.subscribe(function(room) {
+    db.updateRoom(JSON.parse(room));
+  });
 }
 
 talkToGame(app.ports);

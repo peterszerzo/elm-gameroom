@@ -26,4 +26,6 @@ input : List ( String, String )
 input =
     [ ( "display", "block" )
     , ( "width", "100%" )
+    , ( "padding", "5px 10px" )
+    , ( "outline", "0" )
     ]

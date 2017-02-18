@@ -7,6 +7,7 @@ type NewRoomMsg
     = ChangeRoomId String
     | ChangePlayerId Int String
     | AddPlayer
+    | Submit
     | RemovePlayer Int
 
 
