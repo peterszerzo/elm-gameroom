@@ -17,7 +17,7 @@ cmdOnRouteChange : Router.Route problemType guessType -> Maybe (Router.Route pro
 cmdOnRouteChange route maybePreviousRoute =
     case route of
         Router.Game game ->
-            Ports.connectToRoom game.roomId
+            Ports.subscribeToRoom game.roomId
 
         _ ->
             Cmd.none

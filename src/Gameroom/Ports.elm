@@ -1,10 +1,10 @@
 port module Gameroom.Ports exposing (..)
 
 
-port disconnectFromRoom : String -> Cmd msg
+port unsubscribeFromRoom : String -> Cmd msg
 
 
-port connectToRoom : String -> Cmd msg
+port subscribeToRoom : String -> Cmd msg
 
 
 port updateRoom : String -> Cmd msg

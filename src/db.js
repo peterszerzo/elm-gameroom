@@ -13,13 +13,16 @@ var firebaseApp = firebase.initializeApp(config)
 var database = firebaseApp.database()
 
 module.exports = {
-  updateRoom: function (room) {
-    return database.ref('/rooms/' + room.id).update(room)
-  },
   getRoom: function (roomId) {
     return database.ref('/rooms/' + roomId).once('value').then(function (snapshot) {
       return snapshot.val()
     })
+  },
+  setRoom: function (room, next) {
+    return database.ref('/rooms/' + room.id).update(room)
+  },
+  setGuess: function (roomId, playerId, guess) {
+    return database.ref('/rooms/' + roomId + '/players/' + playerId + '/guess', guess)
   },
   subscribeToRoom: function (roomId, next) {
     return database.ref('/rooms/' + roomId).on('value', function (snapshot) {
