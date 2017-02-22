@@ -1,10 +1,10 @@
 module Gameroom.Modules.NewRoom.Update exposing (..)
 
-import Gameroom.Messages exposing (..)
 import Gameroom.Modules.NewRoom.Models as NewRoom
+import Gameroom.Modules.NewRoom.Messages exposing (Msg(..))
 
 
-update : NewRoomMsg -> NewRoom.Model -> ( NewRoom.Model, Bool )
+update : Msg -> NewRoom.Model -> ( NewRoom.Model, Bool )
 update msg model =
     case msg of
         ChangeRoomId newRoomId ->
@@ -31,5 +31,8 @@ update msg model =
         RemovePlayer index ->
             ( { model | playerIds = (List.take index model.playerIds) ++ (List.drop (index + 1) model.playerIds) }, False )
 
-        Submit ->
+        CreateRequest ->
             ( { model | status = NewRoom.Pending }, True )
+
+        CreateResponse response ->
+            ( { model | status = NewRoom.Success }, False )

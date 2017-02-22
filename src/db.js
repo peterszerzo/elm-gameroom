@@ -19,7 +19,9 @@ module.exports = {
     })
   },
   setRoom: function (room, next) {
-    return database.ref('/rooms/' + room.id).update(room)
+    return database.ref('/rooms/' + room.id).set(room).then(function (room) {
+      next()
+    })
   },
   setGuess: function (roomId, playerId, guess) {
     return database.ref('/rooms/' + roomId + '/players/' + playerId + '/guess', guess)

@@ -6,7 +6,7 @@ import Html.Attributes exposing (class, style)
 import Gameroom.Modules.Game.Models exposing (Model)
 import Gameroom.Models.Spec exposing (Spec)
 import Gameroom.Models.Room exposing (Room)
-import Gameroom.Messages exposing (..)
+import Gameroom.Modules.Game.Messages exposing (Msg(..))
 
 
 scoreboard : String -> Room problemType guessType -> Html msg
@@ -33,7 +33,7 @@ scoreboard playerId room =
         ]
 
 
-view : Spec problemType guessType -> Model problemType guessType -> Html (GameMsg problemType guessType)
+view : Spec problemType guessType -> Model problemType guessType -> Html (Msg problemType guessType)
 view spec game =
     case game.room of
         Just room ->

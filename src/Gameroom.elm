@@ -21,6 +21,8 @@ import Gameroom.Update.Main exposing (update, cmdOnRouteChange)
 import Gameroom.Ports as Ports
 import Gameroom.Router as Router
 import Gameroom.Views.Main exposing (view)
+import Gameroom.Modules.Game.Messages as GameMessages
+import Gameroom.Modules.NewRoom.Messages as NewRoomMessages
 
 
 {-| Define every moving part of a multiplayer game:
@@ -81,7 +83,10 @@ program spec =
                     [ Ports.roomUpdated Messages.ReceiveGameRoomUpdate
                     , case model.route of
                         Router.Game _ ->
-                            Time.every (50 * Time.millisecond) (\t -> Messages.GameMsgContainer (Messages.Tick t))
+                            Time.every (50 * Time.millisecond) (\t -> Messages.GameMsgContainer (GameMessages.Tick t))
+
+                        Router.NewRoomRoute _ ->
+                            Ports.roomCreated (\msg -> Messages.NewRoomMsgContainer (NewRoomMessages.CreateResponse msg))
 
                         _ ->
                             Sub.none

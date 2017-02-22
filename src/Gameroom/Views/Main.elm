@@ -4,7 +4,7 @@ import Html exposing (Html, div, text, button, h1, label, input, fieldset)
 import Html.Attributes exposing (class, style, type_, value, id, for)
 import Gameroom.Models.Main exposing (Model)
 import Gameroom.Models.Spec exposing (Spec)
-import Gameroom.Messages exposing (Msg(..), NewRoomMsg(..), GameMsg(..))
+import Gameroom.Messages exposing (Msg(..))
 import Gameroom.Router as Router
 import Gameroom.Views.Home as HomeView
 import Gameroom.Modules.NewRoom.Views as NewRoomView

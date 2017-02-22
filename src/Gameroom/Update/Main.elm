@@ -10,6 +10,7 @@ import Gameroom.Ports as Ports
 import Gameroom.Router as Router
 import Gameroom.Modules.NewRoom.Update as NewRoomUpdate
 import Gameroom.Modules.Game.Update as GameUpdate
+import Gameroom.Modules.Game.Messages as GameMessages
 import Json.Encode as JE
 
 
@@ -31,12 +32,12 @@ update spec msg model =
                 newRoute =
                     case model.route of
                         Router.Game game ->
-                            Router.Game (GameUpdate.update spec (ReceiveUpdate roomString) game)
+                            Router.Game (GameUpdate.update spec (GameMessages.ReceiveUpdate roomString) game)
 
                         _ ->
                             model.route
             in
-                ( { model | route = newRoute }, Random.generate (\pb -> GameMsgContainer (ReceiveNewProblem pb)) spec.problemGenerator )
+                ( { model | route = newRoute }, Random.generate (\pb -> GameMsgContainer (GameMessages.ReceiveNewProblem pb)) spec.problemGenerator )
 
         ChangeRoute route ->
             ( { model | route = route }

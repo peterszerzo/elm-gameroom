@@ -1,15 +1,15 @@
 module Gameroom.Modules.NewRoom.Views exposing (..)
 
-import Html exposing (Html, div, text, button, h1, label, input, fieldset, span)
-import Html.Attributes exposing (class, style, type_, value, id, for)
+import Html exposing (Html, div, text, button, h1, label, input, fieldset, span, ul, li, a)
+import Html.Attributes exposing (class, style, type_, value, id, for, href)
 import Html.Events exposing (onClick, onInput)
-import Gameroom.Modules.NewRoom.Models exposing (Model)
-import Gameroom.Messages exposing (Msg(..), NewRoomMsg(..))
+import Gameroom.Modules.NewRoom.Models exposing (Model, Status(..))
+import Gameroom.Modules.NewRoom.Messages exposing (Msg(..))
 import Gameroom.Views.Styles as Styles
 
 
-view : Model -> Html NewRoomMsg
-view model =
+viewForm : Model -> Html Msg
+viewForm model =
     let
         canSubmit =
             (String.length model.roomId > 0)
@@ -37,8 +37,36 @@ view model =
                 )
             , button [ onClick AddPlayer ] [ text "Add player" ]
             , (if canSubmit then
-                input [ type_ "submit", onClick Submit ] []
+                input [ type_ "submit", onClick CreateRequest ] []
                else
                 div [] []
               )
             ]
+
+
+viewSuccess : Model -> Html Msg
+viewSuccess model =
+    div []
+        [ ul []
+            (model.playerIds
+                |> List.map
+                    (\id ->
+                        li []
+                            [ a [ href ("/rooms/" ++ model.roomId ++ "/" ++ id) ] [ text id ]
+                            ]
+                    )
+            )
+        ]
+
+
+view : Model -> Html Msg
+view model =
+    case model.status of
+        Editing ->
+            viewForm model
+
+        Success ->
+            viewSuccess model
+
+        _ ->
+            div [] [ text "View not available." ]
