@@ -48,6 +48,25 @@ create roomId playerIds =
     }
 
 
+allPlayersReady : Room problemType guessType -> Bool
+allPlayersReady room =
+    room.players
+        |> Dict.toList
+        |> List.map Tuple.second
+        |> List.map .isReady
+        |> List.all identity
+
+
+updatePlayer : (Player.Player guessType -> Player.Player guessType) -> String -> Room problemType guessType -> Room problemType guessType
+updatePlayer transform playerId room =
+    case (Dict.get playerId room.players) of
+        Just player ->
+            { room | players = Dict.insert playerId (transform player) room.players }
+
+        Nothing ->
+            room
+
+
 
 -- Encoders
 

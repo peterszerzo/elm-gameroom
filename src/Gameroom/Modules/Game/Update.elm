@@ -12,6 +12,11 @@ import Gameroom.Modules.Game.Models exposing (Model)
 import Json.Decode as JD
 
 
+saveCmd : Spec problemType guessType -> Model problemType guessType -> Cmd (Messages.Msg problemType guessType)
+saveCmd spec model =
+    model.room |> Maybe.map (Ports.updateRoom << JE.encode 0 << Room.encoder spec.problemEncoder spec.guessEncoder) |> Maybe.withDefault Cmd.none
+
+
 update :
     Spec problemType guessType
     -> Msg problemType guessType
@@ -60,13 +65,13 @@ update spec msg model =
                                     { rm | round = newRound }
                             )
 
+                newModel =
+                    { model | room = newRoom }
+
                 cmd =
-                    newRoom |> Maybe.map (Ports.updateRoom << JE.encode 0 << Room.encoder spec.problemEncoder spec.guessEncoder) |> Maybe.withDefault Cmd.none
+                    saveCmd spec newModel
             in
-                ( { model
-                    | room =
-                        newRoom
-                  }
+                ( newModel
                 , cmd
                 )
 
@@ -86,6 +91,23 @@ update spec msg model =
               }
             , Cmd.none
             )
+
+        MarkReady ->
+            let
+                newRoom =
+                    model.room
+                        |> Maybe.map
+                            (Room.updatePlayer (\pl -> { pl | isReady = True }) model.playerId)
+
+                newModel =
+                    { model | room = newRoom }
+
+                cmd =
+                    saveCmd spec newModel
+            in
+                ( newModel
+                , cmd
+                )
 
         Tick time ->
             ( { model | roundTime = model.roundTime + 1 }, Cmd.none )

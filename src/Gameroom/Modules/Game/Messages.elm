@@ -5,4 +5,5 @@ type Msg problemType guessType
     = Guess guessType
     | Tick Float
     | ReceiveUpdate String
+    | MarkReady
     | ReceiveNewProblem problemType
