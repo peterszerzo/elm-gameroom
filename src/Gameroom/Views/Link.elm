@@ -8,7 +8,7 @@ import Gameroom.Messages exposing (Msg(..))
 styles : List ( String, String )
 styles =
     [ ( "color", "#FFF" )
-    , ( "background", "#000" )
+    , ( "background", "#444" )
     , ( "margin", "10px" )
     , ( "padding", "6px 12px" )
     , ( "text-decoration", "none" )

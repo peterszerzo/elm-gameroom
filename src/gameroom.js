@@ -9,4 +9,7 @@ module.exports = function (db, ports) {
       ports.roomCreated.send('')
     })
   })
+  ports.updateRoom.subscribe(function (room) {
+    db.setRoom(JSON.parse(room))
+  })
 }

@@ -6,8 +6,7 @@ import Gameroom.Modules.NewRoom.Messages as NewRoomMessages
 
 
 type Msg problemType guessType
-    = ReceiveGameRoomUpdate String
-    | ChangeRoute (Router.Route problemType guessType)
+    = ChangeRoute (Router.Route problemType guessType)
     | GameMsgContainer (GameMessages.Msg problemType guessType)
     | NewRoomMsgContainer NewRoomMessages.Msg
     | Navigate String

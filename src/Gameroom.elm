@@ -17,7 +17,7 @@ import Navigation
 import Gameroom.Models.Spec
 import Gameroom.Models.Main
 import Gameroom.Messages as Messages
-import Gameroom.Update.Main exposing (update, cmdOnRouteChange)
+import Gameroom.Update exposing (update, cmdOnRouteChange)
 import Gameroom.Ports as Ports
 import Gameroom.Router as Router
 import Gameroom.Views.Main exposing (view)
@@ -80,10 +80,10 @@ program spec =
         , subscriptions =
             (\model ->
                 Sub.batch
-                    [ Ports.roomUpdated Messages.ReceiveGameRoomUpdate
+                    [ Ports.roomUpdated (\val -> Messages.GameMsgContainer (GameMessages.ReceiveUpdate val))
                     , case model.route of
                         Router.Game _ ->
-                            Time.every (50 * Time.millisecond) (\t -> Messages.GameMsgContainer (GameMessages.Tick t))
+                            Time.every (20000 * Time.millisecond) (\time -> Messages.GameMsgContainer (GameMessages.Tick time))
 
                         Router.NewRoomRoute _ ->
                             Ports.roomCreated (\msg -> Messages.NewRoomMsgContainer (NewRoomMessages.CreateResponse msg))

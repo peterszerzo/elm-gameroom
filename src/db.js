@@ -22,7 +22,7 @@ module.exports = {
   },
   setRoom: function (room, next) {
     return database.ref('/rooms/' + room.id).set(room).then(function (room) {
-      next()
+      next && next()
     })
   },
   setGuess: function (roomId, playerId, guess) {

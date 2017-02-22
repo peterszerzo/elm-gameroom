@@ -1,6 +1,5 @@
-module Gameroom.Update.Main exposing (..)
+module Gameroom.Update exposing (..)
 
-import Random
 import Navigation
 import Gameroom.Messages exposing (..)
 import Gameroom.Models.Room as Room
@@ -10,7 +9,6 @@ import Gameroom.Ports as Ports
 import Gameroom.Router as Router
 import Gameroom.Modules.NewRoom.Update as NewRoomUpdate
 import Gameroom.Modules.Game.Update as GameUpdate
-import Gameroom.Modules.Game.Messages as GameMessages
 import Json.Encode as JE
 
 
@@ -40,35 +38,24 @@ cmdOnRouteChange route prevRoute =
 update : Spec problemType guessType -> Msg problemType guessType -> Model problemType guessType -> ( Model problemType guessType, Cmd (Msg problemType guessType) )
 update spec msg model =
     case msg of
-        ReceiveGameRoomUpdate roomString ->
-            let
-                newRoute =
-                    case model.route of
-                        Router.Game game ->
-                            Router.Game (GameUpdate.update spec (GameMessages.ReceiveUpdate roomString) game)
-
-                        _ ->
-                            model.route
-            in
-                ( { model | route = newRoute }, Random.generate (\pb -> GameMsgContainer (GameMessages.ReceiveNewProblem pb)) spec.problemGenerator )
-
         ChangeRoute route ->
             ( { model | route = route }
             , cmdOnRouteChange route (Just model.route)
             )
 
         GameMsgContainer gameMsg ->
-            ( { model
-                | route =
-                    case model.route of
-                        Router.Game game ->
-                            Router.Game (GameUpdate.update spec gameMsg game)
+            case model.route of
+                Router.Game game ->
+                    let
+                        ( newGame, cmd ) =
+                            GameUpdate.update spec gameMsg game
+                    in
+                        ( { model | route = Router.Game newGame }
+                        , cmd
+                        )
 
-                        _ ->
-                            model.route
-              }
-            , Cmd.none
-            )
+                _ ->
+                    ( model, Cmd.none )
 
         NewRoomMsgContainer newRoomMsg ->
             case model.route of
