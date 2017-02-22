@@ -7,6 +7,7 @@ import Gameroom.Models.Spec exposing (Spec)
 import Gameroom.Messages exposing (Msg(..))
 import Gameroom.Router as Router
 import Gameroom.Views.Home as HomeView
+import Gameroom.Views.Header as Header
 import Gameroom.Modules.NewRoom.Views as NewRoomView
 import Gameroom.Modules.Game.Views as GameView
 
@@ -31,5 +32,6 @@ view spec model =
                     div [] []
     in
         div [ class "container" ]
-            [ content
+            [ Header.view
+            , content
             ]

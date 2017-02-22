@@ -14,14 +14,27 @@ import Gameroom.Modules.Game.Messages as GameMessages
 import Json.Encode as JE
 
 
-cmdOnRouteChange : Router.Route problemType guessType -> Maybe (Router.Route problemType guessType) -> Cmd (Msg problemType guessType)
-cmdOnRouteChange route maybePreviousRoute =
+cmdOnRouteChange :
+    Router.Route problemType guessType
+    -> Maybe (Router.Route problemType guessType)
+    -> Cmd (Msg problemType guessType)
+cmdOnRouteChange route prevRoute =
     case route of
         Router.Game game ->
             Ports.subscribeToRoom game.roomId
 
         _ ->
-            Cmd.none
+            prevRoute
+                |> Maybe.andThen
+                    (\rt ->
+                        case rt of
+                            Router.Game game ->
+                                Ports.unsubscribeFromRoom game.roomId |> Just
+
+                            _ ->
+                                Nothing
+                    )
+                |> Maybe.withDefault Cmd.none
 
 
 update : Spec problemType guessType -> Msg problemType guessType -> Model problemType guessType -> ( Model problemType guessType, Cmd (Msg problemType guessType) )

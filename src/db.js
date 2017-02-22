@@ -12,6 +12,8 @@ var firebaseApp = firebase.initializeApp(config)
 
 var database = firebaseApp.database()
 
+global.database = database
+
 module.exports = {
   getRoom: function (roomId) {
     return database.ref('/rooms/' + roomId).once('value').then(function (snapshot) {

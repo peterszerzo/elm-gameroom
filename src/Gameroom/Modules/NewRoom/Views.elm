@@ -28,10 +28,15 @@ viewForm model =
                                 "playerid-" ++ (toString index)
                         in
                             label [ for fieldId, style Styles.label ]
-                                [ text ("Player " ++ (toString (index + 1)))
-                                , input [ id fieldId, style Styles.input, type_ "text", onInput (ChangePlayerId index), value (List.drop index model.playerIds |> List.head |> Maybe.withDefault "") ] []
-                                , span [ onClick (RemovePlayer index) ] [ text "Remove" ]
-                                ]
+                                ([ text ("Player " ++ (toString (index + 1)))
+                                 , input [ id fieldId, style Styles.input, type_ "text", onInput (ChangePlayerId index), value (List.drop index model.playerIds |> List.head |> Maybe.withDefault "") ] []
+                                 ]
+                                    ++ (if List.length model.playerIds > 2 then
+                                            [ span [ onClick (RemovePlayer index) ] [ text "Remove" ] ]
+                                        else
+                                            []
+                                       )
+                                )
                     )
                     model.playerIds
                 )

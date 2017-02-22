@@ -7,6 +7,7 @@ import Gameroom.Modules.Game.Models exposing (Model)
 import Gameroom.Models.Spec exposing (Spec)
 import Gameroom.Models.Room exposing (Room)
 import Gameroom.Modules.Game.Messages exposing (Msg(..))
+import Gameroom.Views.Styles as Styles
 
 
 scoreboard : String -> Room problemType guessType -> Html msg
@@ -43,5 +44,5 @@ view spec game =
                 ]
 
         Nothing ->
-            div []
+            div [ style Styles.centered ]
                 [ text "Loading" ]
