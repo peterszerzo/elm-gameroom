@@ -1,16 +1,16 @@
 Elm-Europe 2017 talk draft
 
-# Multiplayer guessing game in 200 lines
+# elm-gameroom: make a game in 200 lines
 
-## One winter evening in Canada..
+## Two years ago on a winter evening in Canada..
 
-After a long day volunteering on a farm, I play an annoying word game.
+I was playing an annoying word game, thinking about how this should totally be made for the computer.
 
-Two years later, I reproduced it in Elm.
+I got around to in two years later. In Elm.
 
 https://lettero.co
 
-### My favorite thing about Lettero: no server-side code
+## My favorite thing about Lettero: no server-side code
 
 Just a generic realtime database, like Firebase or Horizon.
 
@@ -20,23 +20,23 @@ Convenient use-case: all players need to be online at all times. If any disconne
 
 So just designate one of the clients as game host - reconcile and control game from that specific client.
 
-### Can we abstract this?
+## Can we abstract this?
 
-## elm-gameroom
+### What do we need to describe a game?
 
-### What do we need to describe a game like this?
-
-* some data structure describing the current game problem `"hedgehog"`
-* some data structure describing any player's guess `1`
-* a view describing how the screen looks like based on the current problem and the players' guesses (nice-to-have: also react to user input and report back if a guess is made)
-* a way to decide if the guess was correct (`1 !== 0`. Too bad..)
-* a way to generate random game problems
+* the problem: `"hedgehog"`
+* the guess: `1`
+* a view as a function of the problem, emitting guesses
+* when is a guess correct:
+  `Cool: guess == 0`
+  `Better luck next time: guess == 0`
+* a collection of possible game problems. Or better yet, a generator.
 
 ### How does this look like in Elm, for Lettero?
 
-* `type alias ProblemType = ...`
-* `type alias GuessType = ...`
-* `view : List GuessType -> ProblemType -> Html GuessType`
+* `type alias ProblemType = String`
+* `type alias GuessType = Int`
+* `view : ProblemType -> Html GuessType`
 * `isGuessCorrect : ProblemType -> GuessType -> Bool`
 * `problemGenerator : Random.Generator ProblemType`
 
