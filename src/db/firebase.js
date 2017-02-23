@@ -18,10 +18,8 @@ module.exports = {
       return snapshot.val()
     })
   },
-  setRoom: function (room, next) {
-    return database.ref('/rooms/' + room.id).set(room).then(function (room) {
-      next && next()
-    }).catch(console.log.bind(console))
+  setRoom: function (room) {
+    return database.ref('/rooms/' + room.id).set(room)
   },
   subscribeToRoom: function (roomId, next) {
     return database.ref('/rooms/' + roomId).on('value', function (snapshot) {

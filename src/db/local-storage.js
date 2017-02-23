@@ -8,7 +8,7 @@ module.exports = {
   },
   setRoom: function (room) {
     localStorage.setItem('/rooms/' + room.id, JSON.stringify(room))
-    return Promise.resolve()
+    return Promise.resolve(room)
   },
   subscribeToRoom: function (roomId, onValue) {
     var previousValue

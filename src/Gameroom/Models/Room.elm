@@ -59,6 +59,34 @@ updatePlayer transform playerId room =
             room
 
 
+setNewRound : Maybe String -> Room problemType guessType -> Room problemType guessType
+setNewRound maybeWinnerId room =
+    { room
+        | round = { no = room.round.no + 1, problem = Nothing }
+        , players =
+            case maybeWinnerId of
+                Just winnerId ->
+                    room.players
+                        |> Dict.toList
+                        |> List.map
+                            (\( playerId, player ) ->
+                                if playerId == winnerId then
+                                    ( playerId
+                                    , { player
+                                        | guess = Nothing
+                                        , score = player.score + 1
+                                      }
+                                    )
+                                else
+                                    ( playerId, { player | guess = Nothing } )
+                            )
+                        |> Dict.fromList
+
+                Nothing ->
+                    room.players
+    }
+
+
 
 -- Encoders
 

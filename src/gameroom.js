@@ -5,7 +5,7 @@ module.exports = function (db, ports) {
     })
   })
   ports.createRoom.subscribe(function (room) {
-    db.setRoom(JSON.parse(room), function () {
+    db.setRoom(JSON.parse(room)).then(function () {
       ports.roomCreated.send('')
     })
   })

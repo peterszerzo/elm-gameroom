@@ -6,6 +6,7 @@ import Gameroom.Ports as Ports
 import Gameroom.Messages as Messages
 import Gameroom.Models.Room as Room
 import Gameroom.Models.Spec exposing (Spec)
+import Gameroom.Models.Result as Result
 import Gameroom.Modules.Game.Messages exposing (Msg(..))
 import Gameroom.Modules.Game.Models exposing (Model)
 import Json.Decode as JD
@@ -25,21 +26,42 @@ update spec msg model =
     case msg of
         ReceiveUpdate roomString ->
             let
-                newRoom =
+                newRoom_ =
                     roomString
                         |> JD.decodeString (Room.decoder spec.problemDecoder spec.guessDecoder)
                         |> Result.toMaybe
 
-                cmd =
-                    newRoom
-                        |> Maybe.map
+                result =
+                    newRoom_ |> Maybe.map (Result.get spec)
+
+                newProblemCmd =
+                    Maybe.withDefault Cmd.none
+                        << Maybe.map
                             (\room ->
                                 if room.host == model.playerId then
                                     (Random.generate (\pb -> Messages.GameMsgContainer (ReceiveNewProblem pb)) spec.problemGenerator)
                                 else
                                     Cmd.none
                             )
-                        |> Maybe.withDefault Cmd.none
+
+                ( newRoom, cmd ) =
+                    case result of
+                        Just (Result.Pending) ->
+                            ( newRoom_
+                            , if (newRoom_ |> Maybe.andThen (.problem << .round)) == Nothing then
+                                newProblemCmd newRoom_
+                              else
+                                Cmd.none
+                            )
+
+                        Just (Result.Winner winnerId) ->
+                            ( newRoom_ |> Maybe.map (Room.setNewRound (Just winnerId)), newProblemCmd newRoom_ )
+
+                        Just (Result.Tie) ->
+                            ( newRoom_ |> Maybe.map (Room.setNewRound Nothing), Cmd.none )
+
+                        _ ->
+                            ( newRoom_, Cmd.none )
             in
                 ( { model
                     | room =
