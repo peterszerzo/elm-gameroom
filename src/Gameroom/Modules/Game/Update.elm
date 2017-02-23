@@ -1,6 +1,5 @@
 module Gameroom.Modules.Game.Update exposing (..)
 
-import Dict
 import Random
 import Json.Encode as JE
 import Gameroom.Ports as Ports
@@ -76,21 +75,21 @@ update spec msg model =
                 )
 
         Guess guess ->
-            ( { model
-                | room =
-                    model.room
-                        |> Maybe.map
-                            (\rm ->
-                                { rm
-                                    | players =
-                                        Dict.update model.playerId
-                                            (Maybe.map (\player -> { player | guess = Just { value = guess, madeAt = model.roundTime } }))
-                                            rm.players
-                                }
-                            )
-              }
-            , Cmd.none
-            )
+            let
+                newModel =
+                    { model
+                        | room =
+                            model.room
+                                |> Maybe.map
+                                    (Room.updatePlayer (\pl -> { pl | guess = Just { value = guess, madeAt = model.roundTime } }) model.playerId)
+                    }
+
+                cmd =
+                    saveCmd spec newModel
+            in
+                ( newModel
+                , cmd
+                )
 
         MarkReady ->
             let

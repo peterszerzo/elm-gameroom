@@ -26,7 +26,7 @@ So just designate one of the clients as game host - reconcile and control game f
 
 ### What do we need to describe a game like this?
 
-* some data structure describing the current game problem `"insurance"`
+* some data structure describing the current game problem `"hedgehog"`
 * some data structure describing any player's guess `1`
 * a view describing how the screen looks like based on the current problem and the players' guesses (nice-to-have: also react to user input and report back if a guess is made)
 * a way to decide if the guess was correct (`1 !== 0`. Too bad..)
@@ -44,17 +44,17 @@ So just designate one of the clients as game host - reconcile and control game f
 
 Gotta persist information between players. So we need some encoders and decoders.
 
-### Can we generalize?
+### How does this look like?
 
 ```elm
 type alias Spec problemType guessType =
-    { view : ... -> Html.Html guessType
+    { view : ... -> Html guessType
     , isGuessCorrect : problemType -> guessType -> Bool
     , problemGenerator : Random.Generator problemType
-    , problemEncoder : Maybe problemType -> JE.Value
-    , problemDecoder : JD.Decoder (Maybe problemType)
-    , guessEncoder : guessType -> JE.Value
-    , guessDecoder : JD.Decoder guessType
+    , problemEncoder : problemType -> Encode.Value
+    , problemDecoder : Decoder problemType
+    , guessEncoder : guessType -> Encode.Value
+    , guessDecoder : Decoder guessType
     }
 ```
 
@@ -65,8 +65,6 @@ type alias Spec problemType guessType =
 It's impossible to write (really) bad Elm code
 
 Or is it?
-
-(as in at the point my friends were already having fun with it)
 
 ```elm
 modules Models.Player exposing (..)
@@ -88,7 +86,7 @@ type Route
   | Tutorial TutorialModel
 ```
 
-Yup, all components are fully independent, with some strange glue code:
+Yup, all components are fully independent, with some mighty strange glue code:
 
 ```elm
 updateGame : Game.Messages.Msg -> Model -> ( Model, Cmd Msg )
@@ -105,34 +103,46 @@ updateGame msg model =
                     ( model, Cmd.none )
             )
 
-updateRoomCreator : RoomCreator.Messages.Msg -> Model -> ( Model, Cmd Msg )
-updateRoomManager : RoomManager.Messages.Msg -> Model -> ( Model, Cmd Msg )
-updateTutorial : Tutorial.Messages.Msg -> Model -> ( Model, Cmd Msg )
+-- Same for updateRoomCreator, updateRoomManager and updateTutorial
+
+-- Oh, and there's some more wiring on commands and subscriptions
 
 update : -- You don't want to know...
 ```
 
-And above all, the bits and pieces that make up the `Spec` record for the game are buried into everything.
+And above all, the bits and pieces that make up the `Spec` record above for the game are scattered all over the place.
 
-### How to go from this to the `elm-gameroom` sketched out above?
+### Some learning
 
-* create the spine
-* move models
-* move views
-* move update (this is the hard one)
+* With lots of type variables, you get less help from the compiler: `Maybe there is a problem with your code?`.
 
-### How to make hard moves?
+```
+Failed to compile.
 
-Changing code:
+Error in ./src/Main.elm
+Module build failed: Error: Compiler process exited with error Compilation failed
+-- TYPE MISMATCH ------------------------------ ./src/Gameroom/Models/Result.elm
 
-`Make your top-level change and follow the compiler down to the details.`
+The argument to this function is causing a mismatch.
 
-Migrating code:
+22|                                   spec.isGuessCorrect room.round.problem
+                                                               ^^^^^^^^^^^^^
+This function is expecting the argument to be:
 
-1. Try dumping stuff over and follow the compiler to make it fit.
-2. If not done in 10 minutes, stash and dump a smaller chunk.
-3. If breaking up is not an option, well, devise a case-specific strategy.
+    problemType
 
-## Did it work?
+But it is:
 
-Yes. `elm-gameroom` is powering 10 games across the conference.
+    Maybe problemType
+
+Hint: Your type annotation uses type variable `problemType` which means any type
+of value can flow through. Your code is saying it CANNOT be anything though!
+Maybe change your type annotation to be more specific? Maybe the code has a
+problem? More at:
+<https://github.com/elm-lang/elm-compiler/blob/0.18.0/hints/type-annotations.md>
+
+Detected errors in 1 module.
+ @ ./src/index.js 1:10-31
+```
+
+## Let's make a game!

@@ -10,15 +10,8 @@ import Gameroom.Constants exposing (nullString)
 -- Type definitions
 
 
-type RoundStatus
-    = Prep
-    | Active
-    | Cooldown
-
-
 type alias Round problemType =
     { no : Int
-    , status : RoundStatus
     , problem : Maybe problemType
     }
 
@@ -28,7 +21,6 @@ type alias Room problemType guessType =
     , host : String
     , round :
         { no : Int
-        , status : RoundStatus
         , problem : Maybe problemType
         }
     , players : Dict.Dict String (Player.Player guessType)
@@ -43,7 +35,7 @@ create : String -> List String -> Room problemType guessType
 create roomId playerIds =
     { id = roomId
     , host = playerIds |> List.head |> Maybe.withDefault ""
-    , round = { no = 0, status = Prep, problem = Nothing }
+    , round = { no = 0, problem = Nothing }
     , players = Dict.fromList (List.map (\playerId -> ( playerId, Player.create playerId )) playerIds)
     }
 
@@ -85,19 +77,6 @@ roundEncoder : (problemType -> JE.Value) -> (Round problemType -> JE.Value)
 roundEncoder problemEncoder round =
     JE.object
         [ ( "no", JE.int round.no )
-        , ( "status"
-          , (case round.status of
-                Prep ->
-                    "prep"
-
-                Active ->
-                    "active"
-
-                Cooldown ->
-                    "cooldown"
-            )
-                |> JE.string
-          )
         , ( "problem"
           , case round.problem of
                 Nothing ->
@@ -124,25 +103,8 @@ decoder problemDecoder guessDecoder =
 
 roundDecoder : JD.Decoder problemType -> JD.Decoder (Round problemType)
 roundDecoder problemDecoder =
-    JD.map3 Round
+    JD.map2 Round
         (JD.field "no" JD.int)
-        (JD.field "status"
-            (JD.string
-                |> JD.andThen
-                    (\s ->
-                        JD.succeed <|
-                            case s of
-                                "prep" ->
-                                    Prep
-
-                                "active" ->
-                                    Active
-
-                                _ ->
-                                    Cooldown
-                    )
-            )
-        )
         (JD.field "problem" <|
             JD.oneOf
                 [ JD.string

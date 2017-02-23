@@ -51,7 +51,7 @@ viewForm model =
 
 viewSuccess : Model -> Html Msg
 viewSuccess model =
-    div []
+    div [ style Styles.centered ]
         [ ul []
             (model.playerIds
                 |> List.map

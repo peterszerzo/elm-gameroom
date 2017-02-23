@@ -48,7 +48,7 @@ viewReadyPrompt spec model room =
                         li []
                             [ span
                                 ([]
-                                    ++ (if room.host == pl.id then
+                                    ++ (if model.playerId == pl.id then
                                             [ onClick MarkReady ]
                                         else
                                             []
