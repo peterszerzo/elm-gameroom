@@ -7,8 +7,12 @@ import Gameroom.Models.Guess as Guess
 import Gameroom.Constants exposing (nullString)
 
 
+type alias PlayerId =
+    String
+
+
 type alias Player guessType =
-    { id : String
+    { id : PlayerId
     , isReady : Bool
     , score : Int
     , guess :
@@ -17,7 +21,7 @@ type alias Player guessType =
 
 
 type alias Players guessType =
-    Dict.Dict String (Player guessType)
+    Dict.Dict PlayerId (Player guessType)
 
 
 create : String -> Player guessType

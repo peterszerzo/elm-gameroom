@@ -5,12 +5,15 @@ import Html.Attributes exposing (class, style, type_, value, id, for, href)
 import Gameroom.Messages exposing (Msg(..))
 import Gameroom.Views.Styles as Styles
 import Gameroom.Views.Link as Link
+import Gameroom.Views.Logo as Logo
+import Gameroom.Views.Styles as Styles
 
 
 view : Html (Msg problemType guessType)
 view =
     div [ style Styles.centered ]
-        [ h1 [] [ text "elm-gameroom" ]
+        [ Logo.view
+        , h1 [ style Styles.heroType ] [ text "elm-gameroom" ]
         , Link.view [ href "/tutorial" ] [ text "Tutorial" ]
         , Link.view [ href "/new" ] [ text "New room" ]
         ]

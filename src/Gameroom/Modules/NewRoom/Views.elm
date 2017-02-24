@@ -40,9 +40,9 @@ viewForm model =
                     )
                     model.playerIds
                 )
-            , button [ onClick AddPlayer ] [ text "Add player" ]
+            , button [ style Styles.link, onClick AddPlayer ] [ text "Add player" ]
             , (if canSubmit then
-                input [ type_ "submit", onClick CreateRequest ] []
+                input [ style Styles.link, type_ "submit", onClick CreateRequest ] []
                else
                 div [] []
               )
@@ -52,12 +52,12 @@ viewForm model =
 viewSuccess : Model -> Html Msg
 viewSuccess model =
     div [ style Styles.centered ]
-        [ ul []
+        [ ul [ style [ ( "list-style", "none" ) ] ]
             (model.playerIds
                 |> List.map
                     (\id ->
                         li []
-                            [ a [ href ("/rooms/" ++ model.roomId ++ "/" ++ id) ] [ text id ]
+                            [ a [ style Styles.link, href ("/rooms/" ++ model.roomId ++ "/" ++ id) ] [ text id ]
                             ]
                     )
             )

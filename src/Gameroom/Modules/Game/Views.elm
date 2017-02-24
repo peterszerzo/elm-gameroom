@@ -65,7 +65,13 @@ viewRoom : Spec problemType guessType -> Model problemType guessType -> Room.Roo
 viewRoom spec model room =
     div []
         [ if Room.allPlayersReady room then
-            Html.map Guess (spec.view model.playerId room)
+            (case room.round.problem of
+                Just problem ->
+                    Html.map Guess (spec.view model.playerId room.players problem)
+
+                Nothing ->
+                    div [] [ text "Awaiting problem" ]
+            )
           else
             viewReadyPrompt spec model room
         , scoreboard model.playerId room

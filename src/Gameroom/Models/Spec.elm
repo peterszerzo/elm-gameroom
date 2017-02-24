@@ -4,14 +4,14 @@ import Html
 import Random
 import Json.Decode as JD
 import Json.Encode as JE
-import Gameroom.Models.Room exposing (Room)
+import Gameroom.Models.Player exposing (PlayerId, Players)
 
 
 -- Client-defined game spec
 
 
 type alias Spec problemType guessType =
-    { view : String -> Room problemType guessType -> Html.Html guessType
+    { view : PlayerId -> Players guessType -> problemType -> Html.Html guessType
     , isGuessCorrect : problemType -> guessType -> Bool
     , problemGenerator : Random.Generator problemType
     , problemEncoder : problemType -> JE.Value

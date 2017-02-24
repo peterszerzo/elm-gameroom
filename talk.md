@@ -2,23 +2,39 @@ Elm-Europe 2017 talk draft
 
 # elm-gameroom: make a game in 200 lines
 
+---
+
 ## Two years ago on a winter evening in Canada..
 
-I was playing an annoying word game, thinking about how this should totally be made for the computer.
+I was playing an annoying word game, thinking:
+
+> I should totally make this for the web.
 
 I got around to in two years later. In Elm.
 
 https://lettero.co
 
-## My favorite thing about Lettero: no server-side code
+---
 
-Just a generic realtime database, like Firebase or Horizon.
+## So how was it?
 
-Wait, but who calls the shots and reconciles game rounds?
+Well, client-server logic sharing quickly got tedious.
 
-Convenient use-case: all players need to be online at all times. If any disconnects, stop the show until they reconnect.
+> There's no way around it, I guess. Someone needs to call the shots and reconcile the score, right?
 
-So just designate one of the clients as game host - reconcile and control game from that specific client.
+Or should I run some Elm in Node?
+
+---
+
+## Or maybe my use-case is a little special
+
+It's a guessing game: all players need to be online at all times.
+
+So just designate one of the clients as game host - reconcile and control game from that client.
+
+We can strip the server down to a data store.
+
+---
 
 ## Can we abstract this?
 
@@ -26,11 +42,13 @@ So just designate one of the clients as game host - reconcile and control game f
 
 * the problem: `"hedgehog"`
 * the guess: `1`
-* a view as a function of the problem, emitting guesses
+* a view as a function of the problem, emitting guesses: `span [ onClick 2 ] [ text "d" ]`
 * when is a guess correct:
   `Cool: guess == 0`
   `Better luck next time: guess == 0`
-* a collection of possible game problems. Or better yet, a generator.
+* a collection of possible game problems. Or a random problem generator.
+
+---
 
 ### How does this look like in Elm, for Lettero?
 
@@ -40,29 +58,33 @@ So just designate one of the clients as game host - reconcile and control game f
 * `isGuessCorrect : ProblemType -> GuessType -> Bool`
 * `problemGenerator : Random.Generator ProblemType`
 
+---
+
 ### Anything else?
 
 Gotta persist information between players. So we need some encoders and decoders.
+
+---
 
 ### How does this look like?
 
 ```elm
 type alias Spec problemType guessType =
-    { view : ... -> Html guessType
+    { view : PlayerId -> Players guessType -> problemType -> Html.Html guessType
     , isGuessCorrect : problemType -> guessType -> Bool
     , problemGenerator : Random.Generator problemType
-    , problemEncoder : problemType -> Encode.Value
-    , problemDecoder : Decoder problemType
-    , guessEncoder : guessType -> Encode.Value
-    , guessDecoder : Decoder guessType
+    , problemEncoder : problemType -> JE.Value
+    , problemDecoder : JD.Decoder problemType
+    , guessEncoder : guessType -> JE.Value
+    , guessDecoder : JD.Decoder guessType
     }
 ```
 
-## The refactoring story
+---
 
-### State of lettero.co upon completion
+## And then there was refactoring
 
-It's impossible to write (really) bad Elm code
+It's impossible to write (really) bad Elm code.
 
 Or is it?
 
@@ -73,6 +95,8 @@ type alias Player = { ... }
 
 getDummy : String -> Player
 ```
+
+---
 
 ```elm
 type alias Model =
@@ -86,7 +110,9 @@ type Route
   | Tutorial TutorialModel
 ```
 
-Yup, all components are fully independent, with some mighty strange glue code:
+Yup, all components are fully independent, with some mighty strange glue code...
+
+---
 
 ```elm
 updateGame : Game.Messages.Msg -> Model -> ( Model, Cmd Msg )
@@ -114,35 +140,7 @@ And above all, the bits and pieces that make up the `Spec` record above for the 
 
 ### Some learning
 
-* With lots of type variables, you get less help from the compiler: `Maybe there is a problem with your code?`.
-
-```
-Failed to compile.
-
-Error in ./src/Main.elm
-Module build failed: Error: Compiler process exited with error Compilation failed
--- TYPE MISMATCH ------------------------------ ./src/Gameroom/Models/Result.elm
-
-The argument to this function is causing a mismatch.
-
-22|                                   spec.isGuessCorrect room.round.problem
-                                                               ^^^^^^^^^^^^^
-This function is expecting the argument to be:
-
-    problemType
-
-But it is:
-
-    Maybe problemType
-
-Hint: Your type annotation uses type variable `problemType` which means any type
-of value can flow through. Your code is saying it CANNOT be anything though!
-Maybe change your type annotation to be more specific? Maybe the code has a
-problem? More at:
-<https://github.com/elm-lang/elm-compiler/blob/0.18.0/hints/type-annotations.md>
-
-Detected errors in 1 module.
- @ ./src/index.js 1:10-31
-```
+* With lots of type variables, you get less help from the compiler: `Maybe change your type annotation to be more specific? Maybe the code has a
+problem?`.
 
 ## Let's make a game!

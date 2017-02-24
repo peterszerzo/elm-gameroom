@@ -24,7 +24,7 @@ centeredStyle =
     , ( "max-height", "800px" )
     , ( "top", "50%" )
     , ( "left", "50%" )
-    , ( "transform", "scale(1) translate3d(-50%, -50%, 0)" )
+    , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0)" )
     ]
 
 
@@ -40,14 +40,12 @@ words =
 gameSpec : Spec ProblemType GuessType
 gameSpec =
     { view =
-        (\playerId room ->
+        (\playerId players problem ->
             div [ style centeredStyle ]
-                [ text ("round no. " ++ (toString room.round.no))
-                , div [ class "word " ]
-                    (room.round.problem
-                        |> Maybe.withDefault "loading"
+                [ div [ class "word " ]
+                    (problem
                         |> String.toList
-                        |> List.indexedMap (\index c -> span [ onClick index ] [ text (String.fromChar c) ])
+                        |> List.indexedMap (\index c -> span [ style [ ( "font-size", "2rem" ) ], onClick index ] [ text (String.fromChar c) ])
                     )
                 ]
         )
