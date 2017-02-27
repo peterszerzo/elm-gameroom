@@ -1,8 +1,8 @@
-var localStorage = global.localStorage
+var localStorage = window.localStorage
 
-var subscribersByRoomId = {}
+var __subscribersByRoomId = {}
 
-module.exports = {
+window.db = {
   getRoom: function (roomId) {
     return Promise.resolve(JSON.parse(localStorage.getItem('/rooms/' + roomId)))
   },
@@ -12,9 +12,9 @@ module.exports = {
   },
   subscribeToRoom: function (roomId, onValue) {
     var previousValue
-    subscribersByRoomId[roomId] = {
+    __subscribersByRoomId[roomId] = {
       onValue: onValue,
-      interval: global.setInterval(function () {
+      interval: window.setInterval(function () {
         var value = localStorage.getItem('/rooms/' + roomId)
         if (previousValue !== value) {
           onValue(JSON.parse(value))
@@ -24,7 +24,7 @@ module.exports = {
     }
   },
   unsubscribeFromRoom: function (roomId) {
-    global.clearInterval(subscribersByRoomId[roomId].interval)
-    subscribersByRoomId[roomId] = null
+    window.clearInterval(__subscribersByRoomId[roomId].interval)
+    __subscribersByRoomId[roomId] = null
   }
 }

@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>elm-gameroom</title>
-    <script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
     <style>
       * {
         -webkit-font-smoothing: subpixel-antialiased;
@@ -38,5 +37,27 @@
   </head>
   <body>
     <div id="root"></div>
+    <script src="/db.js"></script>
+    <script src="/elm.js"></script>
+    <script>
+      function talkToGameroom (db, ports) {
+        ports.subscribeToRoom.subscribe(function (roomId) {
+          db.subscribeToRoom(roomId, function (room) {
+            ports.roomUpdated.send(JSON.stringify(room))
+          })
+        })
+        ports.createRoom.subscribe(function (room) {
+          db.setRoom(JSON.parse(room)).then(function () {
+            ports.roomCreated.send('')
+          })
+        })
+        ports.updateRoom.subscribe(function (room) {
+          db.setRoom(JSON.parse(room))
+        })
+      }
+
+      var app = Elm.Main.embed(document.getElementById('root'))
+      talkToGameroom(window.db, app.ports)
+    </script>
   </body>
 </html>

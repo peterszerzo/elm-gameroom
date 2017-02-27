@@ -2,3 +2,4 @@ elm-stuff
 repl-temp-*
 .DS_Store
 .env
+examples/**/elm.js

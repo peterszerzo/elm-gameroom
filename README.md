@@ -6,3 +6,7 @@ DRY multiplayer guessing game. Add game spec and generic realtime backend.
 
 `npm install -g create-elm-app`
 `elm-app start`
+
+## Run the example
+
+`elm-live ./examples/words/Main.elm --dir=./examples/words --output examples/words/elm.js --open --pushstate`
