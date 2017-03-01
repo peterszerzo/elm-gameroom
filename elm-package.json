@@ -4,7 +4,6 @@
     "repository": "https://github.com/peterszerzo/elm-gameroom.git",
     "license": "BSD3",
     "source-directories": [
-        "./examples/words/",
         "./src/"
     ],
     "exposed-modules": [

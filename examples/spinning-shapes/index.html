@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>elm-gameroom</title>
+    <style>
+      * {
+        -webkit-font-smoothing: subpixel-antialiased;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        position: relative;
+      }
+
+      #root {
+        width: 100%;
+        height: 100%;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      polygon {
+        animation: spin 30s linear infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="/db.js"></script>
+    <script src="/elm.js"></script>
+    <script>
+      function talkToGameroom (db, ports) {
+        ports.subscribeToRoom.subscribe(function (roomId) {
+          db.subscribeToRoom(roomId, function (room) {
+            ports.roomUpdated.send(JSON.stringify(room))
+          })
+        })
+        ports.createRoom.subscribe(function (room) {
+          db.setRoom(JSON.parse(room)).then(function () {
+            ports.roomCreated.send('')
+          })
+        })
+        ports.updateRoom.subscribe(function (room) {
+          db.setRoom(JSON.parse(room))
+        })
+      }
+
+      var app = Elm.Main.embed(document.getElementById('root'))
+      talkToGameroom(window.db, app.ports)
+    </script>
+  </body>
+</html>
