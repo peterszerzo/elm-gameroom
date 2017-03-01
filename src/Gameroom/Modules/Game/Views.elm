@@ -16,22 +16,24 @@ scoreboard playerId room =
     div
         [ style
             [ ( "position", "fixed" )
-            , ( "right", "80px" )
-            , ( "bottom", "80px" )
-            , ( "padding", "20px" )
+            , ( "right", "0" )
+            , ( "bottom", "0" )
+            , ( "width", "100%" )
+            , ( "padding", "5px" )
             , ( "background", "#eee" )
+            , ( "text-align", "center" )
             ]
         ]
         [ room.players
             |> Dict.toList
             |> List.map
                 (\( playerId, player ) ->
-                    tr []
-                        [ td [] [ (text player.id) ]
-                        , td [] [ (text (toString player.score)) ]
+                    span [ style [ ( "margin", "0 20px" ) ] ]
+                        [ span [ style [ ( "margin-right", "8px" ) ] ] [ (text player.id) ]
+                        , span [] [ (text (toString player.score)) ]
                         ]
                 )
-            |> (\list -> table [] list)
+            |> (\list -> div [] list)
         ]
 
 
@@ -39,7 +41,7 @@ viewReadyPrompt : Spec problemType guessType -> Model problemType guessType -> R
 viewReadyPrompt spec model room =
     div [ style Styles.centered ]
         [ h2 [] [ text "Ready?" ]
-        , ul []
+        , ul [ style [ ( "list-style", "none" ), ( "padding", "0" ) ] ]
             (room.players
                 |> Dict.toList
                 |> List.map Tuple.second
@@ -47,7 +49,7 @@ viewReadyPrompt spec model room =
                     (\pl ->
                         li []
                             [ span
-                                ([]
+                                ([ style Styles.link ]
                                     ++ (if model.playerId == pl.id then
                                             [ onClick MarkReady ]
                                         else

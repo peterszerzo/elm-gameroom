@@ -5,4 +5,4 @@ module Gameroom.Constants exposing (..)
 
 nullString : String
 nullString =
-    "__elm-cms__null__"
+    "__elm-gameroom__null__"

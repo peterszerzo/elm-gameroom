@@ -1,6 +1,6 @@
 module Gameroom.Modules.NewRoom.Views exposing (..)
 
-import Html exposing (Html, div, text, button, h1, label, input, fieldset, span, ul, li, a)
+import Html exposing (Html, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a)
 import Html.Attributes exposing (class, style, type_, value, id, for, href)
 import Html.Events exposing (onClick, onInput)
 import Gameroom.Modules.NewRoom.Models exposing (Model, Status(..))
@@ -52,7 +52,8 @@ viewForm model =
 viewSuccess : Model -> Html Msg
 viewSuccess model =
     div [ style Styles.centered ]
-        [ ul [ style [ ( "list-style", "none" ) ] ]
+        [ h2 [] [ text "Your room is ready" ]
+        , ul [ style [ ( "list-style", "none" ) ] ]
             (model.playerIds
                 |> List.map
                     (\id ->

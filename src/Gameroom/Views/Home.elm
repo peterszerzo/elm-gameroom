@@ -12,7 +12,7 @@ import Gameroom.Views.Styles as Styles
 view : Html (Msg problemType guessType)
 view =
     div [ style Styles.centered ]
-        [ Logo.view
+        [ div [ style [ ( "width", "100px" ), ( "height", "100px" ), ( "margin", "auto" ) ] ] [ Logo.view ]
         , h1 [ style Styles.heroType ] [ text "elm-gameroom" ]
         , Link.view [ href "/tutorial" ] [ text "Tutorial" ]
         , Link.view [ href "/new" ] [ text "New room" ]

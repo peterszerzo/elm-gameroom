@@ -1,5 +1,31 @@
 module Gameroom.Views.Styles exposing (..)
 
+-- Elm logo colors
+
+
+elmGreen : String
+elmGreen =
+    "#7FD13B"
+
+
+elmCyan : String
+elmCyan =
+    "#60B5CC"
+
+
+elmOrange : String
+elmOrange =
+    "#F0AD00"
+
+
+elmDark : String
+elmDark =
+    "#5A6378"
+
+
+
+-- Project colors
+
 
 blue : String
 blue =
@@ -16,6 +42,11 @@ offWhite =
     "rgb(244, 244, 248)"
 
 
+white : String
+white =
+    "rgb(255, 255, 255)"
+
+
 black : String
 black =
     "rgb(24, 20, 10)"
@@ -28,7 +59,11 @@ red =
 
 font : String
 font =
-    "Arial, Helvetica, sans-serif"
+    "monospace"
+
+
+
+-- Shared styles
 
 
 centered : List ( String, String )
@@ -38,7 +73,7 @@ centered =
     , ( "position", "absolute" )
     , ( "top", "50%" )
     , ( "left", "50%" )
-    , ( "transform", "translate3d(-50%, -50%, 0) scale(1.0, 1.0)" )
+    , ( "transform", "translate(-50%, -50%)" )
     , ( "text-align", "center" )
     ]
 

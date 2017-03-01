@@ -20,7 +20,7 @@ containerStyles =
     , ( "bottom", "0" )
     , ( "left", "0" )
     , ( "right", "0" )
-    , ( "background", Styles.offWhite )
+    , ( "background", Styles.white )
     ]
 
 

@@ -39,8 +39,8 @@ polygons =
     ]
 
 
-viewPolygon : List (List Float) -> Html msg
-viewPolygon pointCoordinates =
+viewPolygon : Int -> List (List Float) -> Html msg
+viewPolygon index pointCoordinates =
     polygon
         [ points
             (List.map
@@ -59,12 +59,37 @@ viewPolygon pointCoordinates =
                 |> String.join " "
             )
         , stroke "#FFF"
-        , strokeWidth "1"
-        , fill Styles.black
+        , strokeWidth "1.5"
+        , fill
+            (case index of
+                0 ->
+                    Styles.elmCyan
+
+                1 ->
+                    Styles.elmGreen
+
+                2 ->
+                    Styles.elmOrange
+
+                3 ->
+                    Styles.elmDark
+
+                4 ->
+                    Styles.elmOrange
+
+                5 ->
+                    Styles.elmCyan
+
+                6 ->
+                    Styles.elmDark
+
+                _ ->
+                    Styles.black
+            )
         ]
         []
 
 
 view : Html msg
 view =
-    svg [ width "120", height "120", viewBox "-30 -30 60 60" ] (List.map viewPolygon polygons)
+    svg [ viewBox "-30 -30 60 60" ] (List.indexedMap viewPolygon polygons)
