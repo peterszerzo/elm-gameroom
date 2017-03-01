@@ -31,14 +31,14 @@ view spec model =
             case model.route of
                 Router.Game game ->
                     GameView.view spec game
-                        |> Html.map GameMsgContainer
+                        |> Html.map GameMsgC
 
                 Router.Home ->
                     HomeView.view
 
                 Router.NewRoomRoute newRoomModel ->
                     NewRoomView.view newRoomModel
-                        |> Html.map NewRoomMsgContainer
+                        |> Html.map NewRoomMsgC
 
                 _ ->
                     div [] []

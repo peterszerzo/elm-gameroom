@@ -84,13 +84,13 @@ program spec =
         , subscriptions =
             (\model ->
                 Sub.batch
-                    [ Ports.roomUpdated (\val -> Messages.GameMsgContainer (GameMessages.ReceiveUpdate val))
+                    [ Ports.roomUpdated (\val -> Messages.GameMsgC (GameMessages.ReceiveUpdate val))
                     , case model.route of
                         Router.Game _ ->
-                            Time.every (20000 * Time.millisecond) (\time -> Messages.GameMsgContainer (GameMessages.Tick time))
+                            Time.every (20000 * Time.millisecond) (\time -> Messages.GameMsgC (GameMessages.Tick time))
 
                         Router.NewRoomRoute _ ->
-                            Ports.roomCreated (\msg -> Messages.NewRoomMsgContainer (NewRoomMessages.CreateResponse msg))
+                            Ports.roomCreated (\msg -> Messages.NewRoomMsgC (NewRoomMessages.CreateResponse msg))
 
                         _ ->
                             Sub.none

@@ -5,8 +5,12 @@ import Gameroom.Modules.Game.Messages as GameMessages
 import Gameroom.Modules.NewRoom.Messages as NewRoomMessages
 
 
+-- Add C suffix for containers, standing for container
+-- (abbreviation is necessary to avoid lack of readibility in the debugger)
+
+
 type Msg problemType guessType
     = ChangeRoute (Router.Route problemType guessType)
-    | GameMsgContainer (GameMessages.Msg problemType guessType)
-    | NewRoomMsgContainer NewRoomMessages.Msg
+    | GameMsgC (GameMessages.Msg problemType guessType)
+    | NewRoomMsgC NewRoomMessages.Msg
     | Navigate String

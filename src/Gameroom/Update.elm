@@ -43,7 +43,7 @@ update spec msg model =
             , cmdOnRouteChange route (Just model.route)
             )
 
-        GameMsgContainer gameMsg ->
+        GameMsgC gameMsg ->
             case model.route of
                 Router.Game game ->
                     let
@@ -57,7 +57,7 @@ update spec msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        NewRoomMsgContainer newRoomMsg ->
+        NewRoomMsgC newRoomMsg ->
             case model.route of
                 Router.NewRoomRoute newRoom ->
                     let

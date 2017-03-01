@@ -20,7 +20,7 @@ window.db = {
           onValue(JSON.parse(value))
         }
         previousValue = value
-      }, 100)
+      }, 1000)
     }
   },
   unsubscribeFromRoom: function (roomId) {
