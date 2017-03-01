@@ -27,16 +27,20 @@
 
       @keyframes spin {
         0% {
-          transform: rotate(0deg);
+          transform: rotateZ(0deg);
         }
 
         100% {
-          transform: rotate(360deg);
+          transform: rotateZ(360deg);
         }
       }
 
-      polygon {
+      .spinning-shapes-container polygon {
         animation: spin 30s linear infinite;
+      }
+
+      .spinning-shapes-container g:first-child polygon {
+        animation: spin 30s linear reverse infinite;
       }
     </style>
   </head>
