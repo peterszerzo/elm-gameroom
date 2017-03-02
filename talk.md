@@ -1,16 +1,16 @@
 Elm-Europe 2017 talk draft
 
-# elm-gameroom: make a game in 200 lines
+# elm-gameroom: multiplayer game in 200 lines
 
 ---
 
 ## Two years ago on a winter evening in Canada..
 
-I was playing an annoying word game, thinking:
+I was playing a word game, thinking:
 
-> I should totally make this for the web.
+> I should totally make this for the browser.
 
-I got around to in two years later. In Elm.
+I got around to it two years later. In Elm.
 
 https://lettero.co
 
@@ -18,45 +18,64 @@ https://lettero.co
 
 ## So how was it?
 
-Well, client-server logic sharing quickly got tedious.
+Well, client-server logic sharing quickly got weird and tedious.
 
 > There's no way around it, I guess. Someone needs to call the shots and reconcile the score, right?
 
-Or should I run some Elm in Node?
+Or maybe I should run some Elm in Node?
+
+Can we do better?
 
 ---
 
-## Or maybe my use-case is a little special
+## The use-case is a little special
 
 It's a guessing game: all players need to be online at all times.
 
-So just designate one of the clients as game host - reconcile and control game from that client.
+So we can:
+* keep track of the entire game state on all clients. Push changes as they happen.
+* designate one of the clients as a host.
+* if the game round is over and the client is the host, then reconcile scores and initiate new round.
 
-We can strip the server down to a data store.
+=> we can strip the server down to generic realtime backend: Firebase, Horizon, or something custom.
+
+=> no more client-server code sharing.
 
 ---
 
-## Can we abstract this?
+## Now that we're comfortable, can we abstract?
 
 ### What do we need to describe a game?
 
 * the problem: `"hedgehog"`
 * the guess: `1`
 * a view as a function of the problem, emitting guesses: `span [ onClick 2 ] [ text "d" ]`
-* when is a guess correct:
+* whether a guess is correct:
   `Cool: guess == 0`
   `Better luck next time: guess == 0`
-* a collection of possible game problems. Or a random problem generator.
+* a collection of possible game problems. Or a random game problem generator.
 
 ---
 
 ### How does this look like in Elm, for Lettero?
 
-* `type alias ProblemType = String`
-* `type alias GuessType = Int`
-* `view : ProblemType -> Html GuessType`
-* `isGuessCorrect : ProblemType -> GuessType -> Bool`
-* `problemGenerator : Random.Generator ProblemType`
+```elm
+type alias ProblemType = String
+
+type alias GuessType = Int
+
+view : ProblemType -> Html GuessType
+view =
+    List.indexedMap (\index letter -> span [ onClick index ] [ text letter ]) letters
+
+isGuessCorrect : ProblemType -> GuessType -> Bool
+isGuessCorrect problem guess =
+    guess == 0
+
+problemGenerator : Random.Generator ProblemType
+problemGenerator =
+  -- Generate a random word from a list of words
+```
 
 ---
 
@@ -64,9 +83,19 @@ We can strip the server down to a data store.
 
 Gotta persist information between players. So we need some encoders and decoders.
 
+```elm
+problemEncoder = Json.Encode.string
+
+problemDecoder = Json.Decode.string
+
+guessEncoder = Json.Encode.int
+
+problemDecoder = Json.Decode.int
+```
+
 ---
 
-### How does this look like?
+### How does all this look like in the abstract?
 
 ```elm
 type alias Spec problemType guessType =
@@ -82,11 +111,42 @@ type alias Spec problemType guessType =
 
 ---
 
+### elm-gameroom
+
+```elm
+program : Spec pt gt -> Program Never (Model pt gt) (Msg pt gt)
+```
+
+---
+
+### Ok, well, not quite that simple
+
+Cannot publish a package that defines its own ports. It is the client's responsibility to set up the ports and communicate with them in the 'correct' way.
+
+```elm
+type alias Ports msg =
+    { unsubscribeFromRoom : String -> Cmd msg
+    , subscribeToRoom : String -> Cmd msg
+    , updateRoom : String -> Cmd msg
+    , roomUpdated : (String -> msg) -> Sub msg
+    , createRoom : String -> Cmd msg
+    , roomCreated : (String -> msg) -> Sub msg
+    }
+
+program : Spec pt gt -> Ports (Msg pt gt) -> Program Never (Model pt gt) (Msg pt gt)
+```
+
+---
+
 ## And then there was refactoring
 
 It's impossible to write (really) bad Elm code.
 
 Or is it?
+
+---
+
+### Cheating Maybe's
 
 ```elm
 modules Models.Player exposing (..)
@@ -98,49 +158,20 @@ getDummy : String -> Player
 
 ---
 
+### Impossible states representable
+
 ```elm
-type alias Model =
-  { route : Route
-  }
-
-type Route
-  = Game GameModel
-  | RoomCreator RoomCreatorModel
-  | RoomManager RoomManagerModel
-  | Tutorial TutorialModel
+type alias Guess =
+    {
+    }
 ```
-
-Yup, all components are fully independent, with some mighty strange glue code...
 
 ---
 
-```elm
-updateGame : Game.Messages.Msg -> Model -> ( Model, Cmd Msg )
-updateGame msg model =
-    Game.Messages.newPath msg
-        |> Maybe.map (\str -> model ! [ Navigation.newUrl str ])
-        |> Maybe.withDefault
-            (case model.route of
-                Router.Game model_ ->
-                    Game.Update.update msg model_
-                        |> (\( md, cmd ) -> ( { model | route = Router.Game md }, Cmd.map GameMsg cmd ))
-
-                _ ->
-                    ( model, Cmd.none )
-            )
-
--- Same for updateRoomCreator, updateRoomManager and updateTutorial
-
--- Oh, and there's some more wiring on commands and subscriptions
-
-update : -- You don't want to know...
-```
-
-And above all, the bits and pieces that make up the `Spec` record above for the game are scattered all over the place.
-
 ### Some learning
 
-* With lots of type variables, you get less help from the compiler: `Maybe change your type annotation to be more specific? Maybe the code has a
-problem?`.
+* With lots of type variables, you get less help from the compiler: `Maybe change your type annotation to be more specific? Maybe the code has a problem?`.
+
+---
 
 ## Let's make a game!

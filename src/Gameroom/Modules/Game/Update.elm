@@ -2,27 +2,28 @@ module Gameroom.Modules.Game.Update exposing (..)
 
 import Random
 import Json.Encode as JE
-import Gameroom.Ports as Ports
 import Gameroom.Messages as Messages
 import Gameroom.Models.Room as Room
 import Gameroom.Models.Spec exposing (Spec)
+import Gameroom.Models.Ports exposing (Ports)
 import Gameroom.Models.Result as Result
 import Gameroom.Modules.Game.Messages exposing (Msg(..))
 import Gameroom.Modules.Game.Models exposing (Model)
 import Json.Decode as JD
 
 
-saveCmd : Spec problemType guessType -> Model problemType guessType -> Cmd (Messages.Msg problemType guessType)
-saveCmd spec model =
-    model.room |> Maybe.map (Ports.updateRoom << JE.encode 0 << Room.encoder spec.problemEncoder spec.guessEncoder) |> Maybe.withDefault Cmd.none
+saveCmd : Spec problemType guessType -> Ports (Messages.Msg problemType guessType) -> Model problemType guessType -> Cmd (Messages.Msg problemType guessType)
+saveCmd spec ports model =
+    model.room |> Maybe.map (ports.updateRoom << JE.encode 0 << Room.encoder spec.problemEncoder spec.guessEncoder) |> Maybe.withDefault Cmd.none
 
 
 update :
     Spec problemType guessType
+    -> Ports (Messages.Msg problemType guessType)
     -> Msg problemType guessType
     -> Model problemType guessType
     -> ( Model problemType guessType, Cmd (Messages.Msg problemType guessType) )
-update spec msg model =
+update spec ports msg model =
     case msg of
         ReceiveUpdate roomString ->
             let
@@ -90,7 +91,7 @@ update spec msg model =
                     { model | room = newRoom }
 
                 cmd =
-                    saveCmd spec newModel
+                    saveCmd spec ports newModel
             in
                 ( newModel
                 , cmd
@@ -107,7 +108,7 @@ update spec msg model =
                     }
 
                 cmd =
-                    saveCmd spec newModel
+                    saveCmd spec ports newModel
             in
                 ( newModel
                 , cmd
@@ -124,7 +125,7 @@ update spec msg model =
                     { model | room = newRoom }
 
                 cmd =
-                    saveCmd spec newModel
+                    saveCmd spec ports newModel
             in
                 ( newModel
                 , cmd

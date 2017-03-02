@@ -5,7 +5,7 @@ import Gameroom.Messages exposing (..)
 import Gameroom.Models.Room as Room
 import Gameroom.Models.Main exposing (Model)
 import Gameroom.Models.Spec exposing (Spec)
-import Gameroom.Ports as Ports
+import Gameroom.Models.Ports exposing (Ports)
 import Gameroom.Router as Router
 import Gameroom.Modules.NewRoom.Update as NewRoomUpdate
 import Gameroom.Modules.Game.Update as GameUpdate
@@ -13,13 +13,14 @@ import Json.Encode as JE
 
 
 cmdOnRouteChange :
-    Router.Route problemType guessType
+    Ports (Msg problemType guessType)
+    -> Router.Route problemType guessType
     -> Maybe (Router.Route problemType guessType)
     -> Cmd (Msg problemType guessType)
-cmdOnRouteChange route prevRoute =
+cmdOnRouteChange ports route prevRoute =
     case route of
         Router.Game game ->
-            Ports.subscribeToRoom game.roomId
+            ports.subscribeToRoom game.roomId
 
         _ ->
             prevRoute
@@ -27,7 +28,7 @@ cmdOnRouteChange route prevRoute =
                     (\rt ->
                         case rt of
                             Router.Game game ->
-                                Ports.unsubscribeFromRoom game.roomId |> Just
+                                ports.unsubscribeFromRoom game.roomId |> Just
 
                             _ ->
                                 Nothing
@@ -35,12 +36,12 @@ cmdOnRouteChange route prevRoute =
                 |> Maybe.withDefault Cmd.none
 
 
-update : Spec problemType guessType -> Msg problemType guessType -> Model problemType guessType -> ( Model problemType guessType, Cmd (Msg problemType guessType) )
-update spec msg model =
+update : Spec problemType guessType -> Ports (Msg problemType guessType) -> Msg problemType guessType -> Model problemType guessType -> ( Model problemType guessType, Cmd (Msg problemType guessType) )
+update spec ports msg model =
     case msg of
         ChangeRoute route ->
             ( { model | route = route }
-            , cmdOnRouteChange route (Just model.route)
+            , cmdOnRouteChange ports route (Just model.route)
             )
 
         GameMsgC gameMsg ->
@@ -48,7 +49,7 @@ update spec msg model =
                 Router.Game game ->
                     let
                         ( newGame, cmd ) =
-                            GameUpdate.update spec gameMsg game
+                            GameUpdate.update spec ports gameMsg game
                     in
                         ( { model | route = Router.Game newGame }
                         , cmd
@@ -66,7 +67,7 @@ update spec msg model =
                     in
                         ( { model | route = Router.NewRoomRoute newNewRoom }
                         , if sendSaveCommand then
-                            Ports.createRoom
+                            ports.createRoom
                                 (Room.create newRoom.roomId newRoom.playerIds
                                     |> Room.encoder spec.problemEncoder spec.guessEncoder
                                     |> JE.encode 0

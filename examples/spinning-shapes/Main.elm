@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Random
 import Html exposing (Html, div, text, span)
@@ -8,7 +8,10 @@ import Svg exposing (polygon, svg, g)
 import Svg.Attributes exposing (width, height, viewBox, points, transform)
 import Json.Encode as JE
 import Json.Decode as JD
-import Gameroom exposing (program, Model, Msg, Spec, generatorFromList)
+import Gameroom exposing (program, Model, Msg, Spec, Ports, generatorFromList)
+
+
+-- Types
 
 
 type alias Point =
@@ -25,8 +28,12 @@ type alias GuessType =
     Int
 
 
-gameSpec : Spec ProblemType GuessType
-gameSpec =
+
+-- Spec
+
+
+spec : Spec ProblemType GuessType
+spec =
     { view =
         (\playerId players problem ->
             div
@@ -78,6 +85,43 @@ gameSpec =
     }
 
 
+
+-- Config
+
+
+port unsubscribeFromRoom : String -> Cmd msg
+
+
+port subscribeToRoom : String -> Cmd msg
+
+
+port updateRoom : String -> Cmd msg
+
+
+port roomUpdated : (String -> msg) -> Sub msg
+
+
+port createRoom : String -> Cmd msg
+
+
+port roomCreated : (String -> msg) -> Sub msg
+
+
+config : Ports (Msg ProblemType GuessType)
+config =
+    { unsubscribeFromRoom = unsubscribeFromRoom
+    , subscribeToRoom = subscribeToRoom
+    , updateRoom = updateRoom
+    , roomUpdated = roomUpdated
+    , createRoom = createRoom
+    , roomCreated = roomCreated
+    }
+
+
+
+-- Program
+
+
 main : Program Never (Model ProblemType GuessType) (Msg ProblemType GuessType)
 main =
-    Gameroom.program gameSpec
+    Gameroom.program spec config

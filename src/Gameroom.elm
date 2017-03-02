@@ -3,7 +3,7 @@ module Gameroom exposing (..)
 {-| This library creates multiplayer games.
 
 # The game spec
-@docs Spec
+@docs Spec, Ports
 
 # The program
 @docs program
@@ -19,10 +19,10 @@ import Time
 import Navigation
 import Random
 import Gameroom.Models.Spec
+import Gameroom.Models.Ports
 import Gameroom.Models.Main
 import Gameroom.Messages as Messages
 import Gameroom.Update exposing (update, cmdOnRouteChange)
-import Gameroom.Ports as Ports
 import Gameroom.Router as Router
 import Gameroom.Views.Main exposing (view)
 import Gameroom.Modules.Game.Messages as GameMessages
@@ -40,11 +40,15 @@ import Gameroom.Modules.NewRoom.Messages as NewRoomMessages
         , guessEncoder : guessType -> JE.Value
         , guessDecoder : JD.Decoder guessType
         }
-
-Isn't that all we need?
 -}
 type alias Spec problemType guessType =
     Gameroom.Models.Spec.Spec problemType guessType
+
+
+{-| Program configuration, including ports
+-}
+type alias Ports msg =
+    Gameroom.Models.Ports.Ports msg
 
 
 {-| Use this Msg type to annotate your program.
@@ -65,8 +69,9 @@ Appropriate ports must be wired up. Docs for that are coming soon!
 -}
 program :
     Spec problemType guessType
+    -> Ports (Msg problemType guessType)
     -> Program Never (Model problemType guessType) (Msg problemType guessType)
-program spec =
+program spec config =
     Navigation.program (Messages.ChangeRoute << Router.parse)
         { init =
             (\loc ->
@@ -75,22 +80,22 @@ program spec =
                         Router.parse loc
 
                     cmd =
-                        cmdOnRouteChange route Nothing
+                        cmdOnRouteChange config route Nothing
                 in
                     ( { route = route }, cmd )
             )
         , view = view spec
-        , update = update spec
+        , update = update spec config
         , subscriptions =
             (\model ->
                 Sub.batch
-                    [ Ports.roomUpdated (\val -> Messages.GameMsgC (GameMessages.ReceiveUpdate val))
+                    [ config.roomUpdated (\val -> Messages.GameMsgC (GameMessages.ReceiveUpdate val))
                     , case model.route of
                         Router.Game _ ->
                             Time.every (20000 * Time.millisecond) (\time -> Messages.GameMsgC (GameMessages.Tick time))
 
                         Router.NewRoomRoute _ ->
-                            Ports.roomCreated (\msg -> Messages.NewRoomMsgC (NewRoomMessages.CreateResponse msg))
+                            config.roomCreated (\msg -> Messages.NewRoomMsgC (NewRoomMessages.CreateResponse msg))
 
                         _ ->
                             Sub.none
