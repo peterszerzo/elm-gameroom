@@ -5,7 +5,7 @@ import Gameroom.Messages exposing (..)
 import Gameroom.Models.Room as Room
 import Gameroom.Models.Main exposing (Model)
 import Gameroom.Models.Spec exposing (Spec)
-import Gameroom.Models.Ports exposing (Ports)
+import Gameroom.Ports exposing (Ports)
 import Gameroom.Router as Router
 import Gameroom.Modules.NewRoom.Update as NewRoomUpdate
 import Gameroom.Modules.Game.Update as GameUpdate

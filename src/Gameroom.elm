@@ -1,26 +1,24 @@
 module Gameroom exposing (..)
 
-{-| This library creates multiplayer games.
+{-| This is an opinionated framework for multiplayer guessing games. It takes care of the boilerplate for calling game rounds, generating problems and reconciling players, allowing the client to specify just the bits unique to each one, and write interesting multiplayer games in just about 200 lines of code.
+
+For some context on how it came to be, head here: https://github.com/peterszerzo/elm-gameroom/blob/master/talk.md.
 
 # The game spec
-@docs Spec, Ports
+@docs Spec
 
 # The program
 @docs program
 
-# Useful types
+# Program types
 @docs Model, Msg
-
-# Utilities
-@docs generatorFromList
 -}
 
 import Time
 import Navigation
-import Random
 import Gameroom.Models.Spec
-import Gameroom.Models.Ports
 import Gameroom.Models.Main
+import Gameroom.Ports
 import Gameroom.Messages as Messages
 import Gameroom.Update exposing (update, cmdOnRouteChange)
 import Gameroom.Router as Router
@@ -45,12 +43,6 @@ type alias Spec problemType guessType =
     Gameroom.Models.Spec.Spec problemType guessType
 
 
-{-| Program configuration, including ports
--}
-type alias Ports msg =
-    Gameroom.Models.Ports.Ports msg
-
-
 {-| Use this Msg type to annotate your program.
 -}
 type alias Msg problemType guessType =
@@ -63,13 +55,11 @@ type alias Model problemType guessType =
     Gameroom.Models.Main.Model problemType guessType
 
 
-{-| Create the game program. No intricately wired up inits, updates or views to be passed in here, just a Spec.
-
-Appropriate ports must be wired up. Docs for that are coming soon!
+{-| Create the game program from a Spec and Ports. See the Gameroom.Ports module docs for a detailed explanation on how ports must be wired up for things to work.
 -}
 program :
     Spec problemType guessType
-    -> Ports (Msg problemType guessType)
+    -> Gameroom.Ports.Ports (Msg problemType guessType)
     -> Program Never (Model problemType guessType) (Msg problemType guessType)
 program spec config =
     Navigation.program (Messages.ChangeRoute << Router.parse)
@@ -102,25 +92,3 @@ program spec config =
                     ]
             )
         }
-
-
-{-| Create a generator from a discrete list of problems. For instance,
-
-    generatorFromList "apples" [ "oranges", "lemons" ] == generator yielding random problems from ["apples", "oranges", "lemons"]
-
-We're making your life a little hard having to break off the first member of your list, but it is necessary to make sure the array we end up working with is non-empty. We'd love to generate a funny word like "perrywinkle" to keep the compiler happy, but remember, problems can be of any shape or form, and elm-gameroom is unaware of what that shape or form is.
--}
-generatorFromList : problemType -> List problemType -> Random.Generator problemType
-generatorFromList first rest =
-    let
-        list =
-            [ first ] ++ rest
-    in
-        Random.int 0 (List.length list - 1)
-            |> Random.map
-                (\i ->
-                    list
-                        |> List.drop i
-                        |> List.head
-                        |> Maybe.withDefault first
-                )
