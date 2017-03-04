@@ -1,11 +1,8 @@
 module Gameroom exposing (..)
 
-{-| This is an opinionated framework for multiplayer guessing games. It takes care of the boilerplate for calling game rounds, generating problems and reconciling players, allowing the client to specify just the bits unique to each one, and write interesting multiplayer games in just about 200 lines of code.
+{-| This is an opinionated framework for multiplayer guessing games. It takes care of the boilerplate for calling game rounds, generating problems and reconciling players, allowing the client to specify only the bits unique to each game, and write fully functional frustraing enternatinment in just about 200 lines of code.
 
 For some context on how it came to be, head here: https://github.com/peterszerzo/elm-gameroom/blob/master/talk.md.
-
-# The game spec
-@docs Spec
 
 # The program
 @docs program
@@ -16,8 +13,8 @@ For some context on how it came to be, head here: https://github.com/peterszerzo
 
 import Time
 import Navigation
-import Gameroom.Models.Spec
 import Gameroom.Models.Main
+import Gameroom.Spec exposing (Spec)
 import Gameroom.Ports
 import Gameroom.Messages as Messages
 import Gameroom.Update exposing (update, cmdOnRouteChange)
@@ -25,22 +22,6 @@ import Gameroom.Router as Router
 import Gameroom.Views.Main exposing (view)
 import Gameroom.Modules.Game.Messages as GameMessages
 import Gameroom.Modules.NewRoom.Messages as NewRoomMessages
-
-
-{-| Define every moving part of a multiplayer game:
-
-    type alias Spec problemType guessType =
-        { view : ... -> Html.Html guessType
-        , isGuessCorrect : problemType -> guessType -> Bool
-        , problemGenerator : Random.Generator problemType
-        , problemEncoder : Maybe problemType -> JE.Value
-        , problemDecoder : JD.Decoder (Maybe problemType)
-        , guessEncoder : guessType -> JE.Value
-        , guessDecoder : JD.Decoder guessType
-        }
--}
-type alias Spec problemType guessType =
-    Gameroom.Models.Spec.Spec problemType guessType
 
 
 {-| Use this Msg type to annotate your program.
@@ -55,7 +36,7 @@ type alias Model problemType guessType =
     Gameroom.Models.Main.Model problemType guessType
 
 
-{-| Create the game program from a Spec and Ports. See the Gameroom.Ports module docs for a detailed explanation on how ports must be wired up for things to work.
+{-| Create the game program from a Spec - declarative definition of game rules, data structures - and a record of Ports - defined and wired up by the client. See Gameroom.Spec and Gameroom.Ports documentation for details.
 -}
 program :
     Spec problemType guessType

@@ -1,8 +1,8 @@
 module Gameroom.Models.Result exposing (..)
 
 import Dict
+import Gameroom.Spec as Spec
 import Gameroom.Models.Room as Room
-import Gameroom.Models.Spec as Spec
 
 
 type Result

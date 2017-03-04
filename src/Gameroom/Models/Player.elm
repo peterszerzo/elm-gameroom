@@ -13,6 +13,7 @@ type alias PlayerId =
 
 type alias Player guessType =
     { id : PlayerId
+    , roomId : String
     , isReady : Bool
     , score : Int
     , guess :
@@ -24,9 +25,10 @@ type alias Players guessType =
     Dict.Dict PlayerId (Player guessType)
 
 
-create : String -> Player guessType
-create id =
+create : String -> String -> Player guessType
+create id roomId =
     { id = id
+    , roomId = roomId
     , isReady = False
     , score = 0
     , guess = Nothing
@@ -41,6 +43,7 @@ encoder : (guessType -> JE.Value) -> (Player guessType -> JE.Value)
 encoder guessEncoder player =
     JE.object
         [ ( "id", JE.string player.id )
+        , ( "roomId", JE.string player.roomId )
         , ( "isReady", JE.bool player.isReady )
         , ( "score", JE.int player.score )
         , ( "guess"
@@ -68,8 +71,9 @@ collectionEncoder guessEncoder players =
 
 decoder : JD.Decoder guessType -> JD.Decoder (Player guessType)
 decoder guessDecoder =
-    JD.map4 Player
+    JD.map5 Player
         (JD.field "id" JD.string)
+        (JD.field "roomId" JD.string)
         (JD.field "isReady" JD.bool)
         (JD.field "score" JD.int)
         (JD.field "guess"

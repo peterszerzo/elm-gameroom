@@ -8,8 +8,9 @@
     ],
     "exposed-modules": [
         "Gameroom",
-        "Gameroom.Utilities",
-        "Gameroom.Ports"
+        "Gameroom.Spec",
+        "Gameroom.Ports",
+        "Gameroom.Utilities"
     ],
     "dependencies": {
         "elm-lang/core": "5.0.0 <= v < 6.0.0",

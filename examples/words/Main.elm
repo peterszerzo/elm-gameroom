@@ -5,7 +5,8 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Json.Encode as JE
 import Json.Decode as JD
-import Gameroom exposing (program, Model, Msg, Spec, Ports)
+import Gameroom exposing (program, Model, Msg, Spec)
+import Gameroom.Ports exposing (Ports)
 import Gameroom.Utilities exposing (generatorFromList)
 
 
@@ -95,6 +96,12 @@ port createRoom : String -> Cmd msg
 port roomCreated : (String -> msg) -> Sub msg
 
 
+port updatePlayer : String -> Cmd msg
+
+
+port playerUpdated : (String -> msg) -> Sub msg
+
+
 config : Ports (Msg ProblemType GuessType)
 config =
     { unsubscribeFromRoom = unsubscribeFromRoom
@@ -103,6 +110,8 @@ config =
     , roomUpdated = roomUpdated
     , createRoom = createRoom
     , roomCreated = roomCreated
+    , updatePlayer = updatePlayer
+    , playerUpdated = playerUpdated
     }
 
 

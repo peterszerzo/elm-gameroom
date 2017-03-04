@@ -4,7 +4,7 @@ import Random
 import Json.Encode as JE
 import Gameroom.Messages as Messages
 import Gameroom.Models.Room as Room
-import Gameroom.Models.Spec exposing (Spec)
+import Gameroom.Spec exposing (Spec)
 import Gameroom.Ports exposing (Ports)
 import Gameroom.Models.Result as Result
 import Gameroom.Modules.Game.Messages exposing (Msg(..))

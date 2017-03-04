@@ -4,8 +4,8 @@ import Dict
 import Html exposing (Html, div, text, p, table, tr, td, h2, ul, li, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
+import Gameroom.Spec exposing (Spec)
 import Gameroom.Modules.Game.Models exposing (Model)
-import Gameroom.Models.Spec exposing (Spec)
 import Gameroom.Models.Room as Room
 import Gameroom.Modules.Game.Messages exposing (Msg(..))
 import Gameroom.Views.Styles as Styles

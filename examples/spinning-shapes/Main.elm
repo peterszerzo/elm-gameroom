@@ -8,7 +8,8 @@ import Svg exposing (polygon, svg, g)
 import Svg.Attributes exposing (width, height, viewBox, points, transform)
 import Json.Encode as JE
 import Json.Decode as JD
-import Gameroom exposing (program, Model, Msg, Spec, Ports, generatorFromList)
+import Gameroom exposing (program, Model, Msg, Spec)
+import Gameroom.Ports exposing (Ports)
 
 
 -- Types
@@ -107,6 +108,12 @@ port createRoom : String -> Cmd msg
 port roomCreated : (String -> msg) -> Sub msg
 
 
+port updatePlayer : String -> Cmd msg
+
+
+port playerUpdated : (String -> msg) -> Sub msg
+
+
 config : Ports (Msg ProblemType GuessType)
 config =
     { unsubscribeFromRoom = unsubscribeFromRoom
@@ -115,6 +122,8 @@ config =
     , roomUpdated = roomUpdated
     , createRoom = createRoom
     , roomCreated = roomCreated
+    , updatePlayer = updatePlayer
+    , playerUpdated = playerUpdated
     }
 
 

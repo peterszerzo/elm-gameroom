@@ -36,7 +36,7 @@ create roomId playerIds =
     { id = roomId
     , host = playerIds |> List.head |> Maybe.withDefault ""
     , round = { no = 0, problem = Nothing }
-    , players = Dict.fromList (List.map (\playerId -> ( playerId, Player.create playerId )) playerIds)
+    , players = Dict.fromList (List.map (\playerId -> ( playerId, Player.create playerId roomId )) playerIds)
     }
 
 

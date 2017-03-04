@@ -5,9 +5,7 @@
     <title>elm-gameroom</title>
     <style>
       * {
-        -webkit-font-smoothing: subpixel-antialiased;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-          sans-serif;
+        -webkit-font-smoothing: antialiased;
         box-sizing: border-box;
       }
 
@@ -37,27 +35,11 @@
   </head>
   <body>
     <div id="root"></div>
-    <script src="/db.js"></script>
+    <script src="/app.js"></script>
     <script src="/elm.js"></script>
     <script>
-      function talkToGameroom (db, ports) {
-        ports.subscribeToRoom.subscribe(function (roomId) {
-          db.subscribeToRoom(roomId, function (room) {
-            ports.roomUpdated.send(JSON.stringify(room))
-          })
-        })
-        ports.createRoom.subscribe(function (room) {
-          db.setRoom(JSON.parse(room)).then(function () {
-            ports.roomCreated.send('')
-          })
-        })
-        ports.updateRoom.subscribe(function (room) {
-          db.setRoom(JSON.parse(room))
-        })
-      }
-
-      var app = Elm.Main.embed(document.getElementById('root'))
-      talkToGameroom(window.db, app.ports)
+      var app = window.Elm.Main.embed(document.getElementById('root'))
+      window.talkToPorts(window.db, app.ports)
     </script>
   </body>
 </html>
