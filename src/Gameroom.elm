@@ -1,6 +1,6 @@
 module Gameroom exposing (..)
 
-{-| This is an opinionated framework for multiplayer guessing games. It takes care of the boilerplate for calling game rounds, generating problems and reconciling players, allowing the client to specify only the bits unique to each game, and write fully functional frustraing enternatinment in just about 200 lines of code.
+{-| This is an opinionated framework for multiplayer guessing games. It takes care of the boilerplate for calling game rounds, generating problems and reconciling players, allowing the client to specify only the bits unique to each game, and write fully functional frustraing entertainment in just about 200 lines of code.
 
 For some context on how it came to be, head here: https://github.com/peterszerzo/elm-gameroom/blob/master/talk.md.
 
