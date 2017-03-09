@@ -1,32 +1,27 @@
 port module Main exposing (..)
 
-import Random
-import Html exposing (Html, div, text, span)
+import Html exposing (Html, div, text, span, h1, ul, li)
 import Html.Attributes exposing (class, style, attribute)
 import Html.Events exposing (onClick)
-import Svg exposing (polygon, svg, g)
-import Svg.Attributes exposing (width, height, viewBox, points, transform)
 import Json.Encode as JE
 import Json.Decode as JD
 import Gameroom exposing (program, Model, Msg)
-import Gameroom.Spec exposing (Spec)
 import Gameroom.Ports exposing (Ports)
+import Gameroom.Spec exposing (Spec)
+import Gameroom.Utilities exposing (generatorFromList)
 
 
 -- Types
 
 
-type alias Point =
-    { x : Float
-    , y : Float
+type alias Problem =
+    { question : String
+    , answers : List String
+    , correct : Int
     }
 
 
-type alias ProblemType =
-    List Point
-
-
-type alias GuessType =
+type alias Guess =
     Int
 
 
@@ -34,7 +29,7 @@ type alias GuessType =
 -- Spec
 
 
-spec : Spec ProblemType GuessType
+spec : Spec Problem Guess
 spec =
     { view =
         (\playerId players problem ->
@@ -49,41 +44,37 @@ spec =
                     , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0)" )
                     ]
                 ]
-                [ svg [ viewBox "0 0 1000 1000" ]
-                    (List.indexedMap
-                        (\index { x, y } ->
-                            let
-                                translateString =
-                                    ("translate(" ++ (toString (x * 900 + 50)) ++ "," ++ (toString (y * 900 + 50)) ++ ")")
-                            in
-                                g [ transform translateString ]
-                                    [ polygon [ points "-50,-28.8 50,-28.8 0,57.7", onClick index ] []
-                                    ]
-                        )
-                        problem
-                    )
+                [ h1 [] [ text problem.question ]
+                , ul [] (List.indexedMap (\index answer -> li [ onClick index ] [ text answer ]) problem.answers)
                 ]
         )
-    , isGuessCorrect = (\problem guess -> (guess == 0))
+    , isGuessCorrect = (\problem guess -> (guess == problem.correct))
     , problemGenerator =
-        Random.list 10 (Random.map2 Point (Random.float 0 1) (Random.float 0 1))
+        generatorFromList
+            { question = "What's the capital of Latvia?"
+            , answers = [ "Tallin", "Riga", "Vilnius", "Moscow" ]
+            , correct = 2
+            }
+            [ { question = "What's the capital of Hungary?"
+              , answers = [ "Budapest", "Pécs", "Mosonmagyaróvár", "Garmisch-Partenkirchen" ]
+              , correct = 0
+              }
+            ]
     , guessEncoder = JE.int
     , guessDecoder = JD.int
     , problemEncoder =
-        List.map
-            (\triangle ->
-                JE.object
-                    [ ( "x", JE.float triangle.x )
-                    , ( "y", JE.float triangle.y )
-                    ]
-            )
-            >> JE.list
+        (\pb ->
+            JE.object
+                [ ( "question", JE.string pb.question )
+                , ( "answers", List.map JE.string pb.answers |> JE.list )
+                , ( "correct", JE.int pb.correct )
+                ]
+        )
     , problemDecoder =
-        JD.list
-            (JD.map2 Point
-                (JD.field "x" JD.float)
-                (JD.field "y" JD.float)
-            )
+        JD.map3 Problem
+            (JD.field "question" JD.string)
+            (JD.field "answers" (JD.list JD.string))
+            (JD.field "correct" JD.int)
     }
 
 
@@ -115,7 +106,7 @@ port updatePlayer : String -> Cmd msg
 port playerUpdated : (String -> msg) -> Sub msg
 
 
-config : Ports (Msg ProblemType GuessType)
+config : Ports (Msg Problem Guess)
 config =
     { unsubscribeFromRoom = unsubscribeFromRoom
     , subscribeToRoom = subscribeToRoom
@@ -132,6 +123,6 @@ config =
 -- Program
 
 
-main : Program Never (Model ProblemType GuessType) (Msg ProblemType GuessType)
+main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     Gameroom.program spec config

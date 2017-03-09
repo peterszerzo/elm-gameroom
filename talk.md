@@ -35,7 +35,7 @@ It's a guessing game: all players need to be online at all times.
 So we can:
 * keep track of the entire game state on all clients. Push changes as they happen.
 * designate one of the clients as a host.
-* if the game round is over and the client is the host, then reconcile scores and initiate new round.
+* if the game round is over based on state on any one client and that client happens to be the host, then reconcile scores and initiate new round.
 
 => we can strip the server down to generic realtime backend: Firebase, Horizon, or something custom.
 
@@ -47,12 +47,12 @@ So we can:
 
 ### What do we need to describe a game?
 
-* the problem: `"hedgehog"`
-* the guess: `1`
-* a view as a function of the problem, emitting guesses: `span [ onClick 2 ] [ text "d" ]`
+* the `word = "hedgehog"`
+* the `guess = 1`
+* a view as a function of the problem, emitting guesses: `List.indexedMap (\index letter -> span [ onClick index ] [ text letter ]) (String.split "" word)`
 * whether a guess is correct:
-  `Cool: guess == 0`
-  `Better luck next time: guess == 0`
+  `guess == 0` is cool
+  but `guess == 0` is a `betterLuckNextTime()`
 * a collection of possible game problems. Or a random game problem generator.
 
 ---
@@ -113,6 +113,8 @@ type alias Spec problemType guessType =
 
 ### elm-gameroom
 
+A library that takes in a `Spec` and spits out a program.
+
 ```elm
 program : Spec pt gt -> Program Never (Model pt gt) (Msg pt gt)
 ```
@@ -121,7 +123,20 @@ program : Spec pt gt -> Program Never (Model pt gt) (Msg pt gt)
 
 ### Ok, well, not quite that simple
 
-Cannot publish a package that defines its own ports. It is the client's responsibility to set up the ports and communicate with them in the 'correct' way.
+Communicating with the back-end goes through ports.
+
+But you cannot publish a package that defines its own ports, for very good reasons:
+* may clash with port names the client defined.
+* may make projects rely on poorly documented ports.
+* semantic versioning on what goes in and out of ports cannot be enforced.
+
+---
+
+### The responsible cheater
+
+It is the client's responsibility to set up the ports and communicate with them in the 'correct' way.
+
+`elm-gameroom` expects these ports to be passed in by the client.
 
 ```elm
 type alias Ports msg =
@@ -161,16 +176,28 @@ getDummy : String -> Player
 ### Impossible states representable
 
 ```elm
-type alias Guess =
-    {
-    }
+type alias Guess = Pending | Made guessValue | Idle
 ```
+
+The time elapsed in a certain round is also tracked.
+
+=> `Idle` is derived data
 
 ---
 
-### Some learning
+### Autonomous components
 
-* With lots of type variables, you get less help from the compiler: `Maybe change your type annotation to be more specific? Maybe the code has a problem?`.
+Gameplay, tutorial and create game room 'components' are fully autonomous, with their own messages, model, update, and even commands and subscriptions.
+
+There is some mighty strange glue code that I do not wish to talk about.
+
+---
+
+## Refactoring or waterfall?
+
+These quirks above made the code so unpleasant that I decided to start with the public API above and just rewrite, copying over bits of Lettero when appropriate.
+
+Good high-level design goes most of the way there. 
 
 ---
 
