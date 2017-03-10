@@ -103,8 +103,8 @@ port updatePlayer : String -> Cmd msg
 port playerUpdated : (String -> msg) -> Sub msg
 
 
-config : Ports (Msg ProblemType GuessType)
-config =
+ports : Ports (Msg ProblemType GuessType)
+ports =
     { unsubscribeFromRoom = unsubscribeFromRoom
     , subscribeToRoom = subscribeToRoom
     , updateRoom = updateRoom
@@ -118,4 +118,4 @@ config =
 
 main : Program Never (Model ProblemType GuessType) (Msg ProblemType GuessType)
 main =
-    Gameroom.program spec config
+    Gameroom.program spec ports

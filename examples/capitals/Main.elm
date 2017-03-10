@@ -106,8 +106,8 @@ port updatePlayer : String -> Cmd msg
 port playerUpdated : (String -> msg) -> Sub msg
 
 
-config : Ports (Msg Problem Guess)
-config =
+ports : Ports (Msg Problem Guess)
+ports =
     { unsubscribeFromRoom = unsubscribeFromRoom
     , subscribeToRoom = subscribeToRoom
     , updateRoom = updateRoom
@@ -125,4 +125,4 @@ config =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    Gameroom.program spec config
+    Gameroom.program spec ports
