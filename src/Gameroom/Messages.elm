@@ -9,8 +9,8 @@ import Gameroom.Modules.NewRoom.Messages as NewRoomMessages
 -- (abbreviation is necessary to avoid lack of readibility in the debugger)
 
 
-type Msg problemType guessType
-    = ChangeRoute (Router.Route problemType guessType)
-    | GameMsgC (GameMessages.Msg problemType guessType)
+type Msg problem guess
+    = ChangeRoute (Router.Route problem guess)
+    | GameMsgC (GameMessages.Msg problem guess)
     | NewRoomMsgC NewRoomMessages.Msg
     | Navigate String

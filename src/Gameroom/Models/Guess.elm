@@ -3,13 +3,13 @@ module Gameroom.Models.Guess exposing (..)
 import Json.Decode as JD
 
 
-type alias GuessWithTimestamp guessType =
-    { value : guessType
+type alias GuessWithTimestamp guess =
+    { value : guess
     , madeAt : Float
     }
 
 
-withTimestampDecoder : JD.Decoder guessType -> JD.Decoder (GuessWithTimestamp guessType)
+withTimestampDecoder : JD.Decoder guess -> JD.Decoder (GuessWithTimestamp guess)
 withTimestampDecoder guessDecoder =
     JD.map2 GuessWithTimestamp
         (JD.field "value" guessDecoder)

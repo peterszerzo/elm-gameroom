@@ -26,22 +26,22 @@ import Gameroom.Modules.NewRoom.Messages as NewRoomMessages
 
 {-| Use this Msg type to annotate your program.
 -}
-type alias Msg problemType guessType =
-    Messages.Msg problemType guessType
+type alias Msg problem guess =
+    Messages.Msg problem guess
 
 
 {-| Use this Model type to annotate your program.
 -}
-type alias Model problemType guessType =
-    Gameroom.Models.Main.Model problemType guessType
+type alias Model problem guess =
+    Gameroom.Models.Main.Model problem guess
 
 
 {-| Create the game program from a Spec - declarative definition of game rules, data structures - and a record of Ports - defined and wired up by the client. See Gameroom.Spec and Gameroom.Ports documentation for details.
 -}
 program :
-    Spec problemType guessType
-    -> Gameroom.Ports.Ports (Msg problemType guessType)
-    -> Program Never (Model problemType guessType) (Msg problemType guessType)
+    Spec problem guess
+    -> Gameroom.Ports.Ports (Msg problem guess)
+    -> Program Never (Model problem guess) (Msg problem guess)
 program spec config =
     Navigation.program (Messages.ChangeRoute << Router.parse)
         { init =

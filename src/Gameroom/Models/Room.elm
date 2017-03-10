@@ -10,20 +10,20 @@ import Gameroom.Constants exposing (nullString)
 -- Type definitions
 
 
-type alias Round problemType =
+type alias Round problem =
     { no : Int
-    , problem : Maybe problemType
+    , problem : Maybe problem
     }
 
 
-type alias Room problemType guessType =
+type alias Room problem guess =
     { id : String
     , host : String
     , round :
         { no : Int
-        , problem : Maybe problemType
+        , problem : Maybe problem
         }
-    , players : Dict.Dict String (Player.Player guessType)
+    , players : Dict.Dict String (Player.Player guess)
     }
 
 
@@ -31,7 +31,7 @@ type alias Room problemType guessType =
 -- Helpers
 
 
-create : String -> List String -> Room problemType guessType
+create : String -> List String -> Room problem guess
 create roomId playerIds =
     { id = roomId
     , host = playerIds |> List.head |> Maybe.withDefault ""
@@ -40,7 +40,7 @@ create roomId playerIds =
     }
 
 
-allPlayersReady : Room problemType guessType -> Bool
+allPlayersReady : Room problem guess -> Bool
 allPlayersReady room =
     room.players
         |> Dict.toList
@@ -49,7 +49,7 @@ allPlayersReady room =
         |> List.all identity
 
 
-updatePlayer : (Player.Player guessType -> Player.Player guessType) -> String -> Room problemType guessType -> Room problemType guessType
+updatePlayer : (Player.Player guess -> Player.Player guess) -> String -> Room problem guess -> Room problem guess
 updatePlayer transform playerId room =
     case (Dict.get playerId room.players) of
         Just player ->
@@ -59,7 +59,7 @@ updatePlayer transform playerId room =
             room
 
 
-setNewRound : Maybe String -> Room problemType guessType -> Room problemType guessType
+setNewRound : Maybe String -> Room problem guess -> Room problem guess
 setNewRound maybeWinnerId room =
     { room
         | round = { no = room.round.no + 1, problem = Nothing }
@@ -91,7 +91,7 @@ setNewRound maybeWinnerId room =
 -- Encoders
 
 
-encoder : (problemType -> JE.Value) -> (guessType -> JE.Value) -> (Room problemType guessType -> JE.Value)
+encoder : (problem -> JE.Value) -> (guess -> JE.Value) -> (Room problem guess -> JE.Value)
 encoder problemEncoder guessEncoder room =
     JE.object
         [ ( "id", JE.string room.id )
@@ -101,7 +101,7 @@ encoder problemEncoder guessEncoder room =
         ]
 
 
-roundEncoder : (problemType -> JE.Value) -> (Round problemType -> JE.Value)
+roundEncoder : (problem -> JE.Value) -> (Round problem -> JE.Value)
 roundEncoder problemEncoder round =
     JE.object
         [ ( "no", JE.int round.no )
@@ -120,7 +120,7 @@ roundEncoder problemEncoder round =
 -- Decoders
 
 
-decoder : JD.Decoder problemType -> JD.Decoder guessType -> JD.Decoder (Room problemType guessType)
+decoder : JD.Decoder problem -> JD.Decoder guess -> JD.Decoder (Room problem guess)
 decoder problemDecoder guessDecoder =
     JD.map4 Room
         (JD.field "id" JD.string)
@@ -129,7 +129,7 @@ decoder problemDecoder guessDecoder =
         (JD.field "players" (JD.dict (Player.decoder guessDecoder)))
 
 
-roundDecoder : JD.Decoder problemType -> JD.Decoder (Round problemType)
+roundDecoder : JD.Decoder problem -> JD.Decoder (Round problem)
 roundDecoder problemDecoder =
     JD.map2 Round
         (JD.field "no" JD.int)

@@ -6,12 +6,12 @@ import Gameroom.Modules.NewRoom.Models as NewRoom
 import Gameroom.Modules.Game.Models as Game
 
 
-type Route problemType guessType
+type Route problem guess
     = Home
     | About
     | Tutorial
     | NewRoomRoute NewRoom.Model
-    | Game (Game.Model problemType guessType)
+    | Game (Game.Model problem guess)
     | NotFound
 
 
@@ -40,12 +40,12 @@ roomsPath =
     "rooms"
 
 
-defaultRouteUrl : ( Route problemType guessType, String )
+defaultRouteUrl : ( Route problem guess, String )
 defaultRouteUrl =
     ( Home, "" )
 
 
-matchers : UrlParser.Parser (Route problemType guessType -> a) a
+matchers : UrlParser.Parser (Route problem guess -> a) a
 matchers =
     UrlParser.oneOf
         [ s homePath |> map Home
@@ -59,7 +59,7 @@ matchers =
         ]
 
 
-parse : Navigation.Location -> Route problemType guessType
+parse : Navigation.Location -> Route problem guess
 parse location =
     location
         |> UrlParser.parsePath matchers

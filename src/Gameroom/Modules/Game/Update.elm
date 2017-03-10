@@ -12,17 +12,17 @@ import Gameroom.Modules.Game.Models exposing (Model)
 import Json.Decode as JD
 
 
-saveCmd : Spec problemType guessType -> Ports (Messages.Msg problemType guessType) -> Model problemType guessType -> Cmd (Messages.Msg problemType guessType)
+saveCmd : Spec problem guess -> Ports (Messages.Msg problem guess) -> Model problem guess -> Cmd (Messages.Msg problem guess)
 saveCmd spec ports model =
     model.room |> Maybe.map (ports.updateRoom << JE.encode 0 << Room.encoder spec.problemEncoder spec.guessEncoder) |> Maybe.withDefault Cmd.none
 
 
 update :
-    Spec problemType guessType
-    -> Ports (Messages.Msg problemType guessType)
-    -> Msg problemType guessType
-    -> Model problemType guessType
-    -> ( Model problemType guessType, Cmd (Messages.Msg problemType guessType) )
+    Spec problem guess
+    -> Ports (Messages.Msg problem guess)
+    -> Msg problem guess
+    -> Model problem guess
+    -> ( Model problem guess, Cmd (Messages.Msg problem guess) )
 update spec ports msg model =
     case msg of
         ReceiveUpdate roomString ->

@@ -11,7 +11,7 @@ type Result
     | Tie
 
 
-get : Spec.Spec problemType guessType -> Room.Room problemType guessType -> Result
+get : Spec.Spec problem guess -> Room.Room problem guess -> Result
 get spec room =
     room.players
         |> Dict.toList

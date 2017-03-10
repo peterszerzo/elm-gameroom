@@ -13,10 +13,10 @@ import Json.Encode as JE
 
 
 cmdOnRouteChange :
-    Ports (Msg problemType guessType)
-    -> Router.Route problemType guessType
-    -> Maybe (Router.Route problemType guessType)
-    -> Cmd (Msg problemType guessType)
+    Ports (Msg problem guess)
+    -> Router.Route problem guess
+    -> Maybe (Router.Route problem guess)
+    -> Cmd (Msg problem guess)
 cmdOnRouteChange ports route prevRoute =
     case route of
         Router.Game game ->
@@ -36,7 +36,7 @@ cmdOnRouteChange ports route prevRoute =
                 |> Maybe.withDefault Cmd.none
 
 
-update : Spec problemType guessType -> Ports (Msg problemType guessType) -> Msg problemType guessType -> Model problemType guessType -> ( Model problemType guessType, Cmd (Msg problemType guessType) )
+update : Spec problem guess -> Ports (Msg problem guess) -> Msg problem guess -> Model problem guess -> ( Model problem guess, Cmd (Msg problem guess) )
 update spec ports msg model =
     case msg of
         ChangeRoute route ->

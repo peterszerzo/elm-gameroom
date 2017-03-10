@@ -11,7 +11,7 @@ import Gameroom.Modules.Game.Messages exposing (Msg(..))
 import Gameroom.Views.Styles as Styles
 
 
-scoreboard : String -> Room.Room problemType guessType -> Html msg
+scoreboard : String -> Room.Room problem guess -> Html msg
 scoreboard playerId room =
     div
         [ style
@@ -63,7 +63,7 @@ viewReadyPrompt spec model room =
         ]
 
 
-viewRoom : Spec problemType guessType -> Model problemType guessType -> Room.Room problemType guessType -> Html (Msg problemType guessType)
+viewRoom : Spec problem guess -> Model problem guess -> Room.Room problem guess -> Html (Msg problem guess)
 viewRoom spec model room =
     div []
         [ if Room.allPlayersReady room then
@@ -80,7 +80,7 @@ viewRoom spec model room =
         ]
 
 
-view : Spec problemType guessType -> Model problemType guessType -> Html (Msg problemType guessType)
+view : Spec problem guess -> Model problem guess -> Html (Msg problem guess)
 view spec model =
     case model.room of
         Just room ->
