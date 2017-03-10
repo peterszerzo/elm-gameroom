@@ -10,17 +10,15 @@ I was playing a word game, thinking:
 
 > I should totally make this for the browser.
 
-I got around to it two years later. In Elm.
-
 https://lettero.co
 
 ---
 
 ## So how was it?
 
-Well, client-server logic splitting/sharing quickly got weird and tedious.
+Oh, client-server logic splitting/sharing...
 
-> There's no way around it, I guess. Someone needs to call the shots and reconcile the score, right?
+> There's no way around it, I guess.
 
 Or maybe I should run some Elm in Node?
 
@@ -30,16 +28,16 @@ Or can I do better?
 
 ## The use-case is a little special
 
-It's a guessing game: all players need to be online at all times.
+All players need to be online at all times.
 
 So we can:
-* keep track of the entire game state on all clients. Push changes as they happen.
+* push game room state to all clients.
 * designate one of the clients as a host.
 * this host calls the shots and updates the scores.
 
 (beware of race conditions)
 
-=> We can strip the server down to generic realtime backend: Firebase, Horizon, or something custom.
+=> Generic realtime backend: Firebase, Horizon, or something custom.
 
 => No more client-server code sharing.
 
@@ -82,7 +80,7 @@ problemGenerator =
 
 ### Anything else?
 
-Gotta persist information on a generic back-end. So we need some encoders and decoders.
+Some encoders and decoders.
 
 ```elm
 problemEncoder = Json.Encode.string
@@ -96,7 +94,7 @@ problemDecoder = Json.Decode.int
 
 ---
 
-### How does all this look like in the abstract?
+### In the abstract..
 
 ```elm
 type alias Spec problem guess =
@@ -114,8 +112,6 @@ type alias Spec problem guess =
 
 ### elm-gameroom
 
-A library that takes in a `Spec` and spits out a program.
-
 ```elm
 program : Spec problem guess -> Program Never (Model problem guess) (Msg problem guess)
 ```
@@ -126,18 +122,17 @@ program : Spec problem guess -> Program Never (Model problem guess) (Msg problem
 
 Communicating with the back-end goes through ports.
 
-But you cannot publish a package that defines its own ports, for very good reasons:
-* may clash with port names the client defined.
+But you cannot publish a package with ports.
+* port name clashes.
 * may make projects rely on poorly documented ports.
-* semantic versioning on what goes in and out of ports cannot be enforced.
+* semantic versioning cannot be enforced.
 
 ---
 
 ### The responsible cheater
 
-It is the library's responsibility to document the heck out of how ports should work. It is the client's responsibility to actually define and talk to them, both in Elm and JavaScript.
-
-Sooo, `elm-gameroom` expects the following ports record, all sending strings:
+Library: documents the heck out of how ports should work.
+Client: defines and talks to ports, both in Elm and JavaScript.
 
 ```elm
 type alias Ports msg =
@@ -216,9 +211,9 @@ But really, always..
 type alias Guess = Pending | Made guessValue | Idle
 ```
 
-The time elapsed in a certain round is also tracked.
+But the time elapsed in a certain round is also tracked.
 
-=> `Idle` is derived data. Data that must be derived and underived in more places one might anticipate.
+=> `Idle` is derived data.
 
 > Resist the temptation to add explicit derived data just because it is nice to have it explicit.
 
@@ -226,7 +221,7 @@ The time elapsed in a certain round is also tracked.
 
 ### Autonomous components
 
-In Lettero, gameplay, tutorial and create game room 'components' are fully autonomous, with their own messages, model, update, and even commands and subscriptions.
+In Lettero, gameplay, tutorial and create game room 'components' are fully autonomous.
 
 There is some mighty strange glue code that I do not wish to talk about.
 
