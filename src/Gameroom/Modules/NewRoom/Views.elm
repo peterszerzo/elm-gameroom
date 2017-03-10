@@ -1,6 +1,6 @@
 module Gameroom.Modules.NewRoom.Views exposing (..)
 
-import Html exposing (Html, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a)
+import Html exposing (Html, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
 import Html.Attributes exposing (class, style, type_, value, id, for, href)
 import Html.Events exposing (onClick, onInput)
 import Gameroom.Modules.NewRoom.Models exposing (Model, Status(..))
@@ -40,9 +40,9 @@ viewForm model =
                     )
                     model.playerIds
                 )
-            , button [ style Styles.link, onClick AddPlayer ] [ text "Add player" ]
+            , button [ style (Styles.link ++ [ ( "margin", "20px 0 0" ), ( "width", "100%" ) ]), onClick AddPlayer ] [ text "Add player" ]
             , (if canSubmit then
-                input [ style Styles.link, type_ "submit", onClick CreateRequest ] []
+                input [ style (Styles.link ++ [ ( "margin", "20px 0 0" ), ( "width", "100%" ) ]), type_ "submit", onClick CreateRequest ] []
                else
                 div [] []
               )
@@ -52,12 +52,13 @@ viewForm model =
 viewSuccess : Model -> Html Msg
 viewSuccess model =
     div [ style Styles.centered ]
-        [ h2 [] [ text "Your room is ready" ]
-        , ul [ style [ ( "list-style", "none" ) ] ]
+        [ h2 [ style Styles.subheroType ] [ text "Your room is ready" ]
+        , p [ style Styles.bodyType ] [ text "Navigate to these links and share them with your opponents:" ]
+        , ul [ style [ ( "list-style", "none" ), ( "margin", "20px 0 0" ), ( "padding", "0" ) ] ]
             (model.playerIds
                 |> List.map
                     (\id ->
-                        li []
+                        li [ style [ ( "display", "inline-block" ) ] ]
                             [ a [ style Styles.link, href ("/rooms/" ++ model.roomId ++ "/" ++ id) ] [ text id ]
                             ]
                     )

@@ -40,23 +40,37 @@ scoreboard playerId room =
 viewReadyPrompt : Spec problemType guessType -> Model problemType guessType -> Room.Room problemType guessType -> Html (Msg problemType guessType)
 viewReadyPrompt spec model room =
     div [ style Styles.centered ]
-        [ h2 [] [ text "Ready?" ]
-        , ul [ style [ ( "list-style", "none" ), ( "padding", "0" ) ] ]
+        [ h2 [ style Styles.subheroType ] [ text "Ready?" ]
+        , ul [ style [ ( "list-style", "none" ), ( "padding", "0" ), ( "margin", "0" ) ] ]
             (room.players
                 |> Dict.toList
                 |> List.map Tuple.second
                 |> List.map
                     (\pl ->
-                        li []
+                        li [ style [ ( "display", "inline-block" ) ] ]
                             [ span
-                                ([ style Styles.link ]
+                                ([ style
+                                    (if model.playerId == pl.id then
+                                        Styles.link
+                                     else
+                                        Styles.disabledLink
+                                    )
+                                 ]
                                     ++ (if model.playerId == pl.id then
                                             [ onClick MarkReady ]
                                         else
                                             []
                                        )
                                 )
-                                [ text pl.id ]
+                                [ text
+                                    (pl.id
+                                        ++ (if pl.isReady then
+                                                " ✓"
+                                            else
+                                                " .."
+                                           )
+                                    )
+                                ]
                             ]
                     )
             )

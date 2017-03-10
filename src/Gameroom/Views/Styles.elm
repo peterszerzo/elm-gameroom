@@ -109,6 +109,24 @@ heroType =
     ]
 
 
+subheroType : List ( String, String )
+subheroType =
+    [ ( "font-size", "3rem" )
+    , ( "font-weight", "300" )
+    , ( "margin", "20px auto 40px" )
+    , ( "font-family", font )
+    ]
+
+
+bodyType : List ( String, String )
+bodyType =
+    [ ( "font-size", "1rem" )
+    , ( "font-weight", "300" )
+    , ( "margin", "10px auto" )
+    , ( "font-family", font )
+    ]
+
+
 link : List ( String, String )
 link =
     [ ( "color", "#FFF" )
@@ -123,3 +141,8 @@ link =
     , ( "border-radius", "3px" )
     , ( "border", "none" )
     ]
+
+
+disabledLink : List ( String, String )
+disabledLink =
+    link ++ [ ( "border", "2px solid " ++ blue ), ( "color", blue ), ( "background", "none" ), ( "opacity", "0.8" ) ]
