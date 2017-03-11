@@ -2,6 +2,7 @@ module Gameroom.Modules.Game.Update exposing (..)
 
 import Random
 import Json.Encode as JE
+import Gameroom.Constants as Consts
 import Gameroom.Commands as Commands
 import Gameroom.Messages as Messages
 import Gameroom.Models.Room as Room
@@ -134,7 +135,7 @@ update spec ports msg model =
         Tick time ->
             ( { model
                 | roundTime =
-                    model.roundTime + 1
+                    model.roundTime + Consts.gameTick
               }
             , Cmd.none
             )

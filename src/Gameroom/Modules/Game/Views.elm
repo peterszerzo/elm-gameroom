@@ -4,6 +4,7 @@ import Dict
 import Html exposing (Html, div, text, p, table, tr, td, h2, ul, li, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
+import Gameroom.Constants as Consts
 import Gameroom.Spec exposing (Spec)
 import Gameroom.Modules.Game.Models exposing (Model)
 import Gameroom.Models.Room as Room
@@ -11,14 +12,25 @@ import Gameroom.Modules.Game.Messages exposing (Msg(..))
 import Gameroom.Views.Styles as Styles
 
 
-scoreboard : String -> Room.Room problem guess -> Html msg
-scoreboard playerId room =
+footer : List (Html msg) -> Html msg
+footer children =
     div
         [ style
             [ ( "position", "fixed" )
             , ( "right", "0" )
             , ( "bottom", "0" )
             , ( "width", "100%" )
+            , ( "overflow", "visible" )
+            ]
+        ]
+        children
+
+
+scoreboard : String -> Room.Room problem guess -> Html msg
+scoreboard playerId room =
+    div
+        [ style
+            [ ( "width", "100%" )
             , ( "padding", "5px" )
             , ( "background", "#eee" )
             , ( "text-align", "center" )
@@ -35,6 +47,21 @@ scoreboard playerId room =
                 )
             |> (\list -> div [] list)
         ]
+
+
+timer : Float -> Html msg
+timer ratio =
+    div
+        [ style
+            [ ( "position", "absolute" )
+            , ( "top", "-2px" )
+            , ( "height", "2px" )
+            , ( "left", "0" )
+            , ( "background", "#ddd" )
+            , ( "width", ((max (1 - ratio) 0) * 100 |> toString) ++ "%" )
+            ]
+        ]
+        [ text " " ]
 
 
 viewReadyPrompt : Spec problemType guessType -> Model problemType guessType -> Room.Room problemType guessType -> Html (Msg problemType guessType)
@@ -90,7 +117,10 @@ viewRoom spec model room =
             )
           else
             viewReadyPrompt spec model room
-        , scoreboard model.playerId room
+        , footer
+            [ timer (model.roundTime / Consts.roundDuration)
+            , scoreboard model.playerId room
+            ]
         ]
 
 

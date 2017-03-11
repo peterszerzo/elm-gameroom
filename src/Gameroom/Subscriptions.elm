@@ -2,6 +2,7 @@ module Gameroom.Subscriptions exposing (..)
 
 import Time
 import Json.Decode as JD
+import Gameroom.Constants as Consts
 import Gameroom.Messages as Messages
 import Gameroom.Modules.Game.Messages as GameMessages
 import Gameroom.Router as Router
@@ -23,7 +24,7 @@ subscriptions spec ports model =
             )
         , case model.route of
             Router.Game _ ->
-                Time.every (20000 * Time.millisecond) (\time -> Messages.GameMsgC (GameMessages.Tick time))
+                Time.every Consts.gameTick (\time -> Messages.GameMsgC (GameMessages.Tick time))
 
             _ ->
                 Sub.none
