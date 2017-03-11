@@ -39,7 +39,7 @@ update spec ports msg model =
                     Maybe.withDefault Cmd.none
                         << Maybe.map
                             (\room ->
-                                if (room.host == model.playerId |> Debug.log "ishost") then
+                                if (room.host == model.playerId) then
                                     (Random.generate (\pb -> Messages.GameMsgC (ReceiveNewProblem pb)) spec.problemGenerator)
                                 else
                                     Cmd.none

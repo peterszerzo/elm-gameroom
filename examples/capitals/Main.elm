@@ -106,6 +106,12 @@ port updatePlayer : String -> Cmd msg
 port playerUpdated : (String -> msg) -> Sub msg
 
 
+port outgoing : String -> Cmd msg
+
+
+port incoming : (String -> msg) -> Sub msg
+
+
 ports : Ports (Msg Problem Guess)
 ports =
     { unsubscribeFromRoom = unsubscribeFromRoom
@@ -116,6 +122,8 @@ ports =
     , roomCreated = roomCreated
     , updatePlayer = updatePlayer
     , playerUpdated = playerUpdated
+    , outgoing = outgoing
+    , incoming = incoming
     }
 
 

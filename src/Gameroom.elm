@@ -11,17 +11,15 @@ For some context on how it came to be, head here: https://github.com/peterszerzo
 @docs Model, Msg
 -}
 
-import Time
 import Navigation
 import Gameroom.Models.Main
 import Gameroom.Spec exposing (Spec)
 import Gameroom.Ports
+import Gameroom.Subscriptions exposing (subscriptions)
 import Gameroom.Messages as Messages
 import Gameroom.Update exposing (update, cmdOnRouteChange)
 import Gameroom.Router as Router
 import Gameroom.Views.Main exposing (view)
-import Gameroom.Modules.Game.Messages as GameMessages
-import Gameroom.Modules.NewRoom.Messages as NewRoomMessages
 
 
 {-| Use this Msg type to annotate your program.
@@ -42,7 +40,7 @@ program :
     Spec problem guess
     -> Gameroom.Ports.Ports (Msg problem guess)
     -> Program Never (Model problem guess) (Msg problem guess)
-program spec config =
+program spec ports =
     Navigation.program (Messages.ChangeRoute << Router.parse)
         { init =
             (\loc ->
@@ -51,25 +49,11 @@ program spec config =
                         Router.parse loc
 
                     cmd =
-                        cmdOnRouteChange config route Nothing
+                        cmdOnRouteChange ports route Nothing
                 in
                     ( { route = route }, cmd )
             )
         , view = view spec
-        , update = update spec config
-        , subscriptions =
-            (\model ->
-                Sub.batch
-                    [ config.roomUpdated (\val -> Messages.GameMsgC (GameMessages.ReceiveUpdate val))
-                    , case model.route of
-                        Router.Game _ ->
-                            Time.every (20000 * Time.millisecond) (\time -> Messages.GameMsgC (GameMessages.Tick time))
-
-                        Router.NewRoomRoute _ ->
-                            config.roomCreated (\msg -> Messages.NewRoomMsgC (NewRoomMessages.CreateResponse msg))
-
-                        _ ->
-                            Sub.none
-                    ]
-            )
+        , update = update spec ports
+        , subscriptions = subscriptions ports
         }

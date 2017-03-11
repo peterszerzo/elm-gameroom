@@ -1,6 +1,7 @@
 module Gameroom.Update exposing (..)
 
 import Navigation
+import Gameroom.Commands
 import Gameroom.Messages exposing (..)
 import Gameroom.Models.Room as Room
 import Gameroom.Models.Main exposing (Model)
@@ -67,11 +68,18 @@ update spec ports msg model =
                     in
                         ( { model | route = Router.NewRoomRoute newNewRoom }
                         , if sendSaveCommand then
-                            ports.createRoom
-                                (Room.create newRoom.roomId newRoom.playerIds
-                                    |> Room.encoder spec.problemEncoder spec.guessEncoder
+                            Cmd.batch
+                                [ ports.createRoom
+                                    (Room.create newRoom.roomId newRoom.playerIds
+                                        |> Room.encoder spec.problemEncoder spec.guessEncoder
+                                        |> JE.encode 0
+                                    )
+                                , Room.create newRoom.roomId newRoom.playerIds
+                                    |> Gameroom.Commands.CreateRoom
+                                    |> Gameroom.Commands.commandEncoder spec.problemEncoder spec.guessEncoder
                                     |> JE.encode 0
-                                )
+                                    |> ports.outgoing
+                                ]
                           else
                             Cmd.none
                         )

@@ -22,11 +22,11 @@ type alias Point =
     }
 
 
-type alias ProblemType =
+type alias Problem =
     List Point
 
 
-type alias GuessType =
+type alias Guess =
     Int
 
 
@@ -34,7 +34,7 @@ type alias GuessType =
 -- Spec
 
 
-spec : Spec ProblemType GuessType
+spec : Spec Problem Guess
 spec =
     { view =
         (\playerId players problem ->
@@ -115,7 +115,13 @@ port updatePlayer : String -> Cmd msg
 port playerUpdated : (String -> msg) -> Sub msg
 
 
-ports : Ports (Msg ProblemType GuessType)
+port outgoing : String -> Cmd msg
+
+
+port incoming : (String -> msg) -> Sub msg
+
+
+ports : Ports (Msg Problem Guess)
 ports =
     { unsubscribeFromRoom = unsubscribeFromRoom
     , subscribeToRoom = subscribeToRoom
@@ -125,6 +131,8 @@ ports =
     , roomCreated = roomCreated
     , updatePlayer = updatePlayer
     , playerUpdated = playerUpdated
+    , outgoing = outgoing
+    , incoming = incoming
     }
 
 
@@ -132,6 +140,6 @@ ports =
 -- Program
 
 
-main : Program Never (Model ProblemType GuessType) (Msg ProblemType GuessType)
+main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     Gameroom.program spec ports

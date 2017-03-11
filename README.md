@@ -7,6 +7,6 @@ For some context on how it is coming to be, [head here](/talk.md).
 ## Running the examples
 
 Install elm-live: `npm i -g elm-live`
-* words: `elm-live ./examples/words/Main.elm --dir=./examples/words --output examples/words/elm.js --open --pushstate --debug`
+* lettero: `elm-live ./examples/lettero/Main.elm --dir=./examples/lettero --output examples/lettero/elm.js --open --pushstate --debug`
 * spinning shapes: `elm-live ./examples/spinning-shapes/Main.elm --dir=./examples/spinning-shapes --output examples/spinning-shapes/elm.js --open --pushstate --debug`
 * capitals: `elm-live ./examples/capitals/Main.elm --dir=./examples/capitals --output examples/capitals/elm.js --open --pushstate --debug`

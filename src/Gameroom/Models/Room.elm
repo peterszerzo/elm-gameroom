@@ -91,7 +91,7 @@ setNewRound maybeWinnerId room =
 -- Encoders
 
 
-encoder : (problem -> JE.Value) -> (guess -> JE.Value) -> (Room problem guess -> JE.Value)
+encoder : (problem -> JE.Value) -> (guess -> JE.Value) -> Room problem guess -> JE.Value
 encoder problemEncoder guessEncoder room =
     JE.object
         [ ( "id", JE.string room.id )

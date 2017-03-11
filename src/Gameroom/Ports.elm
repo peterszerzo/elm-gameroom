@@ -32,6 +32,8 @@ type alias Ports msg =
     , roomCreated : RoomCreated msg
     , roomUpdated : RoomUpdated msg
     , playerUpdated : PlayerUpdated msg
+    , incoming : (String -> msg) -> Sub msg
+    , outgoing : String -> Cmd msg
     }
 
 
