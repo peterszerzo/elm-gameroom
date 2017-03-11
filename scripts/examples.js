@@ -4,7 +4,8 @@ const path = require('path')
 
 const exampleNames = [
   'spinning-shapes',
-  'words'
+  'lettero',
+  'capitals'
 ]
 
 function readFile (filePath) {

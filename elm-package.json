@@ -9,7 +9,6 @@
     "exposed-modules": [
         "Gameroom",
         "Gameroom.Spec",
-        "Gameroom.Ports",
         "Gameroom.Utilities"
     ],
     "dependencies": {

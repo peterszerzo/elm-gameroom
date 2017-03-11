@@ -8,9 +8,8 @@ import Svg exposing (polygon, svg, g)
 import Svg.Attributes exposing (width, height, viewBox, points, transform)
 import Json.Encode as JE
 import Json.Decode as JD
-import Gameroom exposing (program, Model, Msg)
+import Gameroom exposing (program, Model, Msg, Ports)
 import Gameroom.Spec exposing (Spec)
-import Gameroom.Ports exposing (Ports)
 
 
 -- Types
@@ -91,30 +90,6 @@ spec =
 -- Config
 
 
-port unsubscribeFromRoom : String -> Cmd msg
-
-
-port subscribeToRoom : String -> Cmd msg
-
-
-port updateRoom : String -> Cmd msg
-
-
-port roomUpdated : (String -> msg) -> Sub msg
-
-
-port createRoom : String -> Cmd msg
-
-
-port roomCreated : (String -> msg) -> Sub msg
-
-
-port updatePlayer : String -> Cmd msg
-
-
-port playerUpdated : (String -> msg) -> Sub msg
-
-
 port outgoing : String -> Cmd msg
 
 
@@ -123,15 +98,7 @@ port incoming : (String -> msg) -> Sub msg
 
 ports : Ports (Msg Problem Guess)
 ports =
-    { unsubscribeFromRoom = unsubscribeFromRoom
-    , subscribeToRoom = subscribeToRoom
-    , updateRoom = updateRoom
-    , roomUpdated = roomUpdated
-    , createRoom = createRoom
-    , roomCreated = roomCreated
-    , updatePlayer = updatePlayer
-    , playerUpdated = playerUpdated
-    , outgoing = outgoing
+    { outgoing = outgoing
     , incoming = incoming
     }
 
