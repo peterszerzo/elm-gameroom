@@ -6,14 +6,19 @@ import Gameroom.Constants as Consts
 import Gameroom.Commands as Commands
 import Gameroom.Messages as Messages
 import Gameroom.Models.Room as Room
+import Gameroom.Models.Game as Game
 import Gameroom.Spec exposing (Spec)
 import Gameroom.Models.Ports exposing (Ports)
 import Gameroom.Models.Result as Result
 import Gameroom.Modules.Game.Messages exposing (Msg(..))
-import Gameroom.Modules.Game.Models exposing (Model)
+import Gameroom.Models.Game exposing (Game)
 
 
-saveCmd : Spec problem guess -> Ports (Messages.Msg problem guess) -> Model problem guess -> Cmd (Messages.Msg problem guess)
+saveCmd :
+    Spec problem guess
+    -> Ports (Messages.Msg problem guess)
+    -> Game.Game problem guess
+    -> Cmd (Messages.Msg problem guess)
 saveCmd spec ports model =
     model.room
         |> Maybe.map (Commands.UpdateRoom >> (Commands.commandEncoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
@@ -24,8 +29,8 @@ update :
     Spec problem guess
     -> Ports (Messages.Msg problem guess)
     -> Msg problem guess
-    -> Model problem guess
-    -> ( Model problem guess, Cmd (Messages.Msg problem guess) )
+    -> Game problem guess
+    -> ( Game problem guess, Cmd (Messages.Msg problem guess) )
 update spec ports msg model =
     case msg of
         ReceiveUpdate room ->
@@ -44,7 +49,7 @@ update spec ports msg model =
                         Result.Pending ->
                             ( room
                             , if room.round.problem == Nothing then
-                                newProblemCmd
+                                Debug.log "newprob req" newProblemCmd
                               else
                                 Cmd.none
                             )
@@ -54,7 +59,7 @@ update spec ports msg model =
                                 Room.setNewRound (Just winnerId) room
                               else
                                 room
-                            , newProblemCmd
+                            , Debug.log "newprob req" newProblemCmd
                             )
 
                         Result.Tie ->
@@ -62,7 +67,7 @@ update spec ports msg model =
                                 Room.setNewRound Nothing room
                               else
                                 room
-                            , newProblemCmd
+                            , Debug.log "newprob req" newProblemCmd
                             )
             in
                 ( { model
@@ -74,6 +79,9 @@ update spec ports msg model =
 
         ReceiveNewProblem problem ->
             let
+                _ =
+                    Debug.log "newprob" "receiving"
+
                 newRoom =
                     model.room
                         |> Maybe.map

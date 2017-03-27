@@ -1,11 +1,19 @@
 module Gameroom.Views.Link exposing (view)
 
 import Html exposing (Html, header, text, a)
-import Html.Attributes exposing (class, style, href)
+import Html.Events exposing (onClick)
 import Gameroom.Messages exposing (Msg(..))
-import Gameroom.Views.Styles as Styles
 
 
-view : List (Html.Attribute (Msg problemType guessType)) -> List (Html (Msg problemType guessType)) -> Html (Msg problemType guessType)
-view attrs children =
-    a (attrs ++ [ style Styles.link ]) children
+view :
+    String
+    -> List (Html.Attribute (Msg problemType guessType))
+    -> List (Html (Msg problemType guessType))
+    -> Html (Msg problemType guessType)
+view url attrs children =
+    a
+        (attrs
+            ++ [ onClick (Navigate url)
+               ]
+        )
+        children

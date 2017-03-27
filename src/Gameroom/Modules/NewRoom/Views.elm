@@ -3,12 +3,12 @@ module Gameroom.Modules.NewRoom.Views exposing (..)
 import Html exposing (Html, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
 import Html.Attributes exposing (class, style, type_, value, id, for, href)
 import Html.Events exposing (onClick, onInput)
-import Gameroom.Modules.NewRoom.Models exposing (Model, Status(..))
+import Gameroom.Models.NewRoom as NewRoom
 import Gameroom.Modules.NewRoom.Messages exposing (Msg(..))
 import Gameroom.Views.Styles as Styles
 
 
-viewForm : Model -> Html Msg
+viewForm : NewRoom.NewRoom -> Html Msg
 viewForm model =
     let
         canSubmit =
@@ -18,7 +18,14 @@ viewForm model =
         div [ style Styles.centered ]
             [ label [ for "roomid", style Styles.label ]
                 [ text "Room Id"
-                , input [ id "roomid", type_ "text", onInput ChangeRoomId, value model.roomId, style Styles.input ] []
+                , input
+                    [ id "roomid"
+                    , type_ "text"
+                    , onInput ChangeRoomId
+                    , value model.roomId
+                    , style Styles.input
+                    ]
+                    []
                 ]
             , div []
                 (List.indexedMap
@@ -29,10 +36,21 @@ viewForm model =
                         in
                             label [ for fieldId, style Styles.label ]
                                 ([ text ("Player " ++ (toString (index + 1)))
-                                 , input [ id fieldId, style Styles.input, type_ "text", onInput (ChangePlayerId index), value (List.drop index model.playerIds |> List.head |> Maybe.withDefault "") ] []
+                                 , input
+                                    [ id fieldId
+                                    , style Styles.input
+                                    , type_ "text"
+                                    , onInput (ChangePlayerId index)
+                                    , value (List.drop index model.playerIds |> List.head |> Maybe.withDefault "")
+                                    ]
+                                    []
                                  ]
                                     ++ (if List.length model.playerIds > 2 then
-                                            [ span [ onClick (RemovePlayer index) ] [ text "Remove" ] ]
+                                            [ span
+                                                [ onClick (RemovePlayer index)
+                                                ]
+                                                [ text "Remove" ]
+                                            ]
                                         else
                                             []
                                        )
@@ -40,39 +58,73 @@ viewForm model =
                     )
                     model.playerIds
                 )
-            , button [ style (Styles.link ++ [ ( "margin", "20px 0 0" ), ( "width", "100%" ) ]), onClick AddPlayer ] [ text "Add player" ]
+            , button
+                [ style
+                    (Styles.link
+                        ++ [ ( "margin", "20px 0 0" )
+                           , ( "width", "100%" )
+                           ]
+                    )
+                , onClick AddPlayer
+                ]
+                [ text "Add player" ]
             , (if canSubmit then
-                input [ style (Styles.link ++ [ ( "margin", "20px 0 0" ), ( "width", "100%" ) ]), type_ "submit", onClick CreateRequest ] []
+                input
+                    [ style
+                        (Styles.link
+                            ++ [ ( "margin", "20px 0 0" )
+                               , ( "width", "100%" )
+                               ]
+                        )
+                    , type_ "submit"
+                    , onClick CreateRequest
+                    ]
+                    []
                else
                 div [] []
               )
             ]
 
 
-viewSuccess : Model -> Html Msg
+viewSuccess : NewRoom.NewRoom -> Html Msg
 viewSuccess model =
     div [ style Styles.centered ]
-        [ h2 [ style Styles.subheroType ] [ text "Your room is ready" ]
-        , p [ style Styles.bodyType ] [ text "Navigate to these links and share them with your opponents:" ]
+        [ h2
+            [ style Styles.subheroType
+            ]
+            [ text "Your room is ready" ]
+        , p
+            [ style
+                Styles.bodyType
+            ]
+            [ text "Navigate to these links and share them with your opponents:" ]
         , ul [ style [ ( "list-style", "none" ), ( "margin", "20px 0 0" ), ( "padding", "0" ) ] ]
             (model.playerIds
                 |> List.map
                     (\id ->
-                        li [ style [ ( "display", "inline-block" ) ] ]
-                            [ a [ style Styles.link, href ("/rooms/" ++ model.roomId ++ "/" ++ id) ] [ text id ]
+                        li
+                            [ style
+                                [ ( "display", "inline-block" )
+                                ]
+                            ]
+                            [ a
+                                [ style Styles.link
+                                , href ("/rooms/" ++ model.roomId ++ "/" ++ id)
+                                ]
+                                [ text id ]
                             ]
                     )
             )
         ]
 
 
-view : Model -> Html Msg
+view : NewRoom.NewRoom -> Html Msg
 view model =
     case model.status of
-        Editing ->
+        NewRoom.Editing ->
             viewForm model
 
-        Success ->
+        NewRoom.Success ->
             viewSuccess model
 
         _ ->

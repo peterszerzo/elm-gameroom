@@ -130,6 +130,7 @@ bodyType =
 link : List ( String, String )
 link =
     [ ( "color", "#FFF" )
+    , ( "cursor", "pointer" )
     , ( "display", "inline-block" )
     , ( "background", blue )
     , ( "font-family", font )

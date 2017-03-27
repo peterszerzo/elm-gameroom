@@ -4,6 +4,7 @@ import Html exposing (Html, header, text, a)
 import Html.Attributes exposing (class, style, href)
 import Gameroom.Messages exposing (Msg(..))
 import Gameroom.Views.Logo as Logo
+import Gameroom.Views.Link as Link
 
 
 styles : List ( String, String )
@@ -28,4 +29,6 @@ homeLinkStyles =
 
 view : Html (Msg problemType guessType)
 view =
-    header [ style styles ] [ a [ style homeLinkStyles, href "/" ] [ Logo.view ] ]
+    header [ style styles ]
+        [ Link.view "/" [ style homeLinkStyles ] [ Logo.view ]
+        ]

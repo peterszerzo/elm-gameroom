@@ -1,10 +1,10 @@
 module Gameroom.Modules.NewRoom.Update exposing (..)
 
-import Gameroom.Modules.NewRoom.Models as NewRoom
+import Gameroom.Models.NewRoom as NewRoom
 import Gameroom.Modules.NewRoom.Messages exposing (Msg(..))
 
 
-update : Msg -> NewRoom.Model -> ( NewRoom.Model, Bool )
+update : Msg -> NewRoom.NewRoom -> ( NewRoom.NewRoom, Bool )
 update msg model =
     case msg of
         ChangeRoomId newRoomId ->

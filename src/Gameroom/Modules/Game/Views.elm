@@ -1,70 +1,21 @@
 module Gameroom.Modules.Game.Views exposing (..)
 
 import Dict
-import Html exposing (Html, div, text, p, table, tr, td, h2, ul, li, span)
+import Html exposing (Html, div, text, p, h2, ul, li, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Gameroom.Constants as Consts
 import Gameroom.Spec exposing (Spec)
-import Gameroom.Modules.Game.Models exposing (Model)
+import Gameroom.Models.Game as Game
 import Gameroom.Models.Room as Room
 import Gameroom.Modules.Game.Messages exposing (Msg(..))
 import Gameroom.Views.Styles as Styles
+import Gameroom.Views.Footer as Footer
+import Gameroom.Views.Scoreboard as Scoreboard
+import Gameroom.Views.Timer as Timer
 
 
-footer : List (Html msg) -> Html msg
-footer children =
-    div
-        [ style
-            [ ( "position", "fixed" )
-            , ( "right", "0" )
-            , ( "bottom", "0" )
-            , ( "width", "100%" )
-            , ( "overflow", "visible" )
-            ]
-        ]
-        children
-
-
-scoreboard : String -> Room.Room problem guess -> Html msg
-scoreboard playerId room =
-    div
-        [ style
-            [ ( "width", "100%" )
-            , ( "padding", "5px" )
-            , ( "background", "#eee" )
-            , ( "text-align", "center" )
-            ]
-        ]
-        [ room.players
-            |> Dict.toList
-            |> List.map
-                (\( playerId, player ) ->
-                    span [ style [ ( "margin", "0 20px" ) ] ]
-                        [ span [ style [ ( "margin-right", "8px" ) ] ] [ (text player.id) ]
-                        , span [] [ (text (toString player.score)) ]
-                        ]
-                )
-            |> (\list -> div [] list)
-        ]
-
-
-timer : Float -> Html msg
-timer ratio =
-    div
-        [ style
-            [ ( "position", "absolute" )
-            , ( "top", "-2px" )
-            , ( "height", "2px" )
-            , ( "left", "0" )
-            , ( "background", "#ddd" )
-            , ( "width", ((max (1 - ratio) 0) * 100 |> toString) ++ "%" )
-            ]
-        ]
-        [ text " " ]
-
-
-viewReadyPrompt : Spec problemType guessType -> Model problemType guessType -> Room.Room problemType guessType -> Html (Msg problemType guessType)
+viewReadyPrompt : Spec problemType guessType -> Game.Game problemType guessType -> Room.Room problemType guessType -> Html (Msg problemType guessType)
 viewReadyPrompt spec model room =
     div [ style Styles.centered ]
         [ h2 [ style Styles.subheroType ] [ text "Ready?" ]
@@ -104,7 +55,7 @@ viewReadyPrompt spec model room =
         ]
 
 
-viewRoom : Spec problem guess -> Model problem guess -> Room.Room problem guess -> Html (Msg problem guess)
+viewRoom : Spec problem guess -> Game.Game problem guess -> Room.Room problem guess -> Html (Msg problem guess)
 viewRoom spec model room =
     div []
         [ if Room.allPlayersReady room then
@@ -117,14 +68,20 @@ viewRoom spec model room =
             )
           else
             viewReadyPrompt spec model room
-        , footer
-            [ timer (model.roundTime / Consts.roundDuration)
-            , scoreboard model.playerId room
+        , Footer.view
+            [ Timer.view (model.roundTime / Consts.roundDuration)
+            , room.players
+                |> Dict.toList
+                |> List.map
+                    (\( playerId, player ) ->
+                        ( player.id, player.score )
+                    )
+                |> Scoreboard.view
             ]
         ]
 
 
-view : Spec problem guess -> Model problem guess -> Html (Msg problem guess)
+view : Spec problem guess -> Game.Game problem guess -> Html (Msg problem guess)
 view spec model =
     case model.room of
         Just room ->

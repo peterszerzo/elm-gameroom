@@ -13,7 +13,11 @@ type OutgoingMessage problem guess
     | UnsubscribeFromRoom String
 
 
-encoder : (problem -> JE.Value) -> (guess -> JE.Value) -> OutgoingMessage problem guess -> JE.Value
+encoder :
+    (problem -> JE.Value)
+    -> (guess -> JE.Value)
+    -> OutgoingMessage problem guess
+    -> JE.Value
 encoder problemEncoder guessEncoder cmd =
     case cmd of
         CreateRoom room ->

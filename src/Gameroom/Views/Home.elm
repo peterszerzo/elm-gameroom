@@ -14,6 +14,6 @@ view =
     div [ style Styles.centered ]
         [ div [ style [ ( "width", "100px" ), ( "height", "100px" ), ( "margin", "auto" ) ] ] [ Logo.view ]
         , h1 [ style Styles.heroType ] [ text "elm-gameroom" ]
-        , Link.view [ href "/tutorial" ] [ text "Tutorial" ]
-        , Link.view [ href "/new" ] [ text "New room" ]
+        , Link.view "/tutorial" [ style Styles.link ] [ text "Tutorial" ]
+        , Link.view "/new" [ style Styles.link ] [ text "New room" ]
         ]

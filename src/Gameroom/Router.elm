@@ -2,16 +2,16 @@ module Gameroom.Router exposing (..)
 
 import Navigation
 import UrlParser exposing (..)
-import Gameroom.Modules.NewRoom.Models as NewRoom
-import Gameroom.Modules.Game.Models as Game
+import Gameroom.Models.NewRoom as NewRoom
+import Gameroom.Models.Game as Game
 
 
 type Route problem guess
     = Home
     | About
     | Tutorial
-    | NewRoomRoute NewRoom.Model
-    | Game (Game.Model problem guess)
+    | NewRoomRoute NewRoom.NewRoom
+    | Game (Game.Game problem guess)
     | NotFound
 
 
