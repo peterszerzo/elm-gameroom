@@ -1,6 +1,6 @@
 module Views.Link exposing (view)
 
-import Html exposing (Html, header, text, a)
+import Html exposing (Html, a)
 import Html.Events exposing (onClick)
 import Messages.Main exposing (Msg(..))
 

@@ -13,6 +13,7 @@ import Views.Styles as Styles
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer
+import Views.Loader as Loader
 
 
 viewReadyPrompt :
@@ -65,7 +66,11 @@ viewReadyPrompt spec model room =
         ]
 
 
-viewRoom : Spec problem guess -> Game.Game problem guess -> Room.Room problem guess -> Html (Msg problem guess)
+viewRoom :
+    Spec problem guess
+    -> Game.Game problem guess
+    -> Room.Room problem guess
+    -> Html (Msg problem guess)
 viewRoom spec model room =
     div []
         [ if Room.allPlayersReady room then
@@ -99,4 +104,4 @@ view spec model =
 
         Nothing ->
             div [ style Styles.centered ]
-                [ text "Loading" ]
+                [ Loader.view ]

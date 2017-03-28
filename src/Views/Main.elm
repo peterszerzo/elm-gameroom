@@ -1,6 +1,6 @@
 module Views.Main exposing (view)
 
-import Html exposing (Html, div, text, button, h1, label, input, fieldset)
+import Html exposing (Html, div)
 import Html.Attributes exposing (style, type_, value, id, for)
 import Gameroom.Spec exposing (Spec)
 import Models.Main exposing (Model)

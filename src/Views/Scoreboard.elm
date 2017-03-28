@@ -1,6 +1,6 @@
 module Views.Scoreboard exposing (view)
 
-import Html exposing (Html, div, text, p, table, tr, td, h2, ul, li, span)
+import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style)
 
 
