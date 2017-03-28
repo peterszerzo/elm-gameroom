@@ -25,8 +25,8 @@ view spec model =
                 Router.Home ->
                     HomeView.view
 
-                Router.NewRoomRoute newRoomModel ->
-                    NewRoomView.view newRoomModel
+                Router.NewRoom newRoom ->
+                    NewRoomView.view newRoom
                         |> Html.map NewRoomMsgC
 
                 _ ->

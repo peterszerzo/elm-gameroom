@@ -10,7 +10,7 @@ type Route problem guess
     = Home
     | About
     | Tutorial
-    | NewRoomRoute NewRoom.NewRoom
+    | NewRoom NewRoom.NewRoom
     | Game (Game.Game problem guess)
     | NotFound
 
@@ -55,7 +55,7 @@ matchers =
             </> string
             </> string
             |> map (\roomId playerId -> Game { roomId = roomId, playerId = playerId, room = Nothing, roundTime = 0 })
-        , s newRoomPath |> map (NewRoomRoute NewRoom.init)
+        , s newRoomPath |> map (NewRoom NewRoom.init)
         ]
 
 
