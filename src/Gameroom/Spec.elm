@@ -19,7 +19,7 @@ import Html
 import Random
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Gameroom.Models.Player exposing (PlayerId, Players)
+import Models.Player exposing (PlayerId, Players)
 
 
 {-| Define every moving part of a multiplayer game:
