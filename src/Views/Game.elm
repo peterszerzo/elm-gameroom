@@ -17,10 +17,10 @@ import Views.Loader as Loader
 
 
 viewReadyPrompt :
-    Spec problemType guessType
-    -> Game.Game problemType guessType
-    -> Room.Room problemType guessType
-    -> Html (Msg problemType guessType)
+    Spec problem guess
+    -> Game.Game problem guess
+    -> Room.Room problem guess
+    -> Html (Msg problem guess)
 viewReadyPrompt spec model room =
     div [ style Styles.centered ]
         [ h2 [ style Styles.subheroType ] [ text "Ready?" ]

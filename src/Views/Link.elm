@@ -7,9 +7,9 @@ import Messages.Main exposing (Msg(..))
 
 view :
     String
-    -> List (Html.Attribute (Msg problemType guessType))
-    -> List (Html (Msg problemType guessType))
-    -> Html (Msg problemType guessType)
+    -> List (Html.Attribute (Msg problem guess))
+    -> List (Html (Msg problem guess))
+    -> Html (Msg problem guess)
 view url attrs children =
     a
         (attrs
