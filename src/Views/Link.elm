@@ -2,7 +2,7 @@ module Views.Link exposing (view)
 
 import Html exposing (Html, a)
 import Html.Events exposing (onClick)
-import Messages.Main exposing (Msg(..))
+import Messages exposing (Msg(..))
 
 
 view :

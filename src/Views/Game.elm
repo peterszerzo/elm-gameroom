@@ -8,7 +8,7 @@ import Gameroom.Spec exposing (Spec)
 import Constants as Consts
 import Models.Game as Game
 import Models.Room as Room
-import Messages.Game exposing (Msg(..))
+import Messages exposing (GameMsg(..))
 import Views.Styles as Styles
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
@@ -20,7 +20,7 @@ viewReadyPrompt :
     Spec problem guess
     -> Game.Game problem guess
     -> Room.Room problem guess
-    -> Html (Msg problem guess)
+    -> Html (GameMsg problem guess)
 viewReadyPrompt spec model room =
     div [ style Styles.centered ]
         [ h2 [ style Styles.subheroType ] [ text "Ready?" ]
@@ -70,7 +70,7 @@ viewRoom :
     Spec problem guess
     -> Game.Game problem guess
     -> Room.Room problem guess
-    -> Html (Msg problem guess)
+    -> Html (GameMsg problem guess)
 viewRoom spec model room =
     div []
         [ if Room.allPlayersReady room then
@@ -96,7 +96,10 @@ viewRoom spec model room =
         ]
 
 
-view : Spec problem guess -> Game.Game problem guess -> Html (Msg problem guess)
+view :
+    Spec problem guess
+    -> Game.Game problem guess
+    -> Html (GameMsg problem guess)
 view spec model =
     case model.room of
         Just room ->

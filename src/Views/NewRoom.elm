@@ -4,11 +4,11 @@ import Html exposing (Html, div, text, button, h1, h2, label, input, fieldset, s
 import Html.Attributes exposing (class, style, type_, value, id, for, href)
 import Html.Events exposing (onClick, onInput)
 import Models.NewRoom as NewRoom
-import Messages.NewRoom exposing (Msg(..))
+import Messages exposing (NewRoomMsg(..))
 import Views.Styles as Styles
 
 
-viewForm : NewRoom.NewRoom -> Html Msg
+viewForm : NewRoom.NewRoom -> Html NewRoomMsg
 viewForm model =
     let
         canSubmit =
@@ -86,7 +86,7 @@ viewForm model =
             ]
 
 
-viewSuccess : NewRoom.NewRoom -> Html Msg
+viewSuccess : NewRoom.NewRoom -> Html NewRoomMsg
 viewSuccess model =
     div [ style Styles.centered ]
         [ h2
@@ -118,7 +118,7 @@ viewSuccess model =
         ]
 
 
-view : NewRoom.NewRoom -> Html Msg
+view : NewRoom.NewRoom -> Html NewRoomMsg
 view model =
     case model.status of
         NewRoom.Editing ->

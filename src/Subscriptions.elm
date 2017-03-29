@@ -3,8 +3,7 @@ module Subscriptions exposing (..)
 import Time
 import Json.Decode as JD
 import Constants as Consts
-import Messages.Main as Messages
-import Messages.Game as GameMessages
+import Messages
 import Router as Router
 import Models.Ports as Ports
 import Gameroom.Spec as Spec
@@ -24,7 +23,7 @@ subscriptions spec ports model =
             )
         , case model.route of
             Router.Game _ ->
-                Time.every Consts.gameTick (\time -> Messages.GameMsgC (GameMessages.Tick time))
+                Time.every Consts.gameTick (Messages.GameMsg << Messages.Tick)
 
             _ ->
                 Sub.none

@@ -2,7 +2,7 @@ module Views.Header exposing (view)
 
 import Html exposing (Html, header, text)
 import Html.Attributes exposing (class, style, href)
-import Messages.Main exposing (Msg(..))
+import Messages exposing (Msg(..))
 import Views.Logo as Logo
 import Views.Link as Link
 

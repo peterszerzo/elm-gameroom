@@ -2,7 +2,7 @@ module Views.Home exposing (..)
 
 import Html exposing (Html, div, text, h1)
 import Html.Attributes exposing (style)
-import Messages.Main exposing (Msg(..))
+import Messages exposing (Msg(..))
 import Views.Styles as Styles
 import Views.Link as Link
 import Views.Logo as Logo

@@ -4,7 +4,7 @@ import Html exposing (Html, div)
 import Html.Attributes exposing (style, type_, value, id, for)
 import Gameroom.Spec exposing (Spec)
 import Models.Main exposing (Model)
-import Messages.Main exposing (Msg(..))
+import Messages exposing (Msg(..))
 import Router as Router
 import Views.Home as HomeView
 import Views.Header as Header
@@ -20,14 +20,14 @@ view spec model =
             case model.route of
                 Router.Game game ->
                     GameView.view spec game
-                        |> Html.map GameMsgC
+                        |> Html.map GameMsg
 
                 Router.Home ->
                     HomeView.view
 
                 Router.NewRoom newRoom ->
                     NewRoomView.view newRoom
-                        |> Html.map NewRoomMsgC
+                        |> Html.map NewRoomMsg
 
                 _ ->
                     div [] []

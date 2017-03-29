@@ -19,8 +19,8 @@ import Models.Main
 import Models.Ports as Ports
 import Gameroom.Spec exposing (Spec)
 import Subscriptions exposing (subscriptions)
-import Messages.Main as Messages
-import Update.Main exposing (update, cmdOnRouteChange)
+import Messages
+import Update exposing (update, cmdOnRouteChange)
 import Router as Router
 import Models.Ports as Ports
 import Views.Main exposing (view)
