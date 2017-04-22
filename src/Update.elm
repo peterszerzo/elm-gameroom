@@ -2,7 +2,6 @@ module Update exposing (..)
 
 import Navigation
 import Random
-import Constants as Consts
 import Commands as Commands
 import Messages exposing (..)
 import Models.Room as Room
@@ -84,7 +83,7 @@ updateGame spec ports msg model =
                         Result.Pending ->
                             ( room
                             , if room.round.problem == Nothing then
-                                Debug.log "newprob req" newProblemCmd
+                                newProblemCmd
                               else
                                 Cmd.none
                             )
@@ -94,7 +93,7 @@ updateGame spec ports msg model =
                                 Room.setNewRound (Just winnerId) room
                               else
                                 room
-                            , Debug.log "newprob req" newProblemCmd
+                            , newProblemCmd
                             )
 
                         Result.Tie ->
@@ -102,7 +101,7 @@ updateGame spec ports msg model =
                                 Room.setNewRound Nothing room
                               else
                                 room
-                            , Debug.log "newprob req" newProblemCmd
+                            , newProblemCmd
                             )
             in
                 ( { model
@@ -114,9 +113,6 @@ updateGame spec ports msg model =
 
         ReceiveNewProblem problem ->
             let
-                _ =
-                    Debug.log "newprob" "receiving"
-
                 newRoom =
                     model.room
                         |> Maybe.map
@@ -148,7 +144,7 @@ updateGame spec ports msg model =
                         | room =
                             model.room
                                 |> Maybe.map
-                                    (Room.updatePlayer (\pl -> { pl | guess = Just { value = guess, madeAt = model.roundTime } }) model.playerId)
+                                    (Room.updatePlayer (\pl -> { pl | guess = Just { value = guess, madeAt = model.ticksSinceNewRound } }) model.playerId)
                     }
 
                 cmd =
@@ -177,8 +173,8 @@ updateGame spec ports msg model =
 
         Tick time ->
             ( { model
-                | roundTime =
-                    model.roundTime + Consts.gameTick
+                | ticksSinceNewRound =
+                    model.ticksSinceNewRound + 1
               }
             , Cmd.none
             )

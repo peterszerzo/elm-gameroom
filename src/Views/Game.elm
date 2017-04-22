@@ -76,7 +76,7 @@ viewRoom spec model room =
         [ if Room.allPlayersReady room then
             (case room.round.problem of
                 Just problem ->
-                    Html.map Guess (spec.view model.playerId room.players problem)
+                    Html.map Guess (spec.view model.playerId room.players model.ticksSinceNewRound problem)
 
                 Nothing ->
                     div [] [ text "Awaiting problem" ]
@@ -84,7 +84,7 @@ viewRoom spec model room =
           else
             viewReadyPrompt spec model room
         , Footer.view
-            [ Timer.view (model.roundTime / Consts.roundDuration)
+            [ Timer.view ((model.ticksSinceNewRound |> toFloat) / (Consts.ticksInRound |> toFloat))
             , room.players
                 |> Dict.toList
                 |> List.map

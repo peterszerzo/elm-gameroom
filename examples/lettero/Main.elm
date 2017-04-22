@@ -28,7 +28,7 @@ type alias Guess =
 spec : Spec Problem Guess
 spec =
     { view =
-        (\playerId players problem ->
+        (\playerId players ticksSinceNewRound problem ->
             div
                 [ style
                     [ ( "position", "absolute" )

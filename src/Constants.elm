@@ -1,8 +1,5 @@
 module Constants exposing (..)
 
-import Time
-
-
 -- Null string value used in storage
 
 
@@ -15,16 +12,11 @@ nullString =
 -- Game round time parameters, all in milliseconds
 
 
-gameTick : Float
-gameTick =
-    50 * Time.millisecond
+ticksInRound : Int
+ticksInRound =
+    1000
 
 
-roundDuration : Float
-roundDuration =
-    3000 * Time.millisecond
-
-
-cooldownDuration : Float
-cooldownDuration =
-    4000 * Time.millisecond
+ticksInCooldown : Int
+ticksInCooldown =
+    500

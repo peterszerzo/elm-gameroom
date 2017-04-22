@@ -45,10 +45,10 @@ type alias Spec problem guess =
     }
 
 
-{-| Game view, based on current player, all players, and the current problem. Emits guesses.
+{-| Game view, based on current player, all players, current time in round, and the current problem. Emits guesses.
 -}
 type alias View problem guess =
-    PlayerId -> Players guess -> problem -> Html.Html guess
+    PlayerId -> Players guess -> Int -> problem -> Html.Html guess
 
 
 {-| Determines whether a guess is correct.

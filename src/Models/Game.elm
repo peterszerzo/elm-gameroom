@@ -7,5 +7,5 @@ type alias Game problem guess =
     { roomId : String
     , playerId : String
     , room : Maybe (Room problem guess)
-    , roundTime : Float
+    , ticksSinceNewRound : Int
     }

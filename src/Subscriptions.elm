@@ -1,14 +1,13 @@
 module Subscriptions exposing (..)
 
-import Time
 import Json.Decode as JD
-import Constants as Consts
 import Messages
 import Router as Router
 import Models.Ports as Ports
 import Gameroom.Spec as Spec
 import Models.Main exposing (Model)
 import Models.IncomingMessage as InMsg
+import AnimationFrame
 
 
 subscriptions : Spec.Spec problem guess -> Ports.Ports (Messages.Msg problem guess) -> Model problem guess -> Sub (Messages.Msg problem guess)
@@ -23,7 +22,7 @@ subscriptions spec ports model =
             )
         , case model.route of
             Router.Game _ ->
-                Time.every Consts.gameTick (Messages.GameMsg << Messages.Tick)
+                AnimationFrame.times (Messages.GameMsg << Messages.Tick)
 
             _ ->
                 Sub.none

@@ -52,7 +52,7 @@ encoder guessEncoder player =
                     JE.string nullString
 
                 Just guess ->
-                    JE.object [ ( "value", guessEncoder guess.value ), ( "madeAt", JE.float guess.madeAt ) ]
+                    JE.object [ ( "value", guessEncoder guess.value ), ( "madeAt", JE.int guess.madeAt ) ]
           )
         ]
 

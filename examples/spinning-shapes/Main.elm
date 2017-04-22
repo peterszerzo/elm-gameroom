@@ -36,7 +36,7 @@ type alias Guess =
 spec : Spec Problem Guess
 spec =
     { view =
-        (\playerId players problem ->
+        (\playerId players ticksSinceNewRound problem ->
             div
                 [ class "spinning-shapes-container"
                 , style
