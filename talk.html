@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=PT+Sans);
+      @import url(https://fonts.googleapis.com/css?family=PT+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-weight: normal;
+        letter-spacing: 0.05px;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .remark-container {
+        font-family: 'PT Sans', sans-serif;
+        color: #FFFFFF;
+      }
+
+      .remark-container,
+      .remark-slide-content {
+        background: #15487f;
+      }
+
+      .remark-code,
+      .remark-inline-code {
+        font-family: 'Source Code Pro', monospace;
+      }
+
+      .remark-slide-scaler {
+        box-shadow: none;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script>
+      fetch('/talk.md?' + new Date().getTime())
+      .then(function(res) {
+        return res.text();
+      })
+      .then(function(md) {
+        console.log('Hello');
+        document.getElementById('source').innerText = md;
+      })
+      .then(function() {
+        remark.create();
+      });
+    </script>
+  </body>
+</html>

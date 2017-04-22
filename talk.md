@@ -1,4 +1,4 @@
-Elm-Europe 2017 talk draft
+class: center, middle
 
 # Multiplayer guessing game in 200 lines
 
@@ -8,15 +8,23 @@ Elm-Europe 2017 talk draft
 
 I was playing a word game, thinking:
 
-> I should totally make this for the browser.
+> I totally want to make this for the browser
 
 https://lettero.co
 
 ---
 
-## So how was it?
+## And then I was thinking..
 
-Oh, client-server logic splitting/sharing...
+I totally want to (try) to make this into a multiplayer game framework.
+
+> Specify only what is unique to a game.
+
+---
+
+## Back to the original Lettero version
+
+Express back-ent, Elm frontend. Oh, client-server logic splitting/sharing...
 
 > There's no way around it, I guess.
 
@@ -34,8 +42,6 @@ So we can:
 * push game room state to all clients.
 * designate one of the clients as a host.
 * this host calls the shots and updates the scores.
-
-(beware of race conditions)
 
 => Generic realtime backend: Firebase, Horizon, or something custom.
 
