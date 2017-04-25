@@ -56,7 +56,25 @@ spec =
                                     ("translate(" ++ (toString (x * 900 + 50)) ++ "," ++ (toString (y * 900 + 50)) ++ ")")
                             in
                                 g [ transform translateString ]
-                                    [ polygon [ points "-50,-28.8 50,-28.8 0,57.7", onClick index ] []
+                                    [ polygon
+                                        [ points "-50,-28.8 50,-28.8 0,57.7"
+                                        , attribute "transform"
+                                            ("rotate("
+                                                ++ ((ticksSinceNewRound |> toFloat)
+                                                        / 10
+                                                        |> (*)
+                                                            (if index == 0 then
+                                                                1
+                                                             else
+                                                                -1
+                                                            )
+                                                        |> toString
+                                                   )
+                                                ++ ")"
+                                            )
+                                        , onClick index
+                                        ]
+                                        []
                                     ]
                         )
                         problem

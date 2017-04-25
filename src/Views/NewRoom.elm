@@ -2,10 +2,15 @@ module Views.NewRoom exposing (..)
 
 import Html exposing (Html, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
 import Html.Attributes exposing (class, style, type_, value, id, for, href)
+import Html.CssHelpers
 import Html.Events exposing (onClick, onInput)
 import Models.NewRoom as NewRoom
 import Messages exposing (NewRoomMsg(..))
-import Views.Styles as Styles
+import Styles
+
+
+{ class } =
+    Html.CssHelpers.withNamespace ""
 
 
 viewForm : NewRoom.NewRoom -> Html NewRoomMsg
@@ -15,15 +20,14 @@ viewForm model =
             (String.length model.roomId > 0)
                 && (model.playerIds |> List.map (\playerId -> String.length playerId > 0) |> List.all identity)
     in
-        div [ style Styles.centered ]
-            [ label [ for "roomid", style Styles.label ]
+        div [ class [ Styles.Centered ] ]
+            [ label [ for "roomid" ]
                 [ text "Room Id"
                 , input
                     [ id "roomid"
                     , type_ "text"
                     , onInput ChangeRoomId
                     , value model.roomId
-                    , style Styles.input
                     ]
                     []
                 ]
@@ -34,11 +38,10 @@ viewForm model =
                             fieldId =
                                 "playerid-" ++ (toString index)
                         in
-                            label [ for fieldId, style Styles.label ]
+                            label [ for fieldId ]
                                 ([ text ("Player " ++ (toString (index + 1)))
                                  , input
                                     [ id fieldId
-                                    , style Styles.input
                                     , type_ "text"
                                     , onInput (ChangePlayerId index)
                                     , value (List.drop index model.playerIds |> List.head |> Maybe.withDefault "")
@@ -60,22 +63,20 @@ viewForm model =
                 )
             , button
                 [ style
-                    (Styles.link
-                        ++ [ ( "margin", "20px 0 0" )
-                           , ( "width", "100%" )
-                           ]
-                    )
+                    [ ( "margin", "20px 0 0" )
+                    , ( "width", "100%" )
+                    ]
+                , class [ Styles.Link ]
                 , onClick AddPlayer
                 ]
                 [ text "Add player" ]
             , (if canSubmit then
                 input
                     [ style
-                        (Styles.link
-                            ++ [ ( "margin", "20px 0 0" )
-                               , ( "width", "100%" )
-                               ]
-                        )
+                        [ ( "margin", "20px 0 0" )
+                        , ( "width", "100%" )
+                        ]
+                    , class [ Styles.Link ]
                     , type_ "submit"
                     , onClick CreateRequest
                     ]
@@ -88,14 +89,13 @@ viewForm model =
 
 viewSuccess : NewRoom.NewRoom -> Html NewRoomMsg
 viewSuccess model =
-    div [ style Styles.centered ]
+    div [ class [ Styles.Centered ] ]
         [ h2
-            [ style Styles.subheroType
+            [ class [ Styles.Subhero ]
             ]
             [ text "Your room is ready" ]
         , p
-            [ style
-                Styles.bodyType
+            [ class [ Styles.Body ]
             ]
             [ text "Navigate to these links and share them with your opponents:" ]
         , ul [ style [ ( "list-style", "none" ), ( "margin", "20px 0 0" ), ( "padding", "0" ) ] ]
@@ -108,7 +108,7 @@ viewSuccess model =
                                 ]
                             ]
                             [ a
-                                [ style Styles.link
+                                [ class [ Styles.Link ]
                                 , href ("/rooms/" ++ model.roomId ++ "/" ++ id)
                                 ]
                                 [ text id ]

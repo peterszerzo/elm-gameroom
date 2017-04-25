@@ -4,16 +4,21 @@ import Dict
 import Html exposing (Html, div, text, p, h2, ul, li, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
+import Html.CssHelpers
 import Gameroom.Spec exposing (Spec)
 import Constants as Consts
 import Models.Game as Game
 import Models.Room as Room
 import Messages exposing (GameMsg(..))
-import Views.Styles as Styles
+import Styles
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer
 import Views.Loader as Loader
+
+
+{ class, classList } =
+    Html.CssHelpers.withNamespace ""
 
 
 viewReadyPrompt :
@@ -22,8 +27,8 @@ viewReadyPrompt :
     -> Room.Room problem guess
     -> Html (GameMsg problem guess)
 viewReadyPrompt spec model room =
-    div [ style Styles.centered ]
-        [ h2 [ style Styles.subheroType ] [ text "Ready?" ]
+    div [ class [ Styles.Centered ] ]
+        [ h2 [ class [ Styles.Subhero ] ] [ text "Ready?" ]
         , ul
             [ style
                 [ ( "list-style", "none" )
@@ -38,12 +43,10 @@ viewReadyPrompt spec model room =
                     (\pl ->
                         li [ style [ ( "display", "inline-block" ) ] ]
                             [ span
-                                ([ style
-                                    (if model.playerId == pl.id then
-                                        Styles.link
-                                     else
-                                        Styles.disabledLink
-                                    )
+                                ([ classList
+                                    [ ( Styles.Link, True )
+                                    , ( Styles.LinkDisabled, model.playerId /= pl.id )
+                                    ]
                                  ]
                                     ++ (if model.playerId == pl.id then
                                             [ onClick MarkReady ]
@@ -106,5 +109,5 @@ view spec model =
             viewRoom spec model room
 
         Nothing ->
-            div [ style Styles.centered ]
+            div [ class [ Styles.Centered ] ]
                 [ Loader.view ]

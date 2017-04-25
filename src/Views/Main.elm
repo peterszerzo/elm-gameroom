@@ -1,7 +1,7 @@
 module Views.Main exposing (view)
 
-import Html exposing (Html, div)
-import Html.Attributes exposing (style, type_, value, id, for)
+import Html exposing (Html, div, node, text)
+import Html.CssHelpers
 import Gameroom.Spec exposing (Spec)
 import Models.Main exposing (Model)
 import Messages exposing (Msg(..))
@@ -10,7 +10,12 @@ import Views.Home as HomeView
 import Views.Header as Header
 import Views.NewRoom as NewRoomView
 import Views.Game as GameView
-import Views.Styles as Styles
+import Css.File exposing (compile)
+import Styles
+
+
+{ class } =
+    Html.CssHelpers.withNamespace ""
 
 
 view : Spec problem guess -> Model problem guess -> Html (Msg problem guess)
@@ -33,15 +38,9 @@ view spec model =
                     div [] []
     in
         div
-            [ style
-                [ ( "position", "fixed" )
-                , ( "top", "0" )
-                , ( "bottom", "0" )
-                , ( "left", "0" )
-                , ( "right", "0" )
-                , ( "background", Styles.white )
-                ]
+            [ class [ Styles.App ]
             ]
-            [ Header.view
+            [ node "style" [] [ compile [ Styles.css ] |> .css |> text ]
+            , Header.view
             , content
             ]
