@@ -4,7 +4,12 @@
 
 function loadPeer () {
   var url = 'http://cdn.peerjs.com/0.3/peer.min.js'
-  // TODO: finish async loading script
+  return new Promise(function (resolve, reject) {
+    var scriptTag = document.createElement('script')
+    scriptTag.src = url
+    scriptTag.onload = resolve
+    document.body.appendChild(scriptTag)
+  })
 }
 
 function testConnection () {
@@ -35,4 +40,14 @@ function testConnection () {
   peer2.on('open', function (id) {
     peerId2 = id
   })
+}
+
+var db = {
+  // TODO
+}
+
+if (typeof module === 'object' && module.exports) {
+  module.exports = db
+} else {
+  window.db = db
 }

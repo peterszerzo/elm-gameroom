@@ -17,51 +17,30 @@ var firebaseApp = firebase.initializeApp(config)
 
 var database = firebaseApp.database()
 
-module.exports = {
-  /**
-   * @param {string} roomId - Room id.
-   * @return {Promise}
-   */
+var db = {
   getRoom: function (roomId) {
     return database.ref('/rooms/' + roomId).once('value').then(function (snapshot) {
       return snapshot.val()
     })
   },
-
-  /**
-   * @param {string} stringified room object.
-   * @return {Promise}
-   */
   setRoom: function (room) {
     return database.ref('/rooms/' + room.id).set(room)
   },
-
-  /**
-   * Set player.
-   * @param {Object} player - Player object.
-   * @return {Promise} promise - Set promise.
-   */
   setPlayer: function (player) {
     return database.ref('/rooms/' + player.roomId + '/players/' + player.id).set(player)
   },
-
-  /**
-   * Subscribe to a room.
-   * @param {string} roomId - Room id.
-   * @param {function} onValue - Update callback.
-   * @return {function} onValue
-   */
   subscribeToRoom: function (roomId, next) {
     return database.ref('/rooms/' + roomId).on('value', function (snapshot) {
       next(snapshot.val())
     })
   },
-
-  /**
-   * Unsubscribe from a room.
-   * @param {string} roomId - Room id.
-   */
   unsubscribeFromRoom: function (roomId) {
     return database.ref('/rooms/' + roomId).off()
   }
+}
+
+if (typeof module === 'object' && module.exports) {
+  module.exports = db
+} else {
+  window.db = db
 }

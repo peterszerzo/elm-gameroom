@@ -4,7 +4,7 @@
  * @param {object} ports - Elm ports
  * @return {object} ports
  */
-module.exports = function (db, ports) {
+var talkToPorts = function (db, ports) {
   ports.outgoing.subscribe(function (msg) {
     var data = JSON.parse(msg)
     var type = data.type
@@ -41,4 +41,10 @@ module.exports = function (db, ports) {
   })
 
   return ports
+}
+
+if (typeof module === 'object' && module.exports) {
+  module.exports = talkToPorts
+} else {
+  window.talkToPorts = talkToPorts
 }
