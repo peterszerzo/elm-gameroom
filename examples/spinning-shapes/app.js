@@ -22,8 +22,9 @@ window.db = {
   },
 
   /**
-   * @param {string} stringified room object.
-   * @return {Promise}
+   * Set room in local storage.
+   * @param {Object} room - Room object.
+   * @return {Promise} promise - Resolves in the room object.
    */
   setRoom: function (room) {
     localStorage.setItem('/rooms/' + room.id, JSON.stringify(room))
@@ -31,6 +32,19 @@ window.db = {
   },
 
   /**
+   * Set player in local storage.
+   * @param {Object} player - Player object.
+   * @return {Promise} promise - Resolves in the player.
+   */
+  setPlayer: function (player) {
+    var room = JSON.parse(localStorage.getItem('/rooms/' + player.roomId))
+    room.players[player.id] = player
+    localStorage.setItem('/rooms/' + player.roomId, JSON.stringify(room))
+    return Promise.resolve(player)
+  },
+
+  /**
+   * Subscribe to a room.
    * @param {string} roomId - Room id.
    * @param {function} onValue - Update callback.
    * @return {function} onValue
@@ -94,6 +108,8 @@ window.talkToPorts = function (db, ports) {
       // Hence, no feedback is necessary in this method.
       case 'update:room':
         return db.setRoom(payload)
+      case 'update:player':
+        return db.setPlayer(payload)
       default:
         return
     }

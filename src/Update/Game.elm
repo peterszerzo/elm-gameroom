@@ -5,6 +5,7 @@ import Dict
 import Commands as Commands
 import Messages exposing (..)
 import Models.Room as Room
+import Models.Player as Player
 import Gameroom.Spec exposing (Spec)
 import Models.Ports exposing (Ports)
 import Models.Game as Game
@@ -20,6 +21,17 @@ updateRoomCmd :
 updateRoomCmd spec ports model =
     model.room
         |> Maybe.map (Commands.UpdateRoom >> (Commands.commandEncoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
+        |> Maybe.withDefault Cmd.none
+
+
+updatePlayerCmd :
+    Spec problem guess
+    -> Ports (Messages.Msg problem guess)
+    -> Maybe (Player.Player guess)
+    -> Cmd (Messages.Msg problem guess)
+updatePlayerCmd spec ports player =
+    player
+        |> Maybe.map (Commands.UpdatePlayer >> (Commands.commandEncoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
         |> Maybe.withDefault Cmd.none
 
 
@@ -126,7 +138,7 @@ update spec ports msg model =
                     }
 
                 cmd =
-                    updateRoomCmd spec ports newModel
+                    updatePlayerCmd spec ports player
             in
                 ( newModel
                 , cmd
