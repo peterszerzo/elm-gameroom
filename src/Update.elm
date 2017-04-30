@@ -144,7 +144,14 @@ updateGame spec ports msg model =
                         | room =
                             model.room
                                 |> Maybe.map
-                                    (Room.updatePlayer (\pl -> { pl | guess = Just { value = guess, madeAt = model.ticksSinceNewRound } }) model.playerId)
+                                    (Room.updatePlayer
+                                        (\pl ->
+                                            { pl
+                                                | guess = Just { value = guess, madeAt = model.ticksSinceNewRound }
+                                            }
+                                        )
+                                        model.playerId
+                                    )
                     }
 
                 cmd =

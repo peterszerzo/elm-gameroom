@@ -37,6 +37,16 @@ module.exports = {
   },
 
   /**
+   * Set player.
+   * @param {Object} player - Player object.
+   * @return {Promise} promise - Set promise.
+   */
+  setPlayer: function (player) {
+    return database.ref('/rooms/' + player.roomId + '/players/' + player.id).set(player)
+  },
+
+  /**
+   * Subscribe to a room.
    * @param {string} roomId - Room id.
    * @param {function} onValue - Update callback.
    * @return {function} onValue
@@ -48,6 +58,7 @@ module.exports = {
   },
 
   /**
+   * Unsubscribe from a room.
    * @param {string} roomId - Room id.
    */
   unsubscribeFromRoom: function (roomId) {

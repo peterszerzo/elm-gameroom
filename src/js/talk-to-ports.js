@@ -33,6 +33,8 @@ module.exports = function (db, ports) {
       // Hence, no feedback is necessary in this method.
       case 'update:room':
         return db.setRoom(payload)
+      case 'update:player':
+        return db.setPlayer(payload)
       default:
         return
     }

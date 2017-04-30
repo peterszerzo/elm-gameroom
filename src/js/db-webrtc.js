@@ -1,3 +1,7 @@
+/*
+ * Prototype, not working yet..
+ */
+
 function loadPeer () {
   var url = 'http://cdn.peerjs.com/0.3/peer.min.js'
   // TODO: finish async loading script
