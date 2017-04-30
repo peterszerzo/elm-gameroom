@@ -2,6 +2,7 @@ module Update exposing (..)
 
 import Navigation
 import Random
+import Dict
 import Commands as Commands
 import Messages exposing (..)
 import Models.Room as Room
@@ -48,12 +49,12 @@ cmdOnRouteChange spec ports route prevRoute =
                 |> Maybe.withDefault Cmd.none
 
 
-saveCmd :
+updateRoomCmd :
     Spec problem guess
     -> Ports (Messages.Msg problem guess)
     -> Game.Game problem guess
     -> Cmd (Messages.Msg problem guess)
-saveCmd spec ports model =
+updateRoomCmd spec ports model =
     model.room
         |> Maybe.map (Commands.UpdateRoom >> (Commands.commandEncoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
         |> Maybe.withDefault Cmd.none
@@ -131,7 +132,7 @@ updateGame spec ports msg model =
                     { model | room = newRoom }
 
                 cmd =
-                    saveCmd spec ports newModel
+                    updateRoomCmd spec ports newModel
             in
                 ( newModel
                 , cmd
@@ -139,23 +140,30 @@ updateGame spec ports msg model =
 
         Guess guess ->
             let
+                newGuess =
+                    Just { value = guess, madeAt = model.ticksSinceNewRound }
+
+                player =
+                    model.room
+                        |> Maybe.map .players
+                        |> Maybe.andThen (Dict.get model.playerId)
+                        |> Maybe.map (\pl -> { pl | guess = newGuess })
+
                 newModel =
                     { model
                         | room =
                             model.room
-                                |> Maybe.map
-                                    (Room.updatePlayer
-                                        (\pl ->
-                                            { pl
-                                                | guess = Just { value = guess, madeAt = model.ticksSinceNewRound }
-                                            }
-                                        )
-                                        model.playerId
+                                |> Maybe.map2
+                                    (\player room ->
+                                        { room
+                                            | players = Dict.insert model.playerId player room.players
+                                        }
                                     )
+                                    player
                     }
 
                 cmd =
-                    saveCmd spec ports newModel
+                    updateRoomCmd spec ports newModel
             in
                 ( newModel
                 , cmd
@@ -172,7 +180,7 @@ updateGame spec ports msg model =
                     { model | room = newRoom }
 
                 cmd =
-                    saveCmd spec ports newModel
+                    updateRoomCmd spec ports newModel
             in
                 ( newModel
                 , cmd
