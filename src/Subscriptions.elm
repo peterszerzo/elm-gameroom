@@ -5,7 +5,7 @@ import Messages
 import Router as Router
 import Models.Ports as Ports
 import Gameroom.Spec as Spec
-import Models.Main exposing (Model)
+import Models exposing (Model)
 import Models.IncomingMessage as InMsg
 import AnimationFrame
 

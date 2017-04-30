@@ -15,7 +15,7 @@ For some context on how it came to be, head here: https://github.com/peterszerzo
 -}
 
 import Navigation
-import Models.Main
+import Models
 import Models.Ports as Ports
 import Gameroom.Spec exposing (Spec)
 import Subscriptions exposing (subscriptions)
@@ -23,7 +23,7 @@ import Messages
 import Update exposing (update, cmdOnRouteChange)
 import Router as Router
 import Models.Ports as Ports
-import Views.Main exposing (view)
+import Views exposing (view)
 
 
 {-| Use this Msg type to annotate your program.
@@ -35,7 +35,7 @@ type alias Msg problem guess =
 {-| Use this Model type to annotate your program.
 -}
 type alias Model problem guess =
-    Models.Main.Model problem guess
+    Models.Model problem guess
 
 
 {-| The Ports record contains incoming and outgoing ports necessary for a guessing game. The client is responsible for declaring them, passing them to the game-generator `program` method, and hooking them up with the realtime back-end. Head to the examples in the repo for some simple usage.

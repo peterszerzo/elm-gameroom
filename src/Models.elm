@@ -1,4 +1,4 @@
-module Models.Main exposing (..)
+module Models exposing (..)
 
 import Router as Router
 

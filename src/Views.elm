@@ -1,9 +1,9 @@
-module Views.Main exposing (view)
+module Views exposing (view)
 
 import Html exposing (Html, div, node, text)
 import Html.CssHelpers
 import Gameroom.Spec exposing (Spec)
-import Models.Main exposing (Model)
+import Models exposing (Model)
 import Messages exposing (Msg(..))
 import Router as Router
 import Views.Home as HomeView

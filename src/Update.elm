@@ -4,7 +4,7 @@ import Navigation
 import Commands as Commands
 import Messages exposing (..)
 import Models.Room as Room
-import Models.Main exposing (Model)
+import Models exposing (Model)
 import Gameroom.Spec exposing (Spec)
 import Models.Ports exposing (Ports)
 import Router as Router
