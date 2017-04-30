@@ -98,7 +98,13 @@ viewSuccess model =
             [ class [ Styles.Body ]
             ]
             [ text "Navigate to these links and share them with your opponents:" ]
-        , ul [ style [ ( "list-style", "none" ), ( "margin", "20px 0 0" ), ( "padding", "0" ) ] ]
+        , ul
+            [ style
+                [ ( "list-style", "none" )
+                , ( "margin", "20px 0 0" )
+                , ( "padding", "0" )
+                ]
+            ]
             (model.playerIds
                 |> List.map
                     (\id ->

@@ -13,6 +13,9 @@ type CssClasses
     | Subhero
     | Body
     | Centered
+    | Header
+    | HeaderHomeLink
+    | ScoreBoard
 
 
 type CssIds
@@ -29,6 +32,11 @@ white =
     hex "FFFFFF"
 
 
+lightGrey : Color
+lightGrey =
+    hex "EEEEEE"
+
+
 blue : Color
 blue =
     rgb 67 94 137
@@ -37,6 +45,11 @@ blue =
 purple : Color
 purple =
     rgb 77 80 97
+
+
+red : Color
+red =
+    rgb 254 74 73
 
 
 css : Stylesheet
@@ -127,6 +140,26 @@ css =
             , top (pct 50)
             , left (pct 50)
             , transform (translate2 (pct -50) (pct -50))
+            , textAlign center
+            ]
+        , class Header
+            [ position fixed
+            , display block
+            , height (px 80)
+            , width (px 80)
+            , padding (px 20)
+            , top (px 0)
+            , left (px 0)
+            ]
+        , class HeaderHomeLink
+            [ height (px 100)
+            , width (pct 100)
+            , display block
+            ]
+        , class ScoreBoard
+            [ width (pct 100)
+            , padding (px 5)
+            , backgroundColor lightGrey
             , textAlign center
             ]
         ]

@@ -2,17 +2,18 @@ module Views.Scoreboard exposing (view)
 
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style)
+import Html.CssHelpers
+import Styles
+
+
+{ class } =
+    Html.CssHelpers.withNamespace ""
 
 
 view : List ( String, Int ) -> Html msg
 view scores =
     div
-        [ style
-            [ ( "width", "100%" )
-            , ( "padding", "5px" )
-            , ( "background", "#eee" )
-            , ( "text-align", "center" )
-            ]
+        [ class [ Styles.ScoreBoard ]
         ]
         [ scores
             |> List.map
