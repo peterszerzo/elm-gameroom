@@ -10,7 +10,7 @@
     <script src="/elm.js"></script>
     <script>
       var app = window.Elm.Main.embed(document.getElementById('Root'))
-      window.talkToPorts(window.db, app.ports)
+      window.talkToPorts(window.db(), app.ports)
     </script>
   </body>
 </html>

@@ -8,10 +8,6 @@
       @import url(https://fonts.googleapis.com/css?family=PT+Serif);
       @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro);
 
-      body {
-        font-family: 'Droid Serif';
-      }
-
       h1,
       h2,
       h3 {
@@ -50,16 +46,15 @@
     <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
     <script>
       fetch('/talk.md?' + new Date().getTime())
-      .then(function(res) {
-        return res.text();
+      .then(function (res) {
+        return res.text()
       })
-      .then(function(md) {
-        console.log('Hello');
-        document.getElementById('source').innerText = md;
+      .then(function (md) {
+        document.getElementById('source').innerText = md
       })
-      .then(function() {
-        remark.create();
-      });
+      .then(function () {
+        remark.create()
+      })
     </script>
   </body>
 </html>

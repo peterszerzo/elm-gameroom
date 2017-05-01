@@ -1,6 +1,6 @@
-# elm-gameroom
+# 🏓 elm-gameroom
 
-This is an opinionated framework for multiplayer guessing games. It takes care of the boilerplate for calling game rounds, generating problems and reconciling players, allowing the client to specify only the bits unique to each game, and write fully functional frustraing enternatinment in just about 200 lines of code.
+This is a framework for creating multiplayer guessing games. It takes care of calling game rounds, generating problems and reconciling players, as well as talking directly to a generic realtime backend. The client gets to specify only the bits unique to each game, and write fully functional frustrating entertainment in just under 200 lines of code.
 
 For some context on how it is coming to be, [head here](/talk.md).
 

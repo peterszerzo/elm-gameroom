@@ -42,8 +42,9 @@ function testConnection () {
   })
 }
 
-var db = {
+var db = function () {
   // TODO
+  return {}
 }
 
 if (typeof module === 'object' && module.exports) {
