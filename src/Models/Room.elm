@@ -40,6 +40,45 @@ create roomId playerIds =
     }
 
 
+updatePreservingLocalGuesses : Room problem guess -> Room problem guess -> Room problem guess
+updatePreservingLocalGuesses newRoom room =
+    -- Since the application state only listens to full room updates,
+    -- it can occur that one player's guess is nulled by another player's update.
+    -- This method protects agains that.
+    let
+        didRoundChange =
+            newRoom.round.no /= room.round.no
+
+        newPlayers =
+            newRoom.players
+                |> Dict.toList
+                |> List.map
+                    (\( playerId, player ) ->
+                        ( playerId
+                        , { player
+                            | guess =
+                                -- If the round didn't change, and the new guess is Nothing
+                                -- keep the old guess, which may be something.
+                                if
+                                    (not didRoundChange
+                                        && player.guess
+                                        == Nothing
+                                    )
+                                then
+                                    room.players
+                                        |> Dict.get playerId
+                                        |> Maybe.map .guess
+                                        |> Maybe.withDefault player.guess
+                                else
+                                    player.guess
+                          }
+                        )
+                    )
+                |> Dict.fromList
+    in
+        { newRoom | players = newPlayers }
+
+
 allPlayersReady : Room problem guess -> Bool
 allPlayersReady room =
     room.players
@@ -49,7 +88,11 @@ allPlayersReady room =
         |> List.all identity
 
 
-updatePlayer : (Player.Player guess -> Player.Player guess) -> String -> Room problem guess -> Room problem guess
+updatePlayer :
+    (Player.Player guess -> Player.Player guess)
+    -> String
+    -> Room problem guess
+    -> Room problem guess
 updatePlayer transform playerId room =
     case (Dict.get playerId room.players) of
         Just player ->
@@ -59,7 +102,10 @@ updatePlayer transform playerId room =
             room
 
 
-setNewRound : Maybe String -> Room problem guess -> Room problem guess
+setNewRound :
+    Maybe String
+    -> Room problem guess
+    -> Room problem guess
 setNewRound maybeWinnerId room =
     { room
         | round = { no = room.round.no + 1, problem = Nothing }
