@@ -1,5 +1,7 @@
 module Styles.Shared exposing (..)
 
+import Html
+import Html.CssHelpers
 import Css exposing (..)
 import Css.Elements exposing (html, body, input, label)
 import Styles.Constants exposing (..)
@@ -16,6 +18,16 @@ type CssClasses
     | Link
     | LinkDisabled
     | Body
+
+
+sharedClass : List class -> Html.Attribute msg
+sharedClass =
+    Html.CssHelpers.withNamespace "" |> .class
+
+
+sharedClassList : List ( class, Bool ) -> Html.Attribute msg
+sharedClassList =
+    Html.CssHelpers.withNamespace "" |> .classList
 
 
 styles : List Snippet

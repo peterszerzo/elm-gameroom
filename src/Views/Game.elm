@@ -4,21 +4,16 @@ import Dict
 import Html exposing (Html, div, text, p, h2, ul, li, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.CssHelpers
 import Gameroom.Spec exposing (Spec)
 import Constants as Consts
 import Models.Game as Game
 import Models.Room as Room
 import Messages exposing (GameMsg(..))
-import Styles.Shared exposing (CssClasses(..))
+import Styles.Shared exposing (CssClasses(..), sharedClass, sharedClassList)
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer
 import Views.Loader as Loader
-
-
-{ class, classList } =
-    Html.CssHelpers.withNamespace ""
 
 
 viewReadyPrompt :
@@ -27,8 +22,8 @@ viewReadyPrompt :
     -> Room.Room problem guess
     -> Html (GameMsg problem guess)
 viewReadyPrompt spec model room =
-    div [ class [ Centered ] ]
-        [ h2 [ class [ Subhero ] ] [ text "Ready?" ]
+    div [ sharedClass [ Centered ] ]
+        [ h2 [ sharedClass [ Subhero ] ] [ text "Ready?" ]
         , ul
             [ style
                 [ ( "list-style", "none" )
@@ -43,7 +38,7 @@ viewReadyPrompt spec model room =
                     (\pl ->
                         li [ style [ ( "display", "inline-block" ) ] ]
                             [ span
-                                ([ classList
+                                ([ sharedClassList
                                     [ ( Link, True )
                                     , ( LinkDisabled, model.playerId /= pl.id )
                                     ]
@@ -109,5 +104,5 @@ view spec model =
             viewRoom spec model room
 
         Nothing ->
-            div [ class [ Centered ] ]
+            div [ sharedClass [ Centered ] ]
                 [ Loader.view ]

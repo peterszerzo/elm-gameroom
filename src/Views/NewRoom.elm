@@ -2,15 +2,10 @@ module Views.NewRoom exposing (..)
 
 import Html exposing (Html, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
 import Html.Attributes exposing (class, style, type_, value, id, for, href)
-import Html.CssHelpers
 import Html.Events exposing (onClick, onInput)
 import Models.NewRoom as NewRoom
 import Messages exposing (NewRoomMsg(..))
-import Styles.Shared as SharedStyles
-
-
-{ class } =
-    Html.CssHelpers.withNamespace ""
+import Styles.Shared exposing (CssClasses(Centered, Link, Subhero, Body), sharedClass)
 
 
 viewForm : NewRoom.NewRoom -> Html NewRoomMsg
@@ -20,7 +15,7 @@ viewForm model =
             (String.length model.roomId > 0)
                 && (model.playerIds |> List.map (\playerId -> String.length playerId > 0) |> List.all identity)
     in
-        div [ class [ SharedStyles.Centered ] ]
+        div [ sharedClass [ Centered ] ]
             [ label [ for "roomid" ]
                 [ text "Room Id"
                 , input
@@ -66,7 +61,7 @@ viewForm model =
                     [ ( "margin", "20px 0 0" )
                     , ( "width", "100%" )
                     ]
-                , class [ SharedStyles.Link ]
+                , sharedClass [ Link ]
                 , onClick AddPlayer
                 ]
                 [ text "Add player" ]
@@ -76,7 +71,7 @@ viewForm model =
                         [ ( "margin", "20px 0 0" )
                         , ( "width", "100%" )
                         ]
-                    , class [ SharedStyles.Link ]
+                    , sharedClass [ Link ]
                     , type_ "submit"
                     , onClick CreateRequest
                     ]
@@ -89,13 +84,13 @@ viewForm model =
 
 viewSuccess : NewRoom.NewRoom -> Html NewRoomMsg
 viewSuccess model =
-    div [ class [ SharedStyles.Centered ] ]
+    div [ sharedClass [ Centered ] ]
         [ h2
-            [ class [ SharedStyles.Subhero ]
+            [ sharedClass [ Subhero ]
             ]
             [ text "Your room is ready" ]
         , p
-            [ class [ SharedStyles.Body ]
+            [ sharedClass [ Body ]
             ]
             [ text "Navigate to these links and share them with your opponents:" ]
         , ul
@@ -114,7 +109,7 @@ viewSuccess model =
                                 ]
                             ]
                             [ a
-                                [ class [ SharedStyles.Link ]
+                                [ sharedClass [ Link ]
                                 , href ("/rooms/" ++ model.roomId ++ "/" ++ id)
                                 ]
                                 [ text id ]

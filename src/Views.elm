@@ -8,11 +8,13 @@ import Models exposing (Model)
 import Messages exposing (Msg(..))
 import Router as Router
 import Views.Home
+import Views.Home.Styles
 import Views.Header
+import Views.Header.Styles
 import Views.NewRoom
 import Views.Game
-import Views.Scoreboard
-import Views.Footer
+import Views.Scoreboard.Styles
+import Views.Footer.Styles
 import Css.File exposing (compile)
 import Styles.Shared
 import Styles.Constants exposing (white)
@@ -45,10 +47,10 @@ css =
     stylesheet
         (Styles.Shared.styles
             ++ styles
-            ++ Views.Home.styles
-            ++ Views.Header.styles
-            ++ Views.Scoreboard.styles
-            ++ Views.Footer.styles
+            ++ Views.Home.Styles.styles
+            ++ Views.Header.Styles.styles
+            ++ Views.Scoreboard.Styles.styles
+            ++ Views.Footer.Styles.styles
         )
 
 
