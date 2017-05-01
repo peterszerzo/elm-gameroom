@@ -53,7 +53,7 @@ type alias Ports msg =
     Ports.Ports msg
 
 
-{-| Create the game program from a Spec - declarative definition of game rules, data structures - and a record of Ports - defined and wired up by the client. See Gameroom.Spec and Gameroom.Ports documentation for details.
+{-| Create the game program from a `spec` record and a `ports` record. The Spec is the declarative definition of game's rules and view - see `Gameroom.Spec` documentation for details. The `Ports` is a record contains two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](https://github.com/peterszerzo/elm-gameroom/blob/master/src/js/talk-to-ports.js).
 -}
 program :
     Spec problem guess

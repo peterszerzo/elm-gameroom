@@ -9,7 +9,7 @@ module Gameroom.Spec exposing (..)
 @docs View
 
 # Game logic
-@docs IsGuessCorrect, ProblemGenerator
+@docs ProblemGenerator
 
 # Data management
 @docs ProblemEncoder, ProblemDecoder, GuessEncoder, GuessDecoder
@@ -36,7 +36,7 @@ import Models.Player exposing (PlayerId, Players)
 -}
 type alias Spec problem guess =
     { view : View problem guess
-    , isGuessCorrect : IsGuessCorrect problem guess
+    , isGuessCorrect : problem -> guess -> Bool
     , problemGenerator : ProblemGenerator problem
     , problemEncoder : ProblemEncoder problem
     , problemDecoder : ProblemDecoder problem
@@ -49,12 +49,6 @@ type alias Spec problem guess =
 -}
 type alias View problem guess =
     PlayerId -> Players guess -> Int -> problem -> Html.Html guess
-
-
-{-| Determines whether a guess is correct.
--}
-type alias IsGuessCorrect problem guess =
-    problem -> guess -> Bool
 
 
 {-| Generate game problems.
