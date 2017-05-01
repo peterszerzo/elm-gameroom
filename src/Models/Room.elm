@@ -124,7 +124,11 @@ setNewRound maybeWinnerId room =
                                       }
                                     )
                                 else
-                                    ( playerId, { player | guess = Nothing } )
+                                    ( playerId
+                                    , { player
+                                        | guess = Nothing
+                                      }
+                                    )
                             )
                         |> Dict.fromList
 

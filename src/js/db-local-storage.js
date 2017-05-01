@@ -34,7 +34,7 @@ var db = {
           onValue(JSON.parse(value))
         }
         previousValue = value
-      }, 1000)
+      }, 100)
     }
     return onValue
   },

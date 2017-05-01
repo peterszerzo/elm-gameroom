@@ -54,6 +54,13 @@ update spec ports msg model =
                     else
                         Cmd.none
 
+                resetTicks =
+                    (model.room
+                        |> Maybe.map (.round >> .problem)
+                        |> (==) Nothing
+                    )
+                        && (room.round.problem /= Nothing)
+
                 ( newRoom, cmd ) =
                     case result of
                         Result.Pending ->
@@ -83,6 +90,11 @@ update spec ports msg model =
                 ( { model
                     | room =
                         Just newRoom
+                    , ticksSinceNewRound =
+                        if resetTicks then
+                            0
+                        else
+                            model.ticksSinceNewRound
                   }
                 , cmd
                 )
