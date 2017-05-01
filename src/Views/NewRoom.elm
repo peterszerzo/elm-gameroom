@@ -6,7 +6,7 @@ import Html.CssHelpers
 import Html.Events exposing (onClick, onInput)
 import Models.NewRoom as NewRoom
 import Messages exposing (NewRoomMsg(..))
-import Styles
+import Styles.Shared as SharedStyles
 
 
 { class } =
@@ -20,7 +20,7 @@ viewForm model =
             (String.length model.roomId > 0)
                 && (model.playerIds |> List.map (\playerId -> String.length playerId > 0) |> List.all identity)
     in
-        div [ class [ Styles.Centered ] ]
+        div [ class [ SharedStyles.Centered ] ]
             [ label [ for "roomid" ]
                 [ text "Room Id"
                 , input
@@ -66,7 +66,7 @@ viewForm model =
                     [ ( "margin", "20px 0 0" )
                     , ( "width", "100%" )
                     ]
-                , class [ Styles.Link ]
+                , class [ SharedStyles.Link ]
                 , onClick AddPlayer
                 ]
                 [ text "Add player" ]
@@ -76,7 +76,7 @@ viewForm model =
                         [ ( "margin", "20px 0 0" )
                         , ( "width", "100%" )
                         ]
-                    , class [ Styles.Link ]
+                    , class [ SharedStyles.Link ]
                     , type_ "submit"
                     , onClick CreateRequest
                     ]
@@ -89,13 +89,13 @@ viewForm model =
 
 viewSuccess : NewRoom.NewRoom -> Html NewRoomMsg
 viewSuccess model =
-    div [ class [ Styles.Centered ] ]
+    div [ class [ SharedStyles.Centered ] ]
         [ h2
-            [ class [ Styles.Subhero ]
+            [ class [ SharedStyles.Subhero ]
             ]
             [ text "Your room is ready" ]
         , p
-            [ class [ Styles.Body ]
+            [ class [ SharedStyles.Body ]
             ]
             [ text "Navigate to these links and share them with your opponents:" ]
         , ul
@@ -114,7 +114,7 @@ viewSuccess model =
                                 ]
                             ]
                             [ a
-                                [ class [ Styles.Link ]
+                                [ class [ SharedStyles.Link ]
                                 , href ("/rooms/" ++ model.roomId ++ "/" ++ id)
                                 ]
                                 [ text id ]

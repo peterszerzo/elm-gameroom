@@ -1,21 +1,60 @@
 module Views exposing (view)
 
 import Html exposing (Html, div, node, text)
+import Css exposing (Stylesheet, stylesheet, position, fixed, top, px, bottom, left, right, backgroundColor)
 import Html.CssHelpers
 import Gameroom.Spec exposing (Spec)
 import Models exposing (Model)
 import Messages exposing (Msg(..))
 import Router as Router
-import Views.Home as HomeView
-import Views.Header as Header
-import Views.NewRoom as NewRoomView
-import Views.Game as GameView
+import Views.Home
+import Views.Header
+import Views.NewRoom
+import Views.Game
+import Views.Scoreboard
+import Views.Footer
 import Css.File exposing (compile)
-import Styles
+import Styles.Shared
+import Styles.Constants exposing (white)
 
 
-{ class } =
-    Html.CssHelpers.withNamespace ""
+type CssClasses
+    = Root
+
+
+cssNamespace : String
+cssNamespace =
+    "app"
+
+
+styles : List Css.Snippet
+styles =
+    [ Css.class Root
+        [ position fixed
+        , top (px 0)
+        , bottom (px 0)
+        , left (px 0)
+        , right (px 0)
+        , backgroundColor white
+        ]
+    ]
+
+
+css : Stylesheet
+css =
+    stylesheet
+        (Styles.Shared.styles
+            ++ styles
+            ++ Views.Home.styles
+            ++ Views.Header.styles
+            ++ Views.Scoreboard.styles
+            ++ Views.Footer.styles
+        )
+
+
+class : List class -> Html.Attribute msg
+class =
+    Html.CssHelpers.withNamespace cssNamespace |> .class
 
 
 view : Spec problem guess -> Model problem guess -> Html (Msg problem guess)
@@ -24,23 +63,23 @@ view spec model =
         content =
             case model.route of
                 Router.Game game ->
-                    GameView.view spec game
+                    Views.Game.view spec game
                         |> Html.map GameMsg
 
                 Router.Home ->
-                    HomeView.view
+                    Views.Home.view
 
                 Router.NewRoom newRoom ->
-                    NewRoomView.view newRoom
+                    Views.NewRoom.view newRoom
                         |> Html.map NewRoomMsg
 
                 _ ->
                     div [] []
     in
         div
-            [ class [ Styles.App ]
+            [ class [ Root ]
             ]
-            [ node "style" [] [ compile [ Styles.css ] |> .css |> text ]
-            , Header.view
+            [ node "style" [] [ compile [ css ] |> .css |> text ]
+            , Views.Header.view
             , content
             ]

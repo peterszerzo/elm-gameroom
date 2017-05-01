@@ -10,7 +10,7 @@ import Constants as Consts
 import Models.Game as Game
 import Models.Room as Room
 import Messages exposing (GameMsg(..))
-import Styles
+import Styles.Shared exposing (CssClasses(..))
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer
@@ -27,8 +27,8 @@ viewReadyPrompt :
     -> Room.Room problem guess
     -> Html (GameMsg problem guess)
 viewReadyPrompt spec model room =
-    div [ class [ Styles.Centered ] ]
-        [ h2 [ class [ Styles.Subhero ] ] [ text "Ready?" ]
+    div [ class [ Centered ] ]
+        [ h2 [ class [ Subhero ] ] [ text "Ready?" ]
         , ul
             [ style
                 [ ( "list-style", "none" )
@@ -44,8 +44,8 @@ viewReadyPrompt spec model room =
                         li [ style [ ( "display", "inline-block" ) ] ]
                             [ span
                                 ([ classList
-                                    [ ( Styles.Link, True )
-                                    , ( Styles.LinkDisabled, model.playerId /= pl.id )
+                                    [ ( Link, True )
+                                    , ( LinkDisabled, model.playerId /= pl.id )
                                     ]
                                  ]
                                     ++ (if model.playerId == pl.id then
@@ -109,5 +109,5 @@ view spec model =
             viewRoom spec model room
 
         Nothing ->
-            div [ class [ Styles.Centered ] ]
+            div [ class [ Centered ] ]
                 [ Loader.view ]
