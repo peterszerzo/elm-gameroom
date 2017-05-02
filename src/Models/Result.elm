@@ -19,7 +19,7 @@ get spec room =
             (\( playerId, player ) ->
                 ( playerId
                 , player.guess
-                    |> Maybe.map2 (\problem guessWithTimestamp -> spec.isGuessCorrect problem guessWithTimestamp.value) room.round.problem
+                    |> Maybe.map2 (\round guessWithTimestamp -> spec.isGuessCorrect round.problem guessWithTimestamp.value) room.round
                     |> Maybe.withDefault False
                 )
             )

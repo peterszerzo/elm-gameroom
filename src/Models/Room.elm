@@ -12,17 +12,14 @@ import Constants exposing (nullString)
 
 type alias Round problem =
     { no : Int
-    , problem : Maybe problem
+    , problem : problem
     }
 
 
 type alias Room problem guess =
     { id : String
     , host : String
-    , round :
-        { no : Int
-        , problem : Maybe problem
-        }
+    , round : Maybe (Round problem)
     , players : Dict.Dict String (Player.Player guess)
     }
 
@@ -35,7 +32,7 @@ create : String -> List String -> Room problem guess
 create roomId playerIds =
     { id = roomId
     , host = playerIds |> List.head |> Maybe.withDefault ""
-    , round = { no = 0, problem = Nothing }
+    , round = Nothing
     , players = Dict.fromList (List.map (\playerId -> ( playerId, Player.create playerId roomId )) playerIds)
     }
 
@@ -47,7 +44,8 @@ updatePreservingLocalGuesses newRoom room =
     -- This method protects agains that.
     let
         didRoundChange =
-            newRoom.round.no /= room.round.no
+            Maybe.map2 (\newRound round -> newRound.no /= round.no) newRoom.round room.round
+                |> Maybe.withDefault False
 
         newPlayers =
             newRoom.players
@@ -102,14 +100,13 @@ updatePlayer transform playerId room =
             room
 
 
-setNewRound :
+setScores :
     Maybe String
     -> Room problem guess
     -> Room problem guess
-setNewRound maybeWinnerId room =
+setScores maybeWinnerId room =
     { room
-        | round = { no = room.round.no + 1, problem = Nothing }
-        , players =
+        | players =
             case maybeWinnerId of
                 Just winnerId ->
                     room.players
@@ -147,7 +144,14 @@ encoder problemEncoder guessEncoder room =
         [ ( "id", JE.string room.id )
         , ( "host", JE.string room.host )
         , ( "players", Player.collectionEncoder guessEncoder room.players )
-        , ( "round", roundEncoder problemEncoder room.round )
+        , ( "round"
+          , case room.round of
+                Nothing ->
+                    JE.string nullString
+
+                Just round ->
+                    roundEncoder problemEncoder round
+          )
         ]
 
 
@@ -155,14 +159,7 @@ roundEncoder : (problem -> JE.Value) -> (Round problem -> JE.Value)
 roundEncoder problemEncoder round =
     JE.object
         [ ( "no", JE.int round.no )
-        , ( "problem"
-          , case round.problem of
-                Nothing ->
-                    JE.string nullString
-
-                Just problem ->
-                    problemEncoder problem
-          )
+        , ( "problem", problemEncoder round.problem )
         ]
 
 
@@ -175,7 +172,21 @@ decoder problemDecoder guessDecoder =
     JD.map4 Room
         (JD.field "id" JD.string)
         (JD.field "host" JD.string)
-        (JD.field "round" (roundDecoder problemDecoder))
+        (JD.field "round"
+            (JD.oneOf
+                [ JD.string
+                    |> JD.andThen
+                        (\s ->
+                            if s == nullString then
+                                JD.succeed Nothing
+                            else
+                                JD.fail "Not recognized"
+                        )
+                , roundDecoder problemDecoder
+                    |> JD.andThen (\round -> JD.succeed (Just round))
+                ]
+            )
+        )
         (JD.field "players" (JD.dict (Player.decoder guessDecoder)))
 
 
@@ -183,18 +194,4 @@ roundDecoder : JD.Decoder problem -> JD.Decoder (Round problem)
 roundDecoder problemDecoder =
     JD.map2 Round
         (JD.field "no" JD.int)
-        (JD.field "problem" <|
-            JD.oneOf
-                [ JD.string
-                    |> JD.andThen
-                        (\s ->
-                            if s == nullString then
-                                JD.succeed Nothing
-                            else
-                                JD.fail "Not recognized."
-                        )
-                , problemDecoder
-                    |> JD.andThen
-                        (\pb -> JD.succeed (Just pb))
-                ]
-        )
+        (JD.field "problem" problemDecoder)
