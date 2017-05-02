@@ -12,7 +12,9 @@ import Views.Home.Styles
 import Views.Header
 import Views.Header.Styles
 import Views.NewRoom
+import Views.NewRoom.Styles
 import Views.Game
+import Views.Game.Styles
 import Views.Scoreboard.Styles
 import Views.Footer.Styles
 import Css.File exposing (compile)
@@ -51,6 +53,8 @@ css =
             ++ Views.Header.Styles.styles
             ++ Views.Scoreboard.Styles.styles
             ++ Views.Footer.Styles.styles
+            ++ Views.NewRoom.Styles.styles
+            ++ Views.Game.Styles.styles
         )
 
 

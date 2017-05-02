@@ -4,6 +4,7 @@ import Html
 import Html.CssHelpers
 import Css exposing (..)
 import Css.Namespace exposing (namespace)
+import Styles.Mixins as Mixins
 
 
 cssNamespace : String
@@ -14,6 +15,8 @@ cssNamespace =
 type CssClasses
     = Root
     | Logo
+    | Title
+    | Link
 
 
 localClass : List class -> Html.Attribute msg
@@ -23,10 +26,13 @@ localClass =
 
 styles : List Snippet
 styles =
-    [ class Logo
+    [ class Root Mixins.centered
+    , class Logo
         [ width (px 80)
         , height (px 80)
         , margin auto
         ]
+    , class Title Mixins.heroType
+    , class Link Mixins.button
     ]
         |> namespace cssNamespace
