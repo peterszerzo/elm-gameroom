@@ -5,13 +5,14 @@ import Html exposing (Html, div, text, p, h2, ul, li, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Gameroom.Spec exposing (Spec)
-import Constants as Consts
+import Constants
 import Models.Game as Game
 import Models.Room as Room
 import Messages exposing (GameMsg(..))
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer
+import Views.Notification as Notification
 import Views.Loader as Loader
 import Views.Game.Styles exposing (CssClasses(..), localClass, localClassList)
 
@@ -80,8 +81,12 @@ viewRoom spec model room =
         )
       else
         viewReadyPrompt spec model room
+    , if model.ticksSinceNewRound > Constants.ticksInRound then
+        Notification.view "You ran out of time"
+      else
+        div [] []
     , Footer.view
-        [ Timer.view ((model.ticksSinceNewRound |> toFloat) / (Consts.ticksInRound |> toFloat))
+        [ Timer.view ((model.ticksSinceNewRound |> toFloat) / (Constants.ticksInRound |> toFloat))
         , room.players
             |> Dict.toList
             |> List.map

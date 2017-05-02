@@ -17,6 +17,7 @@ import Views.Game
 import Views.Game.Styles
 import Views.Scoreboard.Styles
 import Views.Footer.Styles
+import Views.Notification.Styles
 import Css.File exposing (compile)
 import Styles.Shared
 import Styles.Constants exposing (white)
@@ -55,6 +56,7 @@ css =
             ++ Views.Footer.Styles.styles
             ++ Views.NewRoom.Styles.styles
             ++ Views.Game.Styles.styles
+            ++ Views.Notification.Styles.styles
         )
 
 
