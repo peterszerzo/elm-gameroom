@@ -44,91 +44,38 @@ update :
     -> ( Game.Game problem guess, Cmd (Messages.Msg problem guess) )
 update spec ports msg model =
     case ( msg, model.room ) of
-        ( ReceiveUpdate room, _ ) ->
+        ( ReceiveUpdate room, Just prevRoom ) ->
             let
-                result =
-                    Result.get spec room
+                isHost =
+                    room.host == model.playerId
+
+                isNewRound =
+                    Maybe.map2 (\newRound oldRound -> newRound.no /= oldRound.no) room.round prevRoom.round |> Maybe.withDefault True
 
                 newProblemCmd =
                     (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
 
-                isHost =
-                    room.host == model.playerId
-
-                resetTicks =
-                    -- Reset ticks when the round has changed
-                    -- (either from Nothing to something or the number)
-                    Maybe.map2
-                        (\oldRound newRound ->
-                            oldRound.no /= newRound.no
-                        )
-                        (model.room |> Maybe.andThen .round)
-                        room.round
-                        |> Maybe.withDefault True
-
-                isRoundJustOver =
-                    (model.ticksSinceNewRound == Constants.ticksInRound)
-
-                isCooldownJustOver =
-                    (model.ticksSinceNewRound == (Constants.ticksInRound + Constants.ticksInCooldown))
-
                 initiateNewRound =
-                    isHost
-                        && ((room.round == Nothing) || isCooldownJustOver)
-
-                ( newRoom, isScoreSet ) =
-                    if (isHost && isRoundJustOver) then
-                        (case result of
-                            Result.Pending ->
-                                ( room
-                                , False
-                                )
-
-                            Result.Winner winnerId ->
-                                ( if room.host == model.playerId then
-                                    Room.setScores (Just winnerId) room
-                                  else
-                                    room
-                                , True
-                                )
-
-                            Result.Tie ->
-                                ( if room.host == model.playerId then
-                                    Room.setScores Nothing room
-                                  else
-                                    room
-                                , True
-                                )
-                        )
-                    else
-                        ( room, False )
-
-                _ =
-                    Debug.log "newroom" newRoom
-
-                newModel =
-                    { model
-                        | room =
-                            Just newRoom
-                        , ticksSinceNewRound =
-                            if resetTicks then
-                                0
-                            else
-                                model.ticksSinceNewRound
-                    }
+                    isHost && (Room.allPlayersReady room) && (room.round == Nothing)
             in
-                ( newModel
-                , Cmd.batch
-                    [ if initiateNewRound then
-                        newProblemCmd
-                      else
-                        Cmd.none
-                    , if isScoreSet then
-                        updateRoomCmd spec ports newModel
-                      else
-                        Cmd.none
-                    ]
+                ( { model
+                    | room =
+                        Just
+                            (Room.updatePreservingLocalGuesses room prevRoom)
+                    , ticksSinceNewRound =
+                        if isNewRound then
+                            0
+                        else
+                            model.ticksSinceNewRound
+                  }
+                , if initiateNewRound then
+                    newProblemCmd
+                  else
+                    Cmd.none
                 )
+
+        ( ReceiveUpdate room, Nothing ) ->
+            ( { model | room = Just room }, Cmd.none )
 
         ( ReceiveNewProblem problem, Just room ) ->
             let
@@ -152,7 +99,10 @@ update spec ports msg model =
                     }
 
                 newModel =
-                    { model | room = Just newRoom }
+                    { model
+                        | room = Just newRoom
+                        , ticksSinceNewRound = 0
+                    }
 
                 cmd =
                     updateRoomCmd spec ports newModel
@@ -215,10 +165,86 @@ update spec ports msg model =
             -- Impossible state
             ( model, Cmd.none )
 
-        ( Tick time, _ ) ->
-            ( { model
-                | ticksSinceNewRound =
-                    model.ticksSinceNewRound + 1
-              }
+        ( Tick time, Just room ) ->
+            let
+                result =
+                    Result.get spec room
+
+                newProblemCmd =
+                    (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
+
+                isHost =
+                    room.host == model.playerId
+
+                resetTicks =
+                    -- Reset ticks when the round has changed
+                    -- (either from Nothing to something or the number)
+                    Maybe.map2
+                        (\oldRound newRound ->
+                            oldRound.no /= newRound.no
+                        )
+                        (model.room |> Maybe.andThen .round)
+                        room.round
+                        |> Maybe.withDefault True
+
+                isRoundJustOver =
+                    (model.ticksSinceNewRound == Constants.ticksInRound)
+
+                isCooldownJustOver =
+                    (model.ticksSinceNewRound == (Constants.ticksInRound + Constants.ticksInCooldown))
+
+                initiateNewRound =
+                    isHost
+                        && ((room.round == Nothing) || isCooldownJustOver)
+
+                ( newRoom, isScoreSet ) =
+                    if (isHost && isRoundJustOver) then
+                        (case result of
+                            Result.Pending ->
+                                ( room
+                                , False
+                                )
+
+                            Result.Winner winnerId ->
+                                ( if room.host == model.playerId then
+                                    Room.setScores (Just winnerId) room
+                                  else
+                                    room
+                                , True
+                                )
+
+                            Result.Tie ->
+                                ( if room.host == model.playerId then
+                                    Room.setScores Nothing room
+                                  else
+                                    room
+                                , True
+                                )
+                        )
+                    else
+                        ( room, False )
+
+                newModel =
+                    { model
+                        | room =
+                            Just newRoom
+                        , ticksSinceNewRound = model.ticksSinceNewRound + 1
+                    }
+            in
+                ( newModel
+                , Cmd.batch
+                    [ if initiateNewRound then
+                        newProblemCmd
+                      else
+                        Cmd.none
+                    , if isScoreSet then
+                        updateRoomCmd spec ports newModel
+                      else
+                        Cmd.none
+                    ]
+                )
+
+        ( Tick time, Nothing ) ->
+            ( model
             , Cmd.none
             )
