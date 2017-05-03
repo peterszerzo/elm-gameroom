@@ -2,7 +2,6 @@ module Models.IncomingMessage exposing (..)
 
 import Json.Decode as JD
 import Models.Room as Room
-import Models.Player as Player
 
 
 type IncomingMessage problem guess
@@ -29,5 +28,5 @@ decoder problemDecoder guessDecoder =
                             |> Result.withDefault (JD.fail "Failed to decode updated room.")
 
                     _ ->
-                        JD.fail "1234"
+                        JD.fail "Could not decode incoming message."
             )

@@ -3,14 +3,14 @@ module Models.Guess exposing (..)
 import Json.Decode as JD
 
 
-type alias GuessWithTimestamp guess =
+type alias Guess guess =
     { value : guess
     , madeAt : Int
     }
 
 
-withTimestampDecoder : JD.Decoder guess -> JD.Decoder (GuessWithTimestamp guess)
-withTimestampDecoder guessDecoder =
-    JD.map2 GuessWithTimestamp
+decoder : JD.Decoder guess -> JD.Decoder (Guess guess)
+decoder guessDecoder =
+    JD.map2 Guess
         (JD.field "value" guessDecoder)
         (JD.field "madeAt" JD.int)

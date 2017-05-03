@@ -1,7 +1,7 @@
 module Models.Game exposing (..)
 
 import Dict
-import Models.Guess exposing (GuessWithTimestamp)
+import Models.Guess exposing (Guess)
 import Models.Room exposing (Room)
 import Models.Player exposing (Player)
 
@@ -11,7 +11,6 @@ type alias Game problem guess =
     , playerId : String
     , room : Maybe (Room problem guess)
     , ticksSinceNewRound : Int
-    , ticksToNewRound : Maybe Int
     }
 
 
@@ -46,18 +45,14 @@ setOwnGuess guess model =
             model
 
 
-getOwnGuess : Game problem guess -> Maybe (GuessWithTimestamp guess)
-getOwnGuess model =
-    model.room
-        |> Maybe.andThen
-            (\room ->
-                room.players |> Dict.get model.playerId
-            )
-        |> Maybe.andThen .guess
-
-
 getOwnPlayer : Game problem guess -> Maybe (Player guess)
 getOwnPlayer model =
     model.room
         |> Maybe.map .players
         |> Maybe.andThen (Dict.get model.playerId)
+
+
+getOwnGuess : Game problem guess -> Maybe (Guess guess)
+getOwnGuess model =
+    getOwnPlayer model
+        |> Maybe.andThen .guess

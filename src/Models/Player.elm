@@ -17,7 +17,7 @@ type alias Player guess =
     , isReady : Bool
     , score : Int
     , guess :
-        Maybe (Guess.GuessWithTimestamp guess)
+        Maybe (Guess.Guess guess)
     }
 
 
@@ -86,7 +86,7 @@ decoder guessDecoder =
                             else
                                 JD.fail "Guess not recognized"
                         )
-                , Guess.withTimestampDecoder guessDecoder
+                , Guess.decoder guessDecoder
                     |> JD.andThen (\g -> JD.succeed (Just g))
                 ]
             )

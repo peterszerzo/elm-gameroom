@@ -66,40 +66,45 @@ update spec ports msg model =
                         room.round
                         |> Maybe.withDefault True
 
+                isRoundJustOver =
+                    (model.ticksSinceNewRound == Constants.ticksInRound)
+
+                isCooldownJustOver =
+                    (model.ticksSinceNewRound == (Constants.ticksInRound + Constants.ticksInCooldown))
+
                 initiateNewRound =
                     isHost
-                        && ((room.round == Nothing)
-                                || (model.ticksToNewRound
-                                        |> Maybe.map (\ticks -> ticks < 0)
-                                        |> Maybe.withDefault False
-                                   )
-                           )
+                        && ((room.round == Nothing) || isCooldownJustOver)
 
-                ( newRoom, isRoundOver ) =
-                    case result of
-                        Result.Pending ->
-                            ( room
-                            , False
-                            )
+                ( newRoom, isScoreSet ) =
+                    if (isHost && isRoundJustOver) then
+                        (case result of
+                            Result.Pending ->
+                                ( room
+                                , False
+                                )
 
-                        Result.Winner winnerId ->
-                            ( if room.host == model.playerId then
-                                Room.setScores (Just winnerId) room
-                              else
-                                room
-                            , True
-                            )
+                            Result.Winner winnerId ->
+                                ( if room.host == model.playerId then
+                                    Room.setScores (Just winnerId) room
+                                  else
+                                    room
+                                , True
+                                )
 
-                        Result.Tie ->
-                            ( if room.host == model.playerId then
-                                Room.setScores Nothing room
-                              else
-                                room
-                            , True
-                            )
+                            Result.Tie ->
+                                ( if room.host == model.playerId then
+                                    Room.setScores Nothing room
+                                  else
+                                    room
+                                , True
+                                )
+                        )
+                    else
+                        ( room, False )
 
-                isRoundJustOverOnHost =
-                    isHost && isRoundOver && model.ticksToNewRound == Nothing
+                _ =
+                    Debug.log "newroom" newRoom
 
                 newModel =
                     { model
@@ -110,11 +115,6 @@ update spec ports msg model =
                                 0
                             else
                                 model.ticksSinceNewRound
-                        , ticksToNewRound =
-                            if isRoundJustOverOnHost && (not initiateNewRound) then
-                                Just (Constants.ticksInCooldown)
-                            else
-                                Nothing
                     }
             in
                 ( newModel
@@ -123,7 +123,7 @@ update spec ports msg model =
                         newProblemCmd
                       else
                         Cmd.none
-                    , if isRoundJustOverOnHost then
+                    , if isScoreSet then
                         updateRoomCmd spec ports newModel
                       else
                         Cmd.none
@@ -138,13 +138,11 @@ update spec ports msg model =
                             (\round ->
                                 { no = round.no + 1
                                 , problem = problem
-                                , isDecided = False
                                 }
                             )
                         |> Maybe.withDefault
                             { no = 0
                             , problem = problem
-                            , isDecided = False
                             }
                         |> Just
 
@@ -221,9 +219,6 @@ update spec ports msg model =
             ( { model
                 | ticksSinceNewRound =
                     model.ticksSinceNewRound + 1
-                , ticksToNewRound =
-                    model.ticksToNewRound
-                        |> Maybe.map (\tick -> tick - 1)
               }
             , Cmd.none
             )
