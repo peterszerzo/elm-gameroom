@@ -5,3 +5,4 @@ repl-temp-*
 examples/**/elm.js
 examples/**/app.js
 documentation.json
+tmp
