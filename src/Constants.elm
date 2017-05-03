@@ -14,9 +14,9 @@ nullString =
 
 ticksInRound : Int
 ticksInRound =
-    1000
+    20
 
 
 ticksInCooldown : Int
 ticksInCooldown =
-    500
+    5

@@ -4,22 +4,17 @@ import Dict
 import Json.Decode as JD
 import Json.Encode as JE
 import Models.Player as Player
+import Models.Round as Round
 import Constants exposing (nullString)
 
 
 -- Type definitions
 
 
-type alias Round problem =
-    { no : Int
-    , problem : problem
-    }
-
-
 type alias Room problem guess =
     { id : String
     , host : String
-    , round : Maybe (Round problem)
+    , round : Maybe (Round.Round problem)
     , players : Dict.Dict String (Player.Player guess)
     }
 
@@ -150,16 +145,8 @@ encoder problemEncoder guessEncoder room =
                     JE.string nullString
 
                 Just round ->
-                    roundEncoder problemEncoder round
+                    Round.encoder problemEncoder round
           )
-        ]
-
-
-roundEncoder : (problem -> JE.Value) -> (Round problem -> JE.Value)
-roundEncoder problemEncoder round =
-    JE.object
-        [ ( "no", JE.int round.no )
-        , ( "problem", problemEncoder round.problem )
         ]
 
 
@@ -182,16 +169,9 @@ decoder problemDecoder guessDecoder =
                             else
                                 JD.fail "Not recognized"
                         )
-                , roundDecoder problemDecoder
+                , Round.decoder problemDecoder
                     |> JD.andThen (\round -> JD.succeed (Just round))
                 ]
             )
         )
         (JD.field "players" (JD.dict (Player.decoder guessDecoder)))
-
-
-roundDecoder : JD.Decoder problem -> JD.Decoder (Round problem)
-roundDecoder problemDecoder =
-    JD.map2 Round
-        (JD.field "no" JD.int)
-        (JD.field "problem" problemDecoder)

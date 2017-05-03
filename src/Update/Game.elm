@@ -1,7 +1,7 @@
 module Update.Game exposing (..)
 
 import Random
-import Commands as Commands
+import Models.OutgoingMessage as OutgoingMessage
 import Constants
 import Messages exposing (..)
 import Models.Game
@@ -21,7 +21,7 @@ updateRoomCmd :
     -> Cmd (Messages.Msg problem guess)
 updateRoomCmd spec ports model =
     model.room
-        |> Maybe.map (Commands.UpdateRoom >> (Commands.commandEncoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
+        |> Maybe.map (OutgoingMessage.UpdateRoom >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
         |> Maybe.withDefault Cmd.none
 
 
@@ -32,7 +32,7 @@ updatePlayerCmd :
     -> Cmd (Messages.Msg problem guess)
 updatePlayerCmd spec ports player =
     player
-        |> Maybe.map (Commands.UpdatePlayer >> (Commands.commandEncoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
+        |> Maybe.map (OutgoingMessage.UpdatePlayer >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
         |> Maybe.withDefault Cmd.none
 
 
@@ -134,8 +134,18 @@ update spec ports msg model =
             let
                 newRound =
                     room.round
-                        |> Maybe.map (\round -> { no = round.no + 1, problem = problem })
-                        |> Maybe.withDefault { no = 0, problem = problem }
+                        |> Maybe.map
+                            (\round ->
+                                { no = round.no + 1
+                                , problem = problem
+                                , isDecided = False
+                                }
+                            )
+                        |> Maybe.withDefault
+                            { no = 0
+                            , problem = problem
+                            , isDecided = False
+                            }
                         |> Just
 
                 newRoom =

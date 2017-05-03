@@ -1,7 +1,7 @@
 module Update exposing (..)
 
 import Navigation
-import Commands as Commands
+import Models.OutgoingMessage as OutgoingMessage
 import Messages exposing (..)
 import Models.Room as Room
 import Models exposing (Model)
@@ -23,8 +23,8 @@ cmdOnRouteChange :
 cmdOnRouteChange spec ports route prevRoute =
     case route of
         Router.Game game ->
-            Commands.SubscribeToRoom game.roomId
-                |> Commands.commandEncoder spec.problemEncoder spec.guessEncoder
+            OutgoingMessage.SubscribeToRoom game.roomId
+                |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
                 |> JE.encode 0
                 |> ports.outgoing
 
@@ -34,8 +34,8 @@ cmdOnRouteChange spec ports route prevRoute =
                     (\rt ->
                         case rt of
                             Router.Game game ->
-                                Commands.UnsubscribeFromRoom game.roomId
-                                    |> Commands.commandEncoder spec.problemEncoder spec.guessEncoder
+                                OutgoingMessage.UnsubscribeFromRoom game.roomId
+                                    |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
                                     |> JE.encode 0
                                     |> ports.outgoing
                                     |> Just
@@ -79,8 +79,8 @@ update spec ports msg model =
                 ( { model | route = Router.NewRoom newNewRoom }
                 , if sendSaveCommand then
                     Room.create newRoom.roomId newRoom.playerIds
-                        |> Commands.CreateRoom
-                        |> Commands.commandEncoder spec.problemEncoder spec.guessEncoder
+                        |> OutgoingMessage.CreateRoom
+                        |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
                         |> JE.encode 0
                         |> ports.outgoing
                   else
