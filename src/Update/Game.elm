@@ -177,7 +177,7 @@ update spec ports msg model =
                     Models.Game.setOwnGuess guess model
 
                 newPlayer =
-                    Models.Game.getOwnPlayer model
+                    Models.Game.getOwnPlayer newModel
 
                 cmd =
                     updatePlayerCmd spec ports newPlayer
