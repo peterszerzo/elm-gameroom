@@ -2,11 +2,13 @@ class: center, middle
 
 # Multiplayer guessing game in 200 lines
 
+## Peter Szerzo
+
 ---
 
 ## Two years ago on a winter evening in Canada..
 
-I was playing a word game, thinking:
+I was playing a word game, and it was not going well..
 
 > I totally want to make this for the browser
 
@@ -22,7 +24,7 @@ I totally want to (try) to make this into a multiplayer game framework.
 
 ---
 
-## Back to the original Lettero version
+## The original Lettero
 
 Express back-ent, Elm frontend. Oh, client-server logic splitting/sharing...
 
@@ -149,7 +151,6 @@ type alias Ports msg =
     , updateRoom : String -> Cmd msg
     , roomUpdated : (String -> msg) -> Sub msg
     , updatePlayer : String -> Cmd msg
-    , playerUpdated : (String -> msg) -> Sub msg
     }
 
 program :
