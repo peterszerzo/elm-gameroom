@@ -60,7 +60,6 @@ if (typeof module === 'object' && module.exports) {
  */
 var talkToPorts = function (db, ports) {
   ports.outgoing.subscribe(function (msg) {
-    console.log(msg)
     var data = JSON.parse(msg)
     var type = data.type
     var payload = data.payload

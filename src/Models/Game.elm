@@ -1,6 +1,7 @@
 module Models.Game exposing (..)
 
 import Dict
+import Models.Guess exposing (GuessWithTimestamp)
 import Models.Room exposing (Room)
 import Models.Player exposing (Player)
 
@@ -43,6 +44,16 @@ setOwnGuess guess model =
 
         Nothing ->
             model
+
+
+getOwnGuess : Game problem guess -> Maybe (GuessWithTimestamp guess)
+getOwnGuess model =
+    model.room
+        |> Maybe.andThen
+            (\room ->
+                room.players |> Dict.get model.playerId
+            )
+        |> Maybe.andThen .guess
 
 
 getOwnPlayer : Game problem guess -> Maybe (Player guess)

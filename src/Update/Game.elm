@@ -169,6 +169,9 @@ update spec ports msg model =
 
         ( Guess guess, Just room ) ->
             let
+                didAlreadyGuess =
+                    Game.getOwnGuess model /= Nothing
+
                 isRoundOver =
                     Result.get spec room
                         |> (/=) Result.Pending
@@ -182,7 +185,7 @@ update spec ports msg model =
                 cmd =
                     updatePlayerCmd spec ports newPlayer
             in
-                if isRoundOver then
+                if didAlreadyGuess || isRoundOver then
                     ( model, Cmd.none )
                 else
                     ( newModel, cmd )
