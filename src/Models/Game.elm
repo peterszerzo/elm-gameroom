@@ -3,16 +3,15 @@ module Models.Game exposing (..)
 import Dict
 import Constants
 import Gameroom.Spec as Spec
-import Models.Result as Result
 import Models.Guess exposing (Guess)
-import Models.Room exposing (Room)
+import Models.Room as Room
 import Models.Player exposing (Player)
 
 
 type alias Game problem guess =
     { roomId : String
     , playerId : String
-    , room : Maybe (Room problem guess)
+    , room : Maybe (Room.Room problem guess)
     , ticksSinceNewRound : Int
     }
 
@@ -66,9 +65,20 @@ getNotificationContent spec model =
     case model.room of
         Just room ->
             if (model.ticksSinceNewRound < Constants.ticksInRound) then
-                getOwnGuess model |> toString |> Just
+                Maybe.map2
+                    (\guess round ->
+                        if spec.isGuessCorrect round.problem guess.value then
+                            "Correct - see if you were faster :)"
+                        else
+                            "Better luck next time.."
+                    )
+                    (getOwnGuess model)
+                    room.round
             else
-                Result.get spec room |> toString |> Just
+                Room.getRoundWinner spec room
+                    |> Maybe.map (\s -> "This one goes to " ++ s)
+                    |> Maybe.withDefault "It's a tie, folks.."
+                    |> Just
 
         Nothing ->
             Nothing

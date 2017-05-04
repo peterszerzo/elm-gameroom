@@ -3,6 +3,7 @@ module Models.Room exposing (..)
 import Dict
 import Json.Decode as JD
 import Json.Encode as JE
+import Gameroom.Spec as Spec
 import Models.Player as Player
 import Models.Round as Round
 import Constants exposing (nullString)
@@ -90,6 +91,31 @@ allPlayersGuessed room =
         |> List.map Tuple.second
         |> List.map .guess
         |> List.all ((/=) Nothing)
+
+
+bigNumber : Int
+bigNumber =
+    100000
+
+
+getRoundWinner : Spec.Spec problem guess -> Room problem guess -> Maybe String
+getRoundWinner spec room =
+    room.players
+        |> Dict.toList
+        |> List.map
+            (\( playerId, player ) ->
+                ( playerId
+                , player.guess |> Maybe.map .madeAt |> Maybe.withDefault bigNumber
+                , player.guess
+                    |> Maybe.map2 (\round guess -> spec.isGuessCorrect round.problem guess.value) room.round
+                    |> Maybe.withDefault False
+                )
+            )
+        |> List.filter (\( playerId, madeAt, isCorrect ) -> isCorrect)
+        |> List.sortBy (\( playerId, madeAt, isCorrect ) -> madeAt)
+        |> List.head
+        |> Maybe.map (\( playerId, _, _ ) -> Just playerId)
+        |> Maybe.withDefault Nothing
 
 
 updatePlayer :

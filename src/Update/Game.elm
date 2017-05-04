@@ -11,7 +11,6 @@ import Models.Player as Player
 import Gameroom.Spec exposing (Spec)
 import Models.Ports exposing (Ports)
 import Models.Game as Game
-import Models.Result as Result
 import Json.Encode as JE
 
 
@@ -166,8 +165,8 @@ update spec ports msg model =
 
         ( Tick time, Just room ) ->
             let
-                result =
-                    Result.get spec room
+                potentialRoundWinner =
+                    Room.getRoundWinner spec room
 
                 newProblemCmd =
                     (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
@@ -198,8 +197,8 @@ update spec ports msg model =
 
                 ( newRoom, isScoreSet ) =
                     if (isHost && isRoundJustOver) then
-                        (case result of
-                            Result.Winner winnerId ->
+                        (case potentialRoundWinner of
+                            Just winnerId ->
                                 ( if room.host == model.playerId then
                                     Room.setScores (Just winnerId) room
                                   else
@@ -207,7 +206,7 @@ update spec ports msg model =
                                 , True
                                 )
 
-                            Result.Tie ->
+                            Nothing ->
                                 ( if room.host == model.playerId then
                                     Room.setScores Nothing room
                                   else
