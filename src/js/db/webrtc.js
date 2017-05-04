@@ -1,4 +1,12 @@
-var hostedRooms = {}
+var peerClientsByRoomId = {}
+
+function isHost (roomId) {
+  return peerClientsByRoomId[roomId] && peerClientsByRoomId[roomId].isHost
+}
+
+var peerOptions = {
+  key: 'lwjd5qra8257b9'
+}
 
 var peerJsloadPromise
 
@@ -10,45 +18,57 @@ function loadPeerJs () {
   peerJsloadPromise = new Promise(function (resolve, reject) {
     var scriptTag = document.createElement('script')
     scriptTag.src = url
-    scriptTag.onload = resolve
+    scriptTag.onload = function () {
+      resolve(window.Peer)
+    }
     document.body.appendChild(scriptTag)
   })
   return peerJsloadPromise
 }
 
-function testConnection () {
-  var options = {
-    key: 'lwjd5qra8257b9'
-  }
-
-  var peer1 = new Peer('apples', options)
-  var peerId1
-
-  var peer2 = new Peer('oranges', options)
-  var peerId2
-
-  var connection = peer2.connect('apples')
-
-  connection.on('open', function () {
-    connection.send('Hello!')
-  })
-
-  peer1.on('connection', function (conn) {
-    conn.on('data', console.log.bind(console))
-  })
-
-  peer1.on('open', function (id) {
-    peerId1 = id
-  })
-
-  peer2.on('open', function (id) {
-    peerId2 = id
-  })
-}
-
 var db = function () {
-  // TODO
-  return {}
+  return {
+    getRoom: function (roomId) {
+      if (isHost(roomId)) {
+        return Promise.resolve(JSON.parse(localStorage.getItem('/rooms/' + roomId)))
+      } else {
+        return loadPeerJs().then(function (Peer) {
+          return new Promise(function (resolve, reject) {
+            var peer = (peerClientsByRoomId[roomId] && peerClientsByRoomId[roomId].peer) || new Peer('elm-gameroom-' + new Date().getTime(), peerOptions)
+            var conn = peer.connect('elm-gameroom-' + roomId)
+            conn.on('open', function () {
+              conn.on('data', function(data) {
+                resolve(data)
+              })
+              conn.send({
+                type: 'get:room',
+                payload: {
+                  roomId: roomId
+                }
+              })
+            })
+          })
+        })
+      }
+    },
+    createRoom: function (room) {
+      return loadPeerJs().then(function (Peer) {
+        localStorage.setItem('/rooms/' + room.id, JSON.stringify(room))
+        var peer = new Peer('elm-gameroom-' + room.id, peerOptions)
+        peerClientsByRoomId[room.id] = {
+          peer: peer,
+          isHost: true
+        }
+        peer.on('connection', function(conn) {
+          conn.on('data', function (msg) {
+            if (msg.type === 'get:room') {
+              conn.send(JSON.parse(localStorage.getItem('/rooms/' + msg.payload.roomId)))
+            }
+          })
+        })
+      })
+    }
+  }
 }
 
 if (typeof module === 'object' && module.exports) {
