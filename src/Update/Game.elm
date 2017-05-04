@@ -1,6 +1,7 @@
 module Update.Game exposing (..)
 
 import Random
+import Dict
 import Models.OutgoingMessage as OutgoingMessage
 import Constants
 import Messages exposing (..)
@@ -59,9 +60,7 @@ update spec ports msg model =
                     isHost && (Room.allPlayersReady room) && (room.round == Nothing)
             in
                 ( { model
-                    | room =
-                        Just
-                            (Room.updatePreservingLocalGuesses room prevRoom)
+                    | room = Just room
                     , ticksSinceNewRound =
                         if isNewRound then
                             0
@@ -96,6 +95,7 @@ update spec ports msg model =
                 newRoom =
                     { room
                         | round = newRound
+                        , players = Dict.map (\playerId player -> { player | guess = Nothing }) room.players
                     }
 
                 newModel =
@@ -121,8 +121,7 @@ update spec ports msg model =
                     Game.getOwnGuess model /= Nothing
 
                 isRoundOver =
-                    Result.get spec room
-                        |> (/=) Result.Pending
+                    model.ticksSinceNewRound > Constants.ticksInRound
 
                 newModel =
                     Models.Game.setOwnGuess guess model
@@ -200,11 +199,6 @@ update spec ports msg model =
                 ( newRoom, isScoreSet ) =
                     if (isHost && isRoundJustOver) then
                         (case result of
-                            Result.Pending ->
-                                ( room
-                                , False
-                                )
-
                             Result.Winner winnerId ->
                                 ( if room.host == model.playerId then
                                     Room.setScores (Just winnerId) room

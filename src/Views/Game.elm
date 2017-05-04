@@ -74,17 +74,21 @@ viewRoom spec model room =
     [ if Room.allPlayersReady room then
         (case room.round of
             Just round ->
-                Html.map Guess (spec.view model.playerId room.players model.ticksSinceNewRound round.problem)
+                div
+                    [ localClassList
+                        [ ( GamePlay, True )
+                        , ( GamePlayInCooldown, model.ticksSinceNewRound > Constants.ticksInRound )
+                        ]
+                    ]
+                    [ Html.map Guess (spec.view model.playerId room.players model.ticksSinceNewRound round.problem)
+                    ]
 
             Nothing ->
                 div [] [ text "Awaiting game" ]
         )
       else
         viewReadyPrompt spec model room
-    , if model.ticksSinceNewRound > Constants.ticksInRound then
-        Notification.view "You ran out of time"
-      else
-        div [] []
+    , Notification.view (Game.getNotificationContent spec model)
     , Footer.view
         [ Timer.view ((model.ticksSinceNewRound |> toFloat) / (Constants.ticksInRound |> toFloat))
         , room.players

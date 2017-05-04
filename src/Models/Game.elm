@@ -1,6 +1,9 @@
 module Models.Game exposing (..)
 
 import Dict
+import Constants
+import Gameroom.Spec as Spec
+import Models.Result as Result
 import Models.Guess exposing (Guess)
 import Models.Room exposing (Room)
 import Models.Player exposing (Player)
@@ -56,3 +59,16 @@ getOwnGuess : Game problem guess -> Maybe (Guess guess)
 getOwnGuess model =
     getOwnPlayer model
         |> Maybe.andThen .guess
+
+
+getNotificationContent : Spec.Spec problem guess -> Game problem guess -> Maybe String
+getNotificationContent spec model =
+    case model.room of
+        Just room ->
+            if (model.ticksSinceNewRound < Constants.ticksInRound) then
+                getOwnGuess model |> toString |> Just
+            else
+                Result.get spec room |> toString |> Just
+
+        Nothing ->
+            Nothing

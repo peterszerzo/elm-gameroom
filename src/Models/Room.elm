@@ -33,14 +33,17 @@ create roomId playerIds =
 
 
 updatePreservingLocalGuesses : Room problem guess -> Room problem guess -> Room problem guess
-updatePreservingLocalGuesses newRoom room =
+updatePreservingLocalGuesses newRoom oldRoom =
     -- Since the application state only listens to full room updates,
     -- it can occur that one player's guess is nulled by another player's update.
     -- This method protects agains that.
     let
         didRoundChange =
-            Maybe.map2 (\newRound round -> newRound.no /= round.no) newRoom.round room.round
-                |> Maybe.withDefault False
+            Maybe.map2
+                (\newRound round -> newRound.no /= round.no)
+                newRoom.round
+                oldRoom.round
+                |> Maybe.withDefault True
 
         newPlayers =
             newRoom.players
@@ -54,11 +57,10 @@ updatePreservingLocalGuesses newRoom room =
                                 -- keep the old guess, which may be something.
                                 if
                                     (not didRoundChange
-                                        && player.guess
-                                        == Nothing
+                                        && (player.guess == Nothing)
                                     )
                                 then
-                                    room.players
+                                    oldRoom.players
                                         |> Dict.get playerId
                                         |> Maybe.map .guess
                                         |> Maybe.withDefault player.guess
@@ -79,6 +81,15 @@ allPlayersReady room =
         |> List.map Tuple.second
         |> List.map .isReady
         |> List.all identity
+
+
+allPlayersGuessed : Room problem guess -> Bool
+allPlayersGuessed room =
+    room.players
+        |> Dict.toList
+        |> List.map Tuple.second
+        |> List.map .guess
+        |> List.all ((/=) Nothing)
 
 
 updatePlayer :
@@ -111,15 +122,12 @@ setScores maybeWinnerId room =
                                 if playerId == winnerId then
                                     ( playerId
                                     , { player
-                                        | guess = Nothing
-                                        , score = player.score + 1
+                                        | score = player.score + 1
                                       }
                                     )
                                 else
                                     ( playerId
-                                    , { player
-                                        | guess = Nothing
-                                      }
+                                    , player
                                     )
                             )
                         |> Dict.fromList

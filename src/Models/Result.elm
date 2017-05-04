@@ -11,8 +11,7 @@ bigNumber =
 
 
 type Result
-    = Pending
-    | Winner String
+    = Winner String
     | Tie
 
 
@@ -33,4 +32,4 @@ get spec room =
         |> List.sortBy (\( playerId, madeAt, isCorrect ) -> madeAt)
         |> List.head
         |> Maybe.map (\( playerId, _, _ ) -> Winner playerId)
-        |> Maybe.withDefault Pending
+        |> Maybe.withDefault Tie

@@ -16,6 +16,7 @@ cssNamespace =
 type CssClasses
     = Root
     | GamePlay
+    | GamePlayInCooldown
     | ReadyPrompt
     | Title
     | Link
@@ -36,8 +37,15 @@ styles : List Css.Snippet
 styles =
     [ class Root []
     , class GamePlay
-        [ width (pct 100)
-        , height (pct 100)
+        [ position absolute
+        , top (px 0)
+        , bottom (px 0)
+        , left (px 0)
+        , right (px 0)
+        , property "transition" "all 0.3s"
+        ]
+    , class GamePlayInCooldown
+        [ opacity (num 0.6)
         ]
     , class ReadyPrompt
         ([ children
