@@ -89,9 +89,12 @@ viewRoom spec model room =
       else
         viewReadyPrompt spec model room
     , Notification.view (Game.getNotificationContent spec model)
+    , if (Room.allPlayersReady room) then
+        Timer.view ((model.ticksSinceNewRound |> toFloat) / (Constants.ticksInRound |> toFloat))
+      else
+        div [] []
     , Footer.view
-        [ Timer.view ((model.ticksSinceNewRound |> toFloat) / (Constants.ticksInRound |> toFloat))
-        , room.players
+        [ room.players
             |> Dict.toList
             |> List.map
                 (\( playerId, player ) ->

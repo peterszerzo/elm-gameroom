@@ -26,7 +26,8 @@ styles =
     [ class Root
         [ width (pct 100)
         , padding (px 5)
-        , backgroundColor lightGrey
+        , backgroundColor (hex lightBlue)
+        , color (hex white)
         , textAlign center
         ]
     ]

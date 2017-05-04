@@ -5,6 +5,7 @@ import Html.CssHelpers
 import Css exposing (..)
 import Css.Namespace exposing (namespace)
 import Styles.Mixins as Mixins
+import Styles.Constants exposing (..)
 
 
 cssNamespace : String
@@ -30,6 +31,7 @@ styles =
         [ width (px 80)
         , height (px 80)
         , margin auto
+        , border3 (px 1) solid (hex white)
         ]
     , class Link Mixins.button
     ]

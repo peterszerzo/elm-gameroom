@@ -15,7 +15,9 @@ viewForm model =
             (String.length model.roomId > 0)
                 && (model.playerIds |> List.map (\playerId -> String.length playerId > 0) |> List.all identity)
     in
-        [ label [ for "roomid" ]
+        [ h2 [] [ text "Create your room" ]
+        , p [] [ text "Casual is key - so please excuse our insistence to make your names URL-friendly as you type :)." ]
+        , label [ for "roomid" ]
             [ text "Room Id"
             , input
                 [ id "roomid"

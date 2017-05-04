@@ -40,10 +40,10 @@ styles =
         , bottom (px 0)
         , left (px 0)
         , right (px 0)
-        , property "transition" "all 0.3s"
+        , property "transition" "opacity 2s"
         ]
     , class GamePlayInCooldown
-        [ opacity (num 0.6)
+        [ opacity (num 0.3)
         ]
     , class ReadyPrompt Mixins.centered
     , class Link Mixins.button

@@ -1,33 +1,62 @@
 module Styles.Constants exposing (..)
 
-import Css exposing (..)
+-- Dimensions
 
 
-grey : Color
+standardBorderRadius : Float
+standardBorderRadius =
+    6
+
+
+
+-- Colors
+
+
+black : String
+black =
+    "0F2037"
+
+
+grey : String
 grey =
-    hex "DDDDDD"
+    "CFD0CE"
 
 
-white : Color
+white : String
 white =
-    hex "FFFFFF"
+    "FCFEFB"
 
 
-lightGrey : Color
+lightGrey : String
 lightGrey =
-    hex "EEEEEE"
+    "EBECEA"
 
 
-blue : Color
+darkGrey : String
+darkGrey =
+    "898A88"
+
+
+blue : String
 blue =
-    rgb 67 94 137
+    "2D739E"
 
 
-purple : Color
-purple =
-    rgb 77 80 97
+lightBlue : String
+lightBlue =
+    "407FA6"
 
 
-red : Color
+faintBlue : String
+faintBlue =
+    "9FBFD2"
+
+
+cyan : String
+cyan =
+    "27ABB2"
+
+
+red : String
 red =
-    rgb 254 74 73
+    "E52938"

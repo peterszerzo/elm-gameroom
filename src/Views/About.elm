@@ -11,5 +11,5 @@ view =
     div [ localClass [ Root ] ]
         [ h2 [] [ text "About elm-gameroom" ]
         , p [] [ text "A multiplayer game framework" ]
-        , Views.Link.view "/" [] [ text "Go play" ]
+        , Views.Link.view "/new" [] [ text "Go play" ]
         ]

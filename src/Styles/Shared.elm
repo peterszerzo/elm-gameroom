@@ -26,6 +26,7 @@ styles =
         ]
     , body
         [ position relative
+        , color (hex black)
         ]
     , id Root
         [ width (pct 100)
@@ -42,11 +43,11 @@ styles =
         , outline none
         , boxShadow none
         , fontSize (Css.rem 1)
-        , border3 (px 1) solid grey
+        , border3 (px 1) solid (hex grey)
         , marginTop (px 6)
         , property "transition" "border 0.3s"
         , focus
-            [ borderColor blue
+            [ borderColor (hex blue)
             ]
         ]
     , label
@@ -55,6 +56,7 @@ styles =
         , marginTop (px 30)
         , width (pct 100)
         , position relative
+        , color (hex darkGrey)
         , children
             [ button
                 [ position absolute

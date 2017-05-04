@@ -3,31 +3,7 @@ module Views.Logo exposing (view)
 import Html exposing (Html)
 import Svg exposing (svg, polygon)
 import Svg.Attributes exposing (points, viewBox, width, height, stroke, strokeWidth, fill)
-
-
-black : String
-black =
-    "rgb(24, 20, 10)"
-
-
-elmGreen : String
-elmGreen =
-    "#7FD13B"
-
-
-elmCyan : String
-elmCyan =
-    "#60B5CC"
-
-
-elmOrange : String
-elmOrange =
-    "#F0AD00"
-
-
-elmDark : String
-elmDark =
-    "#5A6378"
+import Styles.Constants exposing (..)
 
 
 polygons : List (List (List Float))
@@ -84,32 +60,33 @@ viewPolygon index pointCoordinates =
             )
         , stroke "#FFF"
         , strokeWidth "1.5"
-        , fill
-            (case index of
-                0 ->
-                    elmCyan
+        , (case index of
+            0 ->
+                cyan
 
-                1 ->
-                    elmGreen
+            1 ->
+                blue
 
-                2 ->
-                    elmOrange
+            2 ->
+                black
 
-                3 ->
-                    elmDark
+            3 ->
+                red
 
-                4 ->
-                    elmOrange
+            4 ->
+                blue
 
-                5 ->
-                    elmCyan
+            5 ->
+                faintBlue
 
-                6 ->
-                    elmDark
+            6 ->
+                black
 
-                _ ->
-                    black
-            )
+            _ ->
+                black
+          )
+            |> (\code -> "#" ++ code)
+            |> fill
         ]
         []
 

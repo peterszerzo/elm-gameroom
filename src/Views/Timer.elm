@@ -2,18 +2,19 @@ module Views.Timer exposing (view)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (style)
+import Views.Timer.Styles exposing (CssClasses(..), localClass)
 
 
 view : Float -> Html msg
 view ratio =
-    div
-        [ style
-            [ ( "position", "absolute" )
-            , ( "top", "-2px" )
-            , ( "height", "2px" )
-            , ( "left", "0" )
-            , ( "background", "#ddd" )
-            , ( "width", ((max (1 - ratio) 0) * 100 |> toString) ++ "%" )
+    let
+        widthPercentage =
+            ((max (ratio) 0) * 100 |> toString) ++ "%"
+    in
+        div
+            [ localClass [ Root ]
+            , style
+                [ ( "transform", "translateX(-" ++ widthPercentage ++ ")" )
+                ]
             ]
-        ]
-        [ text " " ]
+            [ text " " ]

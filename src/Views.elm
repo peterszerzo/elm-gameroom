@@ -1,7 +1,7 @@
 module Views exposing (view)
 
 import Html exposing (Html, div, node, text)
-import Css exposing (Stylesheet, stylesheet, position, fixed, top, px, bottom, left, right, backgroundColor)
+import Css exposing (Stylesheet, stylesheet, position, fixed, top, px, bottom, left, right, backgroundColor, hex)
 import Html.CssHelpers
 import Css.File exposing (compile)
 import Gameroom.Spec exposing (Spec)
@@ -23,6 +23,7 @@ import Views.NotFound
 import Views.NotFound.Styles
 import Views.Notification.Styles
 import Views.Scoreboard.Styles
+import Views.Timer.Styles
 import Styles.Shared
 import Styles.Constants exposing (white)
 
@@ -44,7 +45,7 @@ styles =
         , bottom (px 0)
         , left (px 0)
         , right (px 0)
-        , backgroundColor white
+        , backgroundColor (hex white)
         ]
     ]
 
@@ -63,6 +64,7 @@ css =
             ++ Views.NotFound.Styles.styles
             ++ Views.Notification.Styles.styles
             ++ Views.Scoreboard.Styles.styles
+            ++ Views.Timer.Styles.styles
         )
 
 

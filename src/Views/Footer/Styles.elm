@@ -4,6 +4,7 @@ import Html
 import Html.CssHelpers
 import Css exposing (..)
 import Css.Namespace exposing (namespace)
+import Styles.Mixins as Mixins
 
 
 cssNamespace : String
@@ -22,12 +23,12 @@ localClass =
 
 styles : List Css.Snippet
 styles =
-    [ Css.class Root
+    [ Css.class Root <|
         [ position fixed
         , right (px 0)
         , bottom (px 0)
         , width (pct 100)
-        , overflowY visible
         ]
+            ++ Mixins.standardBoxShadow
     ]
         |> namespace cssNamespace

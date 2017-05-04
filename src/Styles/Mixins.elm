@@ -21,6 +21,12 @@ centered =
     ]
 
 
+standardBoxShadow : List Mixin
+standardBoxShadow =
+    [ property "box-shadow" "0 0 18px rgba(0, 0, 0, 0.08), 0 0 6px rgba(0, 0, 0, 0.16)"
+    ]
+
+
 
 --  Typography
 
@@ -29,6 +35,7 @@ heroType : List Mixin
 heroType =
     [ fontSize (Css.rem 3.25)
     , property "font-weight" "300"
+    , letterSpacing (Css.rem 0.05)
     , margin2 (px 20) auto
     ]
 
@@ -37,6 +44,7 @@ subheroType : List Mixin
 subheroType =
     [ fontSize (Css.rem 2.25)
     , property "font-weight" "300"
+    , letterSpacing (Css.rem 0.05)
     , margin3 (px 20) auto (px 40)
     ]
 
@@ -45,6 +53,7 @@ headingType : List Mixin
 headingType =
     [ fontSize (Css.rem 1.5)
     , property "font-weight" "300"
+    , letterSpacing (Css.rem 0.05)
     , margin3 (px 20) auto (px 40)
     ]
 
@@ -52,7 +61,8 @@ headingType =
 bodyType : List Mixin
 bodyType =
     [ fontSize (Css.rem 1)
-    , property "font-weight" "300"
+    , property "font-weight" "400"
+    , letterSpacing (Css.rem 0.05)
     , margin2 (px 10) auto
     ]
 
@@ -63,11 +73,11 @@ bodyType =
 
 button : List Mixin
 button =
-    [ color white
+    [ color (hex white)
     , cursor pointer
     , position relative
     , display inlineBlock
-    , backgroundColor blue
+    , backgroundColor (hex blue)
     , fontSize (Css.rem 1)
     , letterSpacing (Css.rem 0.05)
     , margin (px 10)
@@ -96,8 +106,8 @@ button =
 
 buttonDisabled : List Mixin
 buttonDisabled =
-    [ border3 (px 2) solid blue
-    , color blue
+    [ border3 (px 2) solid (hex blue)
+    , color (hex blue)
     , backgroundColor transparent
     , property "opacity" "0.8"
     ]
