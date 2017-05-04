@@ -23,10 +23,13 @@ var db = function (firebaseConfig) {
         return snapshot.val()
       })
     },
-    setRoom: function (room) {
+    createRoom: function (room) {
       return database.ref('/rooms/' + room.id).set(room)
     },
-    setPlayer: function (player) {
+    updateRoom: function (room) {
+      return database.ref('/rooms/' + room.id).set(room)
+    },
+    updatePlayer: function (player) {
       return database.ref('/rooms/' + player.roomId + '/players/' + player.id).set(player)
     },
     subscribeToRoom: function (roomId, next) {

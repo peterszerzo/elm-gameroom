@@ -23,7 +23,7 @@ var talkToPorts = function (db, ports) {
         return db.unsubscribeFromRoom(payload)
       // Create new game room in storage, sending back a room:created message.
       case 'create:room':
-        return db.setRoom(payload).then(function () {
+        return db.createRoom(payload).then(function () {
           ports.incoming.send(JSON.stringify({
             type: 'room:created',
             payload: payload
@@ -32,9 +32,9 @@ var talkToPorts = function (db, ports) {
       // Update room. If subscribed, this should signal back to the roomUpdated port.
       // Hence, no feedback is necessary in this method.
       case 'update:room':
-        return db.setRoom(payload)
+        return db.updateRoom(payload)
       case 'update:player':
-        return db.setPlayer(payload)
+        return db.updatePlayer(payload)
       default:
         return
     }

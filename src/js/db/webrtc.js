@@ -1,15 +1,19 @@
-/*
- * Prototype, not working yet..
- */
+var hostedRooms = {}
 
-function loadPeer () {
+var peerJsloadPromise
+
+function loadPeerJs () {
+  if (peerJsloadPromise) {
+    return peerJsloadPromise
+  }
   var url = 'http://cdn.peerjs.com/0.3/peer.min.js'
-  return new Promise(function (resolve, reject) {
+  peerJsloadPromise = new Promise(function (resolve, reject) {
     var scriptTag = document.createElement('script')
     scriptTag.src = url
     scriptTag.onload = resolve
     document.body.appendChild(scriptTag)
   })
+  return peerJsloadPromise
 }
 
 function testConnection () {

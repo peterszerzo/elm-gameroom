@@ -1,6 +1,7 @@
 /**
- * Simple local db, polling localStorage
- *
+ * Simple local db, polling localStorage.
+ * Only works if both clients are in the same browser window.
+ * => only useful for testing games.
  */
 
 var db = function () {
@@ -13,12 +14,17 @@ var db = function () {
       return Promise.resolve(JSON.parse(localStorage.getItem('/rooms/' + roomId)))
     },
 
-    setRoom: function (room) {
+    createRoom: function (room) {
       localStorage.setItem('/rooms/' + room.id, JSON.stringify(room))
       return Promise.resolve(room)
     },
 
-    setPlayer: function (player) {
+    updateRoom: function (room) {
+      localStorage.setItem('/rooms/' + room.id, JSON.stringify(room))
+      return Promise.resolve(room)
+    },
+
+    updatePlayer: function (player) {
       var room = JSON.parse(localStorage.getItem('/rooms/' + player.roomId))
       room.players[player.id] = player
       localStorage.setItem('/rooms/' + player.roomId, JSON.stringify(room))
