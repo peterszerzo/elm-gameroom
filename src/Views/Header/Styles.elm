@@ -31,11 +31,13 @@ styles =
         , padding (px 20)
         , top (px 0)
         , left (px 0)
+        , zIndex (int 10)
         ]
-    , Css.class HomeLink
+    , class HomeLink
         [ height (px 100)
         , width (pct 100)
         , display block
+        , cursor pointer
         ]
     ]
         |> namespace cssNamespace

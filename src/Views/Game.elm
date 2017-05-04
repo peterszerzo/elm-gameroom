@@ -24,7 +24,7 @@ viewReadyPrompt :
     -> Html (GameMsg problem guess)
 viewReadyPrompt spec model room =
     div [ localClass [ ReadyPrompt ] ]
-        [ h2 [ localClass [ Title ] ] [ text "Ready?" ]
+        [ h2 [] [ text "Ready?" ]
         , ul
             [ style
                 [ ( "list-style", "none" )

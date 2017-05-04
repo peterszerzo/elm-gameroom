@@ -1,8 +1,9 @@
 module Styles.Shared exposing (..)
 
 import Css exposing (..)
-import Css.Elements exposing (html, body, input, label, button)
+import Css.Elements exposing (html, body, input, label, button, a, h1, h2, h3)
 import Styles.Constants exposing (..)
+import Styles.Mixins as Mixins
 
 
 type CssIds
@@ -30,6 +31,9 @@ styles =
         [ width (pct 100)
         , height (pct 100)
         ]
+    , h1 Mixins.heroType
+    , h2 Mixins.subheroType
+    , h3 Mixins.headingType
     , input
         [ display block
         , width (pct 100)

@@ -3,7 +3,6 @@ module Views.Game.Styles exposing (..)
 import Html
 import Html.CssHelpers
 import Css exposing (..)
-import Css.Elements exposing (h2)
 import Css.Namespace exposing (namespace)
 import Styles.Mixins as Mixins
 
@@ -18,7 +17,6 @@ type CssClasses
     | GamePlay
     | GamePlayInCooldown
     | ReadyPrompt
-    | Title
     | Link
     | DisabledLink
 
@@ -47,14 +45,7 @@ styles =
     , class GamePlayInCooldown
         [ opacity (num 0.6)
         ]
-    , class ReadyPrompt
-        ([ children
-            [ h2 Mixins.subheroType
-            ]
-         ]
-            ++ Mixins.centered
-        )
-    , class Title Mixins.subheroType
+    , class ReadyPrompt Mixins.centered
     , class Link Mixins.button
     , class DisabledLink Mixins.buttonDisabled
     ]

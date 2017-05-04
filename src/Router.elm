@@ -3,59 +3,27 @@ module Router exposing (..)
 import Navigation
 import UrlParser exposing (..)
 import Models.NewRoom as NewRoom
-import Models.Game as Game
+import Models.Game
 
 
 type Route problem guess
     = Home
     | About
-    | Tutorial
     | NewRoom NewRoom.NewRoom
-    | Game (Game.Game problem guess)
+    | Game (Models.Game.Game problem guess)
     | NotFound
-
-
-tutorialPath : String
-tutorialPath =
-    "tutorial"
-
-
-aboutPath : String
-aboutPath =
-    "about"
-
-
-newRoomPath : String
-newRoomPath =
-    "new"
-
-
-homePath : String
-homePath =
-    ""
-
-
-roomsPath : String
-roomsPath =
-    "rooms"
-
-
-defaultRouteUrl : ( Route problem guess, String )
-defaultRouteUrl =
-    ( Home, "" )
 
 
 matchers : UrlParser.Parser (Route problem guess -> a) a
 matchers =
     UrlParser.oneOf
-        [ s homePath |> map Home
-        , s aboutPath |> map About
-        , s tutorialPath |> map Tutorial
-        , s roomsPath
+        [ s "" |> map Home
+        , s "about" |> map About
+        , s "rooms"
             </> string
             </> string
-            |> map (\roomId playerId -> Game { roomId = roomId, playerId = playerId, room = Nothing, ticksSinceNewRound = 0 })
-        , s newRoomPath |> map (NewRoom NewRoom.init)
+            |> map (\roomId playerId -> Models.Game.init roomId playerId |> Game)
+        , s "new" |> map (NewRoom NewRoom.init)
         ]
 
 

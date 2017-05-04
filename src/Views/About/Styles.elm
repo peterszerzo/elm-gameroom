@@ -1,22 +1,20 @@
-module Views.NewRoom.Styles exposing (..)
+module Views.About.Styles exposing (..)
 
 import Html
 import Html.CssHelpers
 import Css exposing (..)
+import Css.Elements exposing (a)
 import Css.Namespace exposing (namespace)
 import Styles.Mixins as Mixins
 
 
 cssNamespace : String
 cssNamespace =
-    "newroom"
+    "about"
 
 
 type CssClasses
     = Root
-    | Logo
-    | Button
-    | FormButton
 
 
 localClass : List class -> Html.Attribute msg
@@ -24,13 +22,10 @@ localClass =
     Html.CssHelpers.withNamespace cssNamespace |> .class
 
 
-styles : List Snippet
+styles : List Css.Snippet
 styles =
-    [ class Root Mixins.centered
-    , class Button Mixins.button
-    , class FormButton
-        [ width (pct 100)
-        , margin3 (px 25) (px 0) (px 0)
-        ]
+    [ Css.class Root <|
+        [ descendants [ a Mixins.button ] ]
+            ++ Mixins.centered
     ]
         |> namespace cssNamespace

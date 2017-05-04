@@ -1,6 +1,6 @@
 module Views.Home exposing (..)
 
-import Html exposing (Html, div, text, h1)
+import Html exposing (Html, div, text, h1, p)
 import Messages exposing (Msg(..))
 import Views.Link as Link
 import Views.Logo as Logo
@@ -14,7 +14,8 @@ view =
             [ localClass [ Logo ]
             ]
             [ Logo.view ]
-        , h1 [ localClass [ Title ] ] [ text "elm-gameroom" ]
-        , Link.view "/tutorial" [ localClass [ Link ] ] [ text "Tutorial" ]
-        , Link.view "/new" [ localClass [ Link ] ] [ text "New room" ]
+        , h1 [] [ text "elm-gameroom" ]
+        , p [] [ text "Prime frustrating entertainment" ]
+        , Link.view "/new" [ localClass [ Link ] ] [ text "Play" ]
+        , Link.view "/about" [ localClass [ Link ] ] [ text "About" ]
         ]

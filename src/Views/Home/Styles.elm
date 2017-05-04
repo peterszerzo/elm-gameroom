@@ -15,7 +15,6 @@ cssNamespace =
 type CssClasses
     = Root
     | Logo
-    | Title
     | Link
 
 
@@ -32,7 +31,6 @@ styles =
         , height (px 80)
         , margin auto
         ]
-    , class Title Mixins.heroType
     , class Link Mixins.button
     ]
         |> namespace cssNamespace

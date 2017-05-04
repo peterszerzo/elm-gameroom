@@ -20,6 +20,15 @@ type alias Game problem guess =
 -- Helpers
 
 
+init : String -> String -> Game problem guess
+init roomId playerId =
+    { roomId = roomId
+    , playerId = playerId
+    , room = Nothing
+    , ticksSinceNewRound = 0
+    }
+
+
 setOwnGuess : guess -> Game problem guess -> Game problem guess
 setOwnGuess guess model =
     case model.room of
@@ -68,16 +77,22 @@ getNotificationContent spec model =
                 Maybe.map2
                     (\guess round ->
                         if spec.isGuessCorrect round.problem guess.value then
-                            "Correct - see if you were faster :)"
+                            "Good job. Now let's see if you were the fastest.."
                         else
-                            "Better luck next time.."
+                            "Not quite correct that one.."
                     )
                     (getOwnGuess model)
                     room.round
             else
                 Room.getRoundWinner spec room
-                    |> Maybe.map (\s -> "This one goes to " ++ s)
-                    |> Maybe.withDefault "It's a tie, folks.."
+                    |> Maybe.map
+                        (\winnerId ->
+                            if winnerId == model.playerId then
+                                "Nice job, you win!"
+                            else
+                                "This one goes to " ++ winnerId ++ ". Go get them in the next round!"
+                        )
+                    |> Maybe.withDefault "It's a tie, folks, it's a tie.."
                     |> Just
 
         Nothing ->

@@ -25,17 +25,9 @@ centered =
 --  Typography
 
 
-bodyType : List Mixin
-bodyType =
-    [ fontSize (Css.rem 1)
-    , property "font-weight" "300"
-    , margin2 (px 10) auto
-    ]
-
-
 heroType : List Mixin
 heroType =
-    [ fontSize (Css.rem 3)
+    [ fontSize (Css.rem 3.25)
     , property "font-weight" "300"
     , margin2 (px 20) auto
     ]
@@ -43,9 +35,25 @@ heroType =
 
 subheroType : List Mixin
 subheroType =
-    [ fontSize (Css.rem 3)
+    [ fontSize (Css.rem 2.25)
     , property "font-weight" "300"
     , margin3 (px 20) auto (px 40)
+    ]
+
+
+headingType : List Mixin
+headingType =
+    [ fontSize (Css.rem 1.5)
+    , property "font-weight" "300"
+    , margin3 (px 20) auto (px 40)
+    ]
+
+
+bodyType : List Mixin
+bodyType =
+    [ fontSize (Css.rem 1)
+    , property "font-weight" "300"
+    , margin2 (px 10) auto
     ]
 
 
@@ -57,6 +65,7 @@ button : List Mixin
 button =
     [ color white
     , cursor pointer
+    , position relative
     , display inlineBlock
     , backgroundColor blue
     , fontSize (Css.rem 1)
@@ -68,6 +77,20 @@ button =
     , border (px 0)
     , outline none
     , boxShadow none
+    , after
+        [ property "content" "' '"
+        , position absolute
+        , top (px 0)
+        , left (px 0)
+        , bottom (px 0)
+        , right (px 0)
+        , property "transition" "background-color 0.3s"
+        ]
+    , hover
+        [ after
+            [ property "background-color" "rgba(255, 255, 255, 0.1)"
+            ]
+        ]
     ]
 
 

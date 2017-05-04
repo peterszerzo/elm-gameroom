@@ -3,22 +3,26 @@ module Views exposing (view)
 import Html exposing (Html, div, node, text)
 import Css exposing (Stylesheet, stylesheet, position, fixed, top, px, bottom, left, right, backgroundColor)
 import Html.CssHelpers
+import Css.File exposing (compile)
 import Gameroom.Spec exposing (Spec)
 import Models exposing (Model)
 import Messages exposing (Msg(..))
 import Router as Router
-import Views.Home
-import Views.Home.Styles
-import Views.Header
-import Views.Header.Styles
-import Views.NewRoom
-import Views.NewRoom.Styles
+import Views.About
+import Views.About.Styles
+import Views.Footer.Styles
 import Views.Game
 import Views.Game.Styles
-import Views.Scoreboard.Styles
-import Views.Footer.Styles
+import Views.Header
+import Views.Header.Styles
+import Views.Home
+import Views.Home.Styles
+import Views.NewRoom
+import Views.NewRoom.Styles
+import Views.NotFound
+import Views.NotFound.Styles
 import Views.Notification.Styles
-import Css.File exposing (compile)
+import Views.Scoreboard.Styles
 import Styles.Shared
 import Styles.Constants exposing (white)
 
@@ -50,13 +54,15 @@ css =
     stylesheet
         (Styles.Shared.styles
             ++ styles
-            ++ Views.Home.Styles.styles
-            ++ Views.Header.Styles.styles
-            ++ Views.Scoreboard.Styles.styles
+            ++ Views.About.Styles.styles
             ++ Views.Footer.Styles.styles
-            ++ Views.NewRoom.Styles.styles
             ++ Views.Game.Styles.styles
+            ++ Views.Header.Styles.styles
+            ++ Views.Home.Styles.styles
+            ++ Views.NewRoom.Styles.styles
+            ++ Views.NotFound.Styles.styles
             ++ Views.Notification.Styles.styles
+            ++ Views.Scoreboard.Styles.styles
         )
 
 
@@ -70,19 +76,22 @@ view spec model =
     let
         content =
             case model.route of
+                Router.Home ->
+                    Views.Home.view
+
                 Router.Game game ->
                     Views.Game.view spec game
                         |> Html.map GameMsg
-
-                Router.Home ->
-                    Views.Home.view
 
                 Router.NewRoom newRoom ->
                     Views.NewRoom.view newRoom
                         |> Html.map NewRoomMsg
 
-                _ ->
-                    div [] []
+                Router.NotFound ->
+                    Views.NotFound.view
+
+                Router.About ->
+                    Views.About.view
     in
         div
             [ class [ Root ]
