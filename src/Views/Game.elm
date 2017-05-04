@@ -80,7 +80,7 @@ viewRoom spec model room =
                         , ( GamePlayInCooldown, model.ticksSinceNewRound > Constants.ticksInRound )
                         ]
                     ]
-                    [ Html.map Guess (spec.view model.playerId room.players model.ticksSinceNewRound round.problem)
+                    [ Html.map Guess (spec.view model.playerId room.players model.animationTicksSinceNewRound round.problem)
                     ]
 
             Nothing ->

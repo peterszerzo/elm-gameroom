@@ -13,6 +13,7 @@ type alias Game problem guess =
     , playerId : String
     , room : Maybe (Room.Room problem guess)
     , ticksSinceNewRound : Int
+    , animationTicksSinceNewRound : Int
     }
 
 
@@ -26,6 +27,7 @@ init roomId playerId =
     , playerId = playerId
     , room = Nothing
     , ticksSinceNewRound = 0
+    , animationTicksSinceNewRound = 0
     }
 
 

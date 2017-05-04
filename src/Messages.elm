@@ -8,6 +8,7 @@ import Models.Room as Room
 type GameMsg problem guess
     = Guess guess
     | Tick Float
+    | AnimationTick Float
     | ReceiveUpdate (Room.Room problem guess)
     | MarkReady
     | ReceiveNewProblem problem

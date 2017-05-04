@@ -65,6 +65,11 @@ update spec ports msg model =
                             0
                         else
                             model.ticksSinceNewRound
+                    , animationTicksSinceNewRound =
+                        if isNewRound then
+                            0
+                        else
+                            model.animationTicksSinceNewRound
                   }
                 , if initiateNewRound then
                     newProblemCmd
@@ -163,6 +168,14 @@ update spec ports msg model =
             -- Impossible state
             ( model, Cmd.none )
 
+        ( AnimationTick time, _ ) ->
+            ( { model
+                | animationTicksSinceNewRound =
+                    model.animationTicksSinceNewRound + 1
+              }
+            , Cmd.none
+            )
+
         ( Tick time, Just room ) ->
             let
                 potentialRoundWinner =
@@ -171,19 +184,11 @@ update spec ports msg model =
                 newProblemCmd =
                     (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
 
+                allPlayersReady =
+                    Room.allPlayersReady room
+
                 isHost =
                     room.host == model.playerId
-
-                resetTicks =
-                    -- Reset ticks when the round has changed
-                    -- (either from Nothing to something or the number)
-                    Maybe.map2
-                        (\oldRound newRound ->
-                            oldRound.no /= newRound.no
-                        )
-                        (model.room |> Maybe.andThen .round)
-                        room.round
-                        |> Maybe.withDefault True
 
                 isRoundJustOver =
                     (model.ticksSinceNewRound == Constants.ticksInRound)
@@ -221,7 +226,13 @@ update spec ports msg model =
                     { model
                         | room =
                             Just newRoom
-                        , ticksSinceNewRound = model.ticksSinceNewRound + 1
+                        , ticksSinceNewRound =
+                            model.ticksSinceNewRound
+                                + (if allPlayersReady then
+                                    1
+                                   else
+                                    0
+                                  )
                     }
             in
                 ( newModel

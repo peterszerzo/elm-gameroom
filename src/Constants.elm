@@ -1,5 +1,12 @@
 module Constants exposing (..)
 
+
+debugMode : Bool
+debugMode =
+    False
+
+
+
 -- Null string value used in storage
 
 
@@ -14,9 +21,15 @@ nullString =
 
 ticksInRound : Int
 ticksInRound =
-    20
+    if debugMode then
+        10
+    else
+        100
 
 
 ticksInCooldown : Int
 ticksInCooldown =
-    5
+    if debugMode then
+        5
+    else
+        50

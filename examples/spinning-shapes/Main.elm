@@ -61,7 +61,7 @@ spec =
                                         , attribute "transform"
                                             ("rotate("
                                                 ++ ((ticksSinceNewRound |> toFloat)
-                                                        |> (*) 5
+                                                        |> (*) 0.5
                                                         |> (*)
                                                             (if index == 0 then
                                                                 1

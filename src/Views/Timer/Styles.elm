@@ -30,7 +30,7 @@ styles =
         , height (px 1)
         , left (px 0)
         , backgroundColor (hex lightBlue)
-        , property "transition" "transform 0.3s"
+        , property "transition" "transform 0.1s linear"
         ]
     ]
         |> namespace cssNamespace
