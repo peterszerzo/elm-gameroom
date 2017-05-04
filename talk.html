@@ -8,11 +8,53 @@
       @import url(https://fonts.googleapis.com/css?family=PT+Serif);
       @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro);
 
+      * {
+        -webkit-font-smoothing: antialiased;
+      }
+
       h1,
       h2,
       h3 {
         font-weight: normal;
         letter-spacing: 0.05px;
+      }
+
+      h1 {
+        font-size: 4rem;
+      }
+
+      h2 {
+        font-size: 3rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4)
+      }
+
+      h3 {
+        font-size: 2rem;
+      }
+
+      p,
+      a,
+      li,
+      blockquote {
+        font-size: 1.5rem;
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        padding: 6px 18px;
+        font-style: italic;
+        border-left: 4px solid white;
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      blockquote p {
+        margin: 0;
+      }
+
+
+      .hero h3 {
+        opacity: 0.6;
       }
 
       a {
@@ -25,9 +67,13 @@
         color: #FFFFFF;
       }
 
+      .remark-slide-container {
+        background: linear-gradient(to bottom right, #15487f, #195495);
+      }
+
       .remark-container,
       .remark-slide-content {
-        background: #15487f;
+        background: none;
       }
 
       .remark-code,
@@ -37,6 +83,10 @@
 
       .remark-slide-scaler {
         box-shadow: none;
+      }
+
+      .remark-slide-number {
+        display: none;
       }
     </style>
   </head>
@@ -54,6 +104,9 @@
       })
       .then(function () {
         remark.create()
+      })
+      .catch(function (err) {
+        console.log(err)
       })
     </script>
   </body>

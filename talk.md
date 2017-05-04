@@ -1,10 +1,38 @@
 class: center, middle
 
-# Multiplayer guessing game in 200 lines
-
-## Peter Szerzo
+### 👋
 
 ---
+
+class: middle
+
+## Hello, I'm Peter
+
+I split my time between
+
+* ☕🌧️ Copenhagen
+* 🐶👩‍🌾 Bucharest
+* 🍕🌃 New York
+
+Prototyping theseed.dk.
+
+---
+
+class: middle
+
+## Games!
+
+---
+
+class: center, middle, hero
+
+# Multiplayer guessing games by the boatloads
+
+### Making elm-gameroom
+
+---
+
+class: middle
 
 ## Two years ago on a winter evening in Canada..
 
@@ -16,6 +44,8 @@ https://lettero.co
 
 ---
 
+class: middle
+
 ## And then I was thinking..
 
 I totally want to (try) to make this into a multiplayer game framework.
@@ -24,9 +54,11 @@ I totally want to (try) to make this into a multiplayer game framework.
 
 ---
 
+class: middle
+
 ## The original Lettero
 
-Express back-ent, Elm frontend. Oh, client-server logic splitting/sharing...
+Express back-end, Elm frontend. Oh, client-server logic splitting/sharing...
 
 > There's no way around it, I guess.
 
@@ -36,14 +68,21 @@ Or can I do better?
 
 ---
 
+name: usecaseisspecial
+class: middle
+
 ## The use-case is a little special
 
 All players need to be online at all times.
 
 So we can:
-* push game room state to all clients.
-* designate one of the clients as a host.
-* this host calls the shots and updates the scores.
+* have all clients subscribe to the game room state.
+* designate one of them as host.
+* have the host call the shots and keep the score.
+
+---
+
+template: usecaseisspecial
 
 => Generic realtime backend: Firebase, Horizon, or something custom.
 
@@ -51,9 +90,9 @@ So we can:
 
 ---
 
-## Now that we're comfortable, can we abstract?
+class: middle
 
-### What are the elements that define a game uniquely?
+## Can we abstract?
 
 * the `problem = "hedgehog"`
 * the `guess = 1`
@@ -64,7 +103,9 @@ So we can:
 
 ---
 
-### How does this look like in Elm, for Lettero?
+class: middle
+
+### How does this look like for Lettero?
 
 ```elm
 type alias Problem = String
@@ -86,6 +127,8 @@ problemGenerator =
 
 ---
 
+class: middle
+
 ### Anything else?
 
 Some encoders and decoders.
@@ -97,16 +140,18 @@ problemDecoder = Json.Decode.string
 
 guessEncoder = Json.Encode.int
 
-problemDecoder = Json.Decode.int
+guessDecoder = Json.Decode.int
 ```
 
 ---
+
+class: middle
 
 ### In the abstract..
 
 ```elm
 type alias Spec problem guess =
-    { view : PlayerId -> Players guess -> problem -> Html.Html guess
+    { view : PlayerId -> Players guess -> problem -> Html guess
     , isGuessCorrect : problem -> guess -> Bool
     , problemGenerator : Random.Generator problem
     , problemEncoder : problem -> JE.Value
@@ -118,6 +163,8 @@ type alias Spec problem guess =
 
 ---
 
+class: middle
+
 ### elm-gameroom
 
 ```elm
@@ -125,6 +172,8 @@ program : Spec problem guess -> Program Never (Model problem guess) (Msg problem
 ```
 
 ---
+
+class: middle
 
 ### Ok, well, not quite that simple
 
@@ -137,20 +186,16 @@ But you cannot publish a package with ports.
 
 ---
 
-### The responsible cheater
+class: middle
 
-Library: documents the heck out of how ports should work.
-Client: defines and talks to ports, both in Elm and JavaScript.
+## Ports: the responsible cheater
+
+Client defines the ports, and passes them as configuration.
 
 ```elm
 type alias Ports msg =
-    { unsubscribeFromRoom : String -> Cmd msg
-    , subscribeToRoom : String -> Cmd msg
-    , createRoom : String -> Cmd msg
-    , roomCreated : (String -> msg) -> Sub msg
-    , updateRoom : String -> Cmd msg
-    , roomUpdated : (String -> msg) -> Sub msg
-    , updatePlayer : String -> Cmd msg
+    { outgoing : String -> Cmd msg
+    , incoming : (String -> msg) -> Sub msg
     }
 
 program :
@@ -161,9 +206,50 @@ program :
 
 ---
 
+class: middle
+
+## Talking to ports is just boilerplate!
+
+Provide it with the library!
+
+```js
+import db from '~/src/js/db/firebase.js'
+// or db/webrtc.js
+import talkToPorts from '~/src/talk-to-ports.js'
+import Elm from './Main.elm'
+
+const elmApp = Elm.Main.fullscreen()
+talkToPorts(db(), elmApp.ports)
+```
+
+---
+
+class: middle
+
+## db.js
+
+```js
+const db = dependencies => {
+  return {
+    getRoom () {},
+    createRoom () {},
+    updateRoom () {},
+    updatePlayer () {},
+    subscribeToRoom () {},
+    unsubscribeFromRoom () {}
+  }
+}
+```
+
+---
+
+class: middle
+
 ## And now that we planned it all..
 
 ---
+
+class: middle
 
 ## The refactoring
 
@@ -171,9 +257,9 @@ program :
 
 > It's impossible to write (really) bad Elm code. Or is it?
 
-With the refactoring came the pocket learnings...
-
 ---
+
+class: middle
 
 ### Cheating Maybe's
 
@@ -185,37 +271,21 @@ type alias Room = { ... }
 getDummy : String -> Player
 ```
 
-```elm
-view1 model =
-    case model.room of
-        Just room ->
-            view2 model
-
-        Nothing ->
-            text "Placeholder"
-
-view2 model =
-    model.room
-        |> Maybe.withDefault Room.getDummy
-        |> ...
-```
-
-```elm
-view2 model room =
-    room
-        |> ...
-```
-
 > Respect your Maybes #respectyourmaybes.
 
 ---
+
+class: middle
 
 ### Impossible states unrepresentable
 
 But really, always..
 
 ```elm
-type alias Guess = Pending | Made guessValue | Idle
+type alias Guess
+    = Pending
+    | Made guess
+    | Idle
 ```
 
 But the time elapsed in a certain round is also tracked.
@@ -226,14 +296,22 @@ But the time elapsed in a certain round is also tracked.
 
 ---
 
+class: middle
+
 ### Autonomous components
 
 In Lettero, gameplay, tutorial and create game room 'components' are fully autonomous.
 
 There is some mighty strange glue code that I do not wish to talk about.
 
-> Embrace codebase socialism.
-
 ---
 
-## Let's make a game!
+class: middle
+
+## Let's play games!
+
+http://eg1.surge.sh
+
+http://eg2.surge.sh
+
+http://eg3.surge.sh
