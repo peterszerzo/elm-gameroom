@@ -1,21 +1,33 @@
-var peerClientsByRoomId = {}
+// Stores room state, peer clients and connections by room id
+var rooms = {}
 
 function isHost (roomId) {
-  return peerClientsByRoomId[roomId] && peerClientsByRoomId[roomId].isHost
+  return rooms[roomId] && rooms[roomId].isHost
 }
 
 var peerOptions = {
   key: 'lwjd5qra8257b9'
 }
 
-var peerJsloadPromise
-
-function loadPeerJs () {
-  if (peerJsloadPromise) {
-    return peerJsloadPromise
+function memoize (fn) {
+  return function () {
+    var args = Array.prototype.slice.call(arguments)
+    var hash = args.reduce(function (acc, current) {
+      return acc + ((current === Object(current)) ? JSON.stringify(current) : current)
+    }, '')
+    fn.memo = fn.memo || {}
+    if (fn.memo[hash]) {
+      return fn.memo[hash]
+    }
+    var returnValue = fn.apply(this, args)
+    fn.memo[hash] = returnValue
+    return returnValue
   }
+}
+
+var loadPeerJs = memoize(function loadPeerJs () {
   var url = 'http://cdn.peerjs.com/0.3/peer.min.js'
-  peerJsloadPromise = new Promise(function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     var scriptTag = document.createElement('script')
     scriptTag.src = url
     scriptTag.onload = function () {
@@ -23,24 +35,43 @@ function loadPeerJs () {
     }
     document.body.appendChild(scriptTag)
   })
-  return peerJsloadPromise
-}
+})
+
+var connectToHost = memoize(function (roomId) {
+  return loadPeerJs().then(function (Peer) {
+    return new Promise(function (resolve, reject) {
+      var room = rooms[roomId]
+      var peer = (room && room.peer) || new Peer('elm-gameroom-' + new Date().getTime(), peerOptions)
+      var connection =
+        (room && room.connectionToHost)
+        ? room.connectionToHost
+        : peer.connect('elm-gameroom-' + roomId)
+      rooms[roomId] = {
+        peer: peer,
+        connectionToHost: connection,
+        isHost: false
+      }
+      connection.on('open', function () {
+        resolve(connection)
+      })
+    })
+  })
+})
 
 var db = function () {
   return {
     getRoom: function (roomId) {
       if (isHost(roomId)) {
-        return Promise.resolve(JSON.parse(localStorage.getItem('/rooms/' + roomId)))
+        return Promise.resolve(rooms[roomId].state)
       } else {
         return loadPeerJs().then(function (Peer) {
-          return new Promise(function (resolve, reject) {
-            var peer = (peerClientsByRoomId[roomId] && peerClientsByRoomId[roomId].peer) || new Peer('elm-gameroom-' + new Date().getTime(), peerOptions)
-            var conn = peer.connect('elm-gameroom-' + roomId)
-            conn.on('open', function () {
-              conn.on('data', function(data) {
+          return connectToHost(roomId).then(function (connection) {
+            return new Promise(function (resolve, reject) {
+              var onData = function (data) {
                 resolve(data)
-              })
-              conn.send({
+              }
+              connection.on('data', onData)
+              connection.send({
                 type: 'get:room',
                 payload: {
                   roomId: roomId
@@ -51,18 +82,31 @@ var db = function () {
         })
       }
     },
+
     createRoom: function (room) {
       return loadPeerJs().then(function (Peer) {
-        localStorage.setItem('/rooms/' + room.id, JSON.stringify(room))
         var peer = new Peer('elm-gameroom-' + room.id, peerOptions)
-        peerClientsByRoomId[room.id] = {
+        rooms[room.id] = {
           peer: peer,
-          isHost: true
+          isHost: true,
+          connectionToHost: null,
+          state: room,
+          subscribers: []
         }
-        peer.on('connection', function(conn) {
-          conn.on('data', function (msg) {
-            if (msg.type === 'get:room') {
-              conn.send(JSON.parse(localStorage.getItem('/rooms/' + msg.payload.roomId)))
+        peer.on('connection', function (connection) {
+          connection.on('data', function (msg) {
+            switch (msg.type) {
+              // Subscribe to room, sending room:updated messages
+              case 'get:room':
+                return connection.send(rooms[room.id].roomState)
+              case 'subscribeto:room':
+                connection.send(rooms[room.id].state)
+                rooms[room.id].subscribers =
+                  rooms[room.id].subscribers.concat([connection])
+                return
+              case 'unsubscribefrom:room':
+                // This need not be handled, as closed connections are removed automatically
+                return
             }
           })
         })
