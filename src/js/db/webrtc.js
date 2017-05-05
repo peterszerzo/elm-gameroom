@@ -9,6 +9,21 @@ var peerOptions = {
   key: 'lwjd5qra8257b9'
 }
 
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function extend() {
+  var target = {}
+  for (var i = 0; i < arguments.length; i++) {
+    var source = arguments[i]
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key]
+      }
+    }
+  }
+  return target
+}
+
 function memoize (fn) {
   return function () {
     var args = Array.prototype.slice.call(arguments)
@@ -58,6 +73,21 @@ var connectToHost = memoize(function (roomId) {
   })
 })
 
+function updateSubscribers (roomId) {
+  if (!isHost(roomId)) {
+    return
+  }
+  rooms[roomId].subscribers.forEach(function (connection) {
+    connection.send({
+      type: 'room:updated',
+      payload: rooms[roomId].state
+    })
+  })
+  rooms[roomId].ownSubscribers.forEach(function (subscriber) {
+    subscriber(rooms[roomId].state)
+  })
+}
+
 var db = function () {
   return {
     getRoom: function (roomId) {
@@ -92,7 +122,8 @@ var db = function () {
           isHost: true,
           connectionToHost: null,
           state: room,
-          subscribers: []
+          subscribers: [],
+          ownSubscribers: []
         }
         peer.on('connection', function (connection) {
           connection.on('data', function (msg) {
@@ -108,11 +139,73 @@ var db = function () {
               case 'unsubscribefrom:room':
                 // This need not be handled, as closed connections are removed automatically
                 return
+              case 'update:room':
+                rooms[room.id].state = msg.payload
+                updateSubscribers(room.id)
+                return
+              case 'update:player':
+                rooms[room.id].state.players[player.id] = msg.payload
+                updateSubscribers(room.id)
+                return
             }
           })
         })
       })
       .catch(console.log.bind(console))
+    },
+
+    subscribeToRoom: function (roomId, onValue) {
+      if (isHost(roomId)) {
+        rooms[roomId].ownSubscribers.push(onValue)
+        onValue(rooms[roomId].state)
+      } else {
+        return connectToHost(roomId).then(function (connection) {
+          connection.send({
+            type: 'subscribeto:room',
+            payload: roomId
+          })
+        })
+      }
+    },
+
+    updateRoom: function (room) {
+      if (isHost(room.id)) {
+        rooms[room.id].state = room
+        updateSubscribers(room.id)
+        return Promise.resolve(room)
+      } else {
+        return connectToHost(room.id).then(function (connection) {
+          connection.send({
+            type: 'update:room',
+            payload: room
+          })
+          return connection
+        })
+        .then(function (connection) {
+          return room
+        })
+        .catch(console.log.bind(console))
+      }
+    },
+
+    updatePlayer: function (player) {
+      if (isHost(player.roomId)) {
+        rooms[room.id].state.players[player.id] = player
+        updateSubscribers(room.id)
+        return Promise.resolve(room)
+      } else {
+        return connectToHost(room.id).then(function (connection) {
+          connection.send({
+            type: 'update:player',
+            payload: player
+          })
+          return connection
+        })
+        .then(function (connection) {
+          return room
+        })
+        .catch(console.log.bind(console))
+      }
     }
   }
 }
