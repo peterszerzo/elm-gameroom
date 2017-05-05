@@ -26,7 +26,7 @@ function memoize (fn) {
 }
 
 var loadPeerJs = memoize(function loadPeerJs () {
-  var url = 'http://cdn.peerjs.com/0.3/peer.min.js'
+  var url = 'http://cdn.peerjs.com/0.3/peer.js'
   return new Promise(function (resolve, reject) {
     var scriptTag = document.createElement('script')
     scriptTag.src = url
@@ -79,6 +79,7 @@ var db = function () {
               })
             })
           })
+          .catch(console.log.bind(console))
         })
       }
     },
@@ -98,7 +99,7 @@ var db = function () {
             switch (msg.type) {
               // Subscribe to room, sending room:updated messages
               case 'get:room':
-                return connection.send(rooms[room.id].roomState)
+                return connection.send(rooms[room.id].state)
               case 'subscribeto:room':
                 connection.send(rooms[room.id].state)
                 rooms[room.id].subscribers =
@@ -111,6 +112,7 @@ var db = function () {
           })
         })
       })
+      .catch(console.log.bind(console))
     }
   }
 }
