@@ -6,23 +6,11 @@
     root.db = factory()
   }
 }(this, function () {
-
   var peerOptions = {
     key: 'lwjd5qra8257b9'
   }
 
-  function extend () {
-    var target = {}
-    for (var i = 0; i < arguments.length; i++) {
-      var source = arguments[i]
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key]
-        }
-      }
-    }
-    return target
-  }
+  var log = console.log.bind(console)
 
   function memoize (fn) {
     return function () {
@@ -53,7 +41,6 @@
   })
 
   var db = function () {
-
     var rooms = {}
 
     function updateSubscribers (roomId) {
@@ -75,11 +62,20 @@
       return loadPeerJs().then(function (Peer) {
         return new Promise(function (resolve, reject) {
           var room = rooms[roomId]
-          var peer = (room && room.peer) || new Peer('elm-gameroom-' + new Date().getTime(), peerOptions)
-          var connection =
-            (room && room.connectionToHost)
-            ? room.connectionToHost
-            : peer.connect('elm-gameroom-' + roomId)
+          var peer
+          if (room && room.peer) {
+            peer = room.peer
+          } else {
+            peer = new Peer('elm-gameroom-' + roomId + '-' + new Date().getTime(), peerOptions)
+            peer.on('error', log)
+          }
+          var connection
+          if (room && room.connectionToHost) {
+            connection = room.connectionToHost
+          } else {
+            connection = peer.connect('elm-gameroom-' + roomId)
+            connection.on('error', log)
+          }
           rooms[roomId] = {
             peer: peer,
             connectionToHost: connection,
@@ -116,7 +112,7 @@
                 })
               })
             })
-            .catch(console.log.bind(console))
+            .catch(log)
           })
         }
       },
@@ -139,9 +135,11 @@
                 case 'get:room':
                   return connection.send(rooms[room.id].state)
                 case 'subscribeto:room':
-                  connection.send(rooms[room.id].state)
-                  rooms[room.id].subscribers =
-                    rooms[room.id].subscribers.concat([connection])
+                  connection.send({
+                    type: 'room:updated',
+                    payload: rooms[room.id].state
+                  })
+                  rooms[room.id].subscribers.push(connection)
                   return
                 case 'unsubscribefrom:room':
                   // This need not be handled, as closed connections are removed automatically
@@ -158,7 +156,7 @@
             })
           })
         })
-        .catch(console.log.bind(console))
+        .catch(log)
       },
 
       subscribeToRoom: function (roomId, onValue) {
@@ -181,8 +179,8 @@
       },
 
       unsubscribeFromRoom: function (roomId) {
-        if (isHost(room.id)) {
-          rooms[room.id].ownSubscribers = []
+        if (isHost(roomId)) {
+          rooms[roomId].ownSubscribers = []
         } else {
           // TODO: handle this case
           return
@@ -205,7 +203,7 @@
           .then(function (connection) {
             return room
           })
-          .catch(console.log.bind(console))
+          .catch(log)
         }
       },
 
@@ -225,7 +223,7 @@
           .then(function (connection) {
             return player
           })
-          .catch(console.log.bind(console))
+          .catch(log)
         }
       }
     }

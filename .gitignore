@@ -4,5 +4,6 @@ repl-temp-*
 .env
 examples/**/elm.js
 examples/**/app.js
+examples/**/200.html
 documentation.json
 tmp
