@@ -1,8 +1,8 @@
 module Gameroom exposing (..)
 
-{-| This is a framework for creating multiplayer guessing games. It takes care of calling game rounds, generating problems and reconciling players, as well as talking directly to a generic realtime backend. The client gets to specify only the bits unique to each game, and write fully functional frustrating entertainment in just under 200 lines of code.
+{-| This is a framework for creating multiplayer guessing games by the boatloads, all within the comfort of Elm. Specify only what is unique to a game, write no logic on the back-end, and have it all wired up and ready to play.
 
-For some context on how it came to be, head here: https://github.com/peterszerzo/elm-gameroom/blob/master/talk.md.
+`elm-gameroom` takes care of calling game rounds, generating problems and reconciling scores, as well as talking to either a generic real-time database such as Firebase (JS adapter provided), with have clients sort things out amongst themselves via WebRTC (JavaScript glue code provided).
 
 # The program
 @docs program
@@ -53,7 +53,9 @@ type alias Ports msg =
     Ports.Ports msg
 
 
-{-| Create the game program from a `spec` record and a `ports` record. The Spec is the declarative definition of game's rules and view - see `Gameroom.Spec` documentation for details. The `Ports` is a record contains two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](https://github.com/peterszerzo/elm-gameroom/blob/master/src/js/talk-to-ports.js).
+{-| Create a fully functional game program from a gamespec and a ports record. The `spec` is the declarative definition of the data structures, logic and view behind your game - see `Gameroom.Spec` documentation for details. `ports` is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.
+
+Notice you don't have to supply any `init`, `update` or `subscriptions` field yourself. All that is taken care of, and you wind up with a working interface that allows you to create game rooms, invite others, and play. Timers, scoreboards etc. all come straight out of the box.
 -}
 program :
     Spec problem guess

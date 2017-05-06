@@ -22,17 +22,7 @@ import Json.Encode as Encode
 import Models.Player exposing (PlayerId, Players)
 
 
-{-| Define every moving part of a multiplayer game:
-
-    type alias Spec problem guess =
-        { view : PlayerId -> Players guess -> problem -> Html.Html guess
-        , isGuessCorrect : problem -> guess -> Bool
-        , problemGenerator : Random.Generator problem
-        , problemEncoder : problem -> JE.Value
-        , problemDecoder : JD.Decoder problem
-        , guessEncoder : guess -> JE.Value
-        , guessDecoder : JD.Decoder guess
-        }
+{-| Define every moving part of a multiplayer game, all generalized over a type variable representing a `problem`, and one representing a `guess`. Each field in the record is documented separately in this module.
 -}
 type alias Spec problem guess =
     { view : View problem guess
@@ -45,7 +35,7 @@ type alias Spec problem guess =
     }
 
 
-{-| Game view, based on current player, all players, current time in round, and the current problem. Emits guesses.
+{-| Game view, based on current player, all players, current number of repaints since the round began, and the current problem. Emits guesses.
 -}
 type alias View problem guess =
     PlayerId -> Players guess -> Int -> problem -> Html.Html guess
