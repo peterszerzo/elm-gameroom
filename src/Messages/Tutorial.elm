@@ -2,7 +2,7 @@ module Messages.Tutorial exposing (..)
 
 
 type Msg problem guess
-    = ClickAnywhere
+    = RequestNewProblem
     | ReceiveProblem problem
     | Guess guess
     | AnimationTick Float

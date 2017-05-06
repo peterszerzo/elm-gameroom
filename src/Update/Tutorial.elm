@@ -14,7 +14,7 @@ update :
     -> ( Tutorial problem guess, Cmd (Messages.Msg problem guess) )
 update spec msg model =
     case msg of
-        ClickAnywhere ->
+        RequestNewProblem ->
             ( model
             , Random.generate (Messages.TutorialMsg << ReceiveProblem) spec.problemGenerator
             )

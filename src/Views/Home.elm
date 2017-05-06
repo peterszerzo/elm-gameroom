@@ -17,5 +17,6 @@ view =
         , h1 [] [ text "elm-gameroom" ]
         , p [] [ text "Prime frustrating entertainment" ]
         , Link.view "/new" [ localClass [ Link ] ] [ text "Play" ]
+        , Link.view "/tutorial" [ localClass [ Link ] ] [ text "Tutorial" ]
         , Link.view "/about" [ localClass [ Link ] ] [ text "About" ]
         ]

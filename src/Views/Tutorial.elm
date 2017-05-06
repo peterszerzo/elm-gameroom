@@ -17,7 +17,6 @@ view :
 view spec model =
     div
         [ localClass [ Root ]
-        , onClick (Messages.Tutorial.ClickAnywhere)
         ]
         [ Views.Notification.view
             (model.problem
@@ -25,17 +24,18 @@ view spec model =
                     (\problem ->
                         case model.guess of
                             Nothing ->
-                                "Take a guess"
+                                "Take a guess. Take your time now, just bear in mind it'll be against the clock in the real game!"
 
                             Just guess ->
                                 if spec.isGuessCorrect problem guess then
-                                    "Nice job! Click for a new problem."
+                                    "Nice job - click the button for more problems, or the top left to exit."
                                 else
-                                    "Incorrect.. click for a new problem."
+                                    "Not quite, not quite.. Care to try again?"
                     )
-                |> Maybe.withDefault "Hey, let's practice. Click anywhere to get your first problem!"
+                |> Maybe.withDefault "Hey, let's practice. Click the button to get a game problem you can solve."
                 |> Just
             )
+        , div [ localClass [ Button ], onClick Messages.Tutorial.RequestNewProblem ] [ text "▶" ]
         , model.problem
             |> Maybe.map (spec.view "testplayer" Dict.empty model.animationTicksSinceNewRound)
             |> Maybe.map (map Messages.Tutorial.Guess)
