@@ -31,6 +31,13 @@ init roomId playerId =
     }
 
 
+isHost : Game problem guess -> Bool
+isHost game =
+    game.room
+        |> Maybe.map (\room -> room.host == game.playerId)
+        |> Maybe.withDefault False
+
+
 setOwnGuess : guess -> Game problem guess -> Game problem guess
 setOwnGuess guess model =
     case model.room of

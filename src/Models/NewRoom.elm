@@ -4,7 +4,6 @@ module Models.NewRoom exposing (..)
 type NewRoomStatus
     = Editing
     | Pending
-    | Success
     | Error
 
 

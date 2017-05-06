@@ -6,6 +6,7 @@ import Html.Events exposing (onClick, onInput)
 import Models.NewRoom as NewRoom
 import Messages exposing (NewRoomMsg(..))
 import Views.NewRoom.Styles exposing (CssClasses(..), localClass)
+import Views.Loader
 
 
 viewForm : NewRoom.NewRoom -> List (Html NewRoomMsg)
@@ -75,36 +76,6 @@ viewForm model =
         ]
 
 
-viewSuccess : NewRoom.NewRoom -> List (Html NewRoomMsg)
-viewSuccess model =
-    [ h2 [] [ text "Your room is ready" ]
-    , p [] [ text "Navigate to these links and share them with your opponents:" ]
-    , ul
-        [ style
-            [ ( "list-style", "none" )
-            , ( "margin", "20px 0 0" )
-            , ( "padding", "0" )
-            ]
-        ]
-        (model.playerIds
-            |> List.map
-                (\id ->
-                    li
-                        [ style
-                            [ ( "display", "inline-block" )
-                            ]
-                        ]
-                        [ a
-                            [ localClass [ Button ]
-                            , href ("/rooms/" ++ model.roomId ++ "/" ++ id)
-                            ]
-                            [ text id ]
-                        ]
-                )
-        )
-    ]
-
-
 view : NewRoom.NewRoom -> Html NewRoomMsg
 view model =
     div [ localClass [ Root ] ]
@@ -112,9 +83,12 @@ view model =
             NewRoom.Editing ->
                 viewForm model
 
-            NewRoom.Success ->
-                viewSuccess model
+            NewRoom.Pending ->
+                [ Views.Loader.view ]
 
-            _ ->
-                [ text "View not available." ]
+            NewRoom.Error ->
+                [ h2 [] [ text "There was an error creating your room :/" ]
+                , p [] [ text "Please reload the page and try again." ]
+                , a [ href "new", localClass [ Button ] ] [ text "Reload" ]
+                ]
         )

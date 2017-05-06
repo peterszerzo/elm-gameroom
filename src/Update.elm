@@ -73,7 +73,7 @@ update spec ports msg model =
 
         ( Router.NewRoom newRoom, NewRoomMsg newRoomMsg ) ->
             let
-                ( newNewRoom, sendSaveCommand ) =
+                ( newNewRoom, sendSaveCommand, newUrl ) =
                     (Update.NewRoom.update newRoomMsg newRoom)
             in
                 ( { model | route = Router.NewRoom newNewRoom }
@@ -88,14 +88,16 @@ update spec ports msg model =
                 )
 
         ( Router.NewRoom newRoom, IncomingSubscription (InMsg.RoomCreated room) ) ->
-            ( { model
-                | route =
+            let
+                ( newModel, _, newUrl ) =
                     Update.NewRoom.update (CreateResponse "") newRoom
-                        |> Tuple.first
-                        |> Router.NewRoom
-              }
-            , Cmd.none
-            )
+            in
+                ( { model
+                    | route =
+                        Router.NewRoom newRoom
+                  }
+                , newUrl |> Maybe.map Navigation.newUrl |> Maybe.withDefault Cmd.none
+                )
 
         ( Router.Game game, IncomingSubscription (InMsg.RoomUpdated room) ) ->
             let

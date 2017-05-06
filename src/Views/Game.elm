@@ -1,8 +1,8 @@
 module Views.Game exposing (..)
 
 import Dict
-import Html exposing (Html, div, text, p, h2, ul, li, span)
-import Html.Attributes exposing (class, style)
+import Html exposing (Html, div, text, p, h2, ul, li, span, a)
+import Html.Attributes exposing (class, style, href)
 import Html.Events exposing (onClick)
 import Gameroom.Spec exposing (Spec)
 import Constants
@@ -23,8 +23,9 @@ viewReadyPrompt :
     -> Room.Room problem guess
     -> Html (GameMsg problem guess)
 viewReadyPrompt spec model room =
-    div [ localClass [ ReadyPrompt ] ]
-        [ h2 [] [ text "Ready?" ]
+    div [ localClass [ ReadyPrompt ] ] <|
+        [ h2 [] [ text ("Welcome to room " ++ model.roomId) ]
+        , p [] [ text "Mark yourself ready:" ]
         , ul
             [ style
                 [ ( "list-style", "none" )
@@ -63,6 +64,29 @@ viewReadyPrompt spec model room =
                     )
             )
         ]
+            ++ (if Game.isHost model then
+                    [ p [] [ text "Share with your opponents:" ]
+                    , ul []
+                        (model.room
+                            |> Maybe.map .players
+                            |> Maybe.map Dict.toList
+                            |> Maybe.map
+                                (List.map
+                                    ((\( playerId, player ) ->
+                                        a
+                                            [ localClass [ Link ]
+                                            , href ("/rooms/" ++ model.roomId ++ "/" ++ playerId)
+                                            ]
+                                            [ text playerId ]
+                                     )
+                                    )
+                                )
+                            |> Maybe.withDefault []
+                        )
+                    ]
+                else
+                    []
+               )
 
 
 viewRoom :
