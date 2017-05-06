@@ -2,14 +2,16 @@ module Router exposing (..)
 
 import Navigation
 import UrlParser exposing (..)
-import Models.NewRoom as NewRoom
+import Models.NewRoom
 import Models.Game
+import Models.Tutorial
 
 
 type Route problem guess
     = Home
     | About
-    | NewRoom NewRoom.NewRoom
+    | NewRoom Models.NewRoom.NewRoom
+    | Tutorial (Models.Tutorial.Tutorial problem guess)
     | Game (Models.Game.Game problem guess)
     | NotFound
 
@@ -19,11 +21,12 @@ matchers =
     UrlParser.oneOf
         [ s "" |> map Home
         , s "about" |> map About
+        , s "tutorial" |> map (Tutorial Models.Tutorial.init)
         , s "rooms"
             </> string
             </> string
             |> map (\roomId playerId -> Models.Game.init roomId playerId |> Game)
-        , s "new" |> map (NewRoom NewRoom.init)
+        , s "new" |> map (NewRoom Models.NewRoom.init)
         ]
 
 

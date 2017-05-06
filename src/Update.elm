@@ -12,6 +12,7 @@ import Models.IncomingMessage as InMsg
 import Json.Encode as JE
 import Update.NewRoom
 import Update.Game
+import Update.Tutorial
 
 
 cmdOnRouteChange :
@@ -105,6 +106,13 @@ update spec ports msg model =
                     Update.Game.update spec ports (ReceiveUpdate room) game
             in
                 ( { model | route = Router.Game newGame }, cmd )
+
+        ( Router.Tutorial tutorial, TutorialMsg msg ) ->
+            let
+                ( newTutorial, cmd ) =
+                    Update.Tutorial.update spec msg tutorial
+            in
+                ( { model | route = Router.Tutorial newTutorial }, cmd )
 
         ( _, _ ) ->
             ( model, Cmd.none )

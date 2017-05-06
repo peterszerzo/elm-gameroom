@@ -24,6 +24,8 @@ import Views.NotFound.Styles
 import Views.Notification.Styles
 import Views.Scoreboard.Styles
 import Views.Timer.Styles
+import Views.Tutorial
+import Views.Tutorial.Styles
 import Styles.Shared
 import Styles.Constants exposing (white)
 
@@ -65,6 +67,7 @@ css =
             ++ Views.Notification.Styles.styles
             ++ Views.Scoreboard.Styles.styles
             ++ Views.Timer.Styles.styles
+            ++ Views.Tutorial.Styles.styles
         )
 
 
@@ -91,6 +94,10 @@ view spec model =
 
                 Router.NotFound ->
                     Views.NotFound.view
+
+                Router.Tutorial tutorial ->
+                    Views.Tutorial.view spec tutorial
+                        |> Html.map TutorialMsg
 
                 Router.About ->
                     Views.About.view

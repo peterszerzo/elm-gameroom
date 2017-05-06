@@ -3,6 +3,7 @@ module Messages exposing (..)
 import Router as Router
 import Models.IncomingMessage as InMsg
 import Models.Room as Room
+import Messages.Tutorial
 
 
 type GameMsg problem guess
@@ -28,5 +29,6 @@ type Msg problem guess
     | IncomingSubscription (InMsg.IncomingMessage problem guess)
     | GameMsg (GameMsg problem guess)
     | NewRoomMsg NewRoomMsg
+    | TutorialMsg (Messages.Tutorial.Msg problem guess)
     | Navigate String
     | NoOp

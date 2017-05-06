@@ -35,6 +35,7 @@ styles =
         , top (px 20)
         , right (px 20)
         , opacity (num 0)
+        , maxWidth (px 240)
         , property "pointer-events" "none"
         , backgroundColor (hex blue)
         , color (hex white)
