@@ -15,7 +15,7 @@ tests =
                     Room.allPlayersReady
                         { id = "123"
                         , host = "456"
-                        , round = { no = 0, problem = Nothing }
+                        , round = Nothing
                         , players = Dict.empty
                         }
                         |> Expect.equal True
@@ -26,7 +26,7 @@ tests =
                     (Room.updatePreservingLocalGuesses
                         { id = "123"
                         , host = "456"
-                        , round = { no = 1, problem = Nothing }
+                        , round = Just { no = 1, problem = "1234" }
                         , players =
                             Dict.fromList
                                 [ ( "player1"
@@ -50,7 +50,7 @@ tests =
                         }
                         { id = "123"
                         , host = "456"
-                        , round = { no = 1, problem = Nothing }
+                        , round = Just { no = 1, problem = "1234" }
                         , players =
                             Dict.fromList
                                 [ ( "player1"
@@ -86,7 +86,7 @@ tests =
                     (Room.updatePreservingLocalGuesses
                         { id = "123"
                         , host = "456"
-                        , round = { no = 2, problem = Nothing }
+                        , round = Just { no = 2, problem = "1324" }
                         , players =
                             Dict.fromList
                                 [ ( "player1"
@@ -110,7 +110,7 @@ tests =
                         }
                         { id = "123"
                         , host = "456"
-                        , round = { no = 1, problem = Nothing }
+                        , round = Just { no = 1, problem = "1234" }
                         , players =
                             Dict.fromList
                                 [ ( "player1"
