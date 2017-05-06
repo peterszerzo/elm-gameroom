@@ -9,9 +9,7 @@ var peerOptions = {
   key: 'lwjd5qra8257b9'
 }
 
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-function extend() {
+function extend () {
   var target = {}
   for (var i = 0; i < arguments.length; i++) {
     var source = arguments[i]
@@ -144,7 +142,7 @@ var db = function () {
                 updateSubscribers(room.id)
                 return
               case 'update:player':
-                rooms[room.id].state.players[player.id] = msg.payload
+                rooms[room.id].state.players[msg.payload.id] = msg.payload
                 updateSubscribers(room.id)
                 return
             }
@@ -160,6 +158,11 @@ var db = function () {
         onValue(rooms[roomId].state)
       } else {
         return connectToHost(roomId).then(function (connection) {
+          connection.on('data', function (msg) {
+            if (msg.type === 'room:updated') {
+              onValue(msg.payload)
+            }
+          })
           connection.send({
             type: 'subscribeto:room',
             payload: roomId
@@ -190,11 +193,11 @@ var db = function () {
 
     updatePlayer: function (player) {
       if (isHost(player.roomId)) {
-        rooms[room.id].state.players[player.id] = player
-        updateSubscribers(room.id)
-        return Promise.resolve(room)
+        rooms[player.roomId].state.players[player.id] = player
+        updateSubscribers(player.roomId)
+        return Promise.resolve(player)
       } else {
-        return connectToHost(room.id).then(function (connection) {
+        return connectToHost(player.roomId).then(function (connection) {
           connection.send({
             type: 'update:player',
             payload: player
@@ -202,7 +205,7 @@ var db = function () {
           return connection
         })
         .then(function (connection) {
-          return room
+          return player
         })
         .catch(console.log.bind(console))
       }
