@@ -14,6 +14,9 @@ cssNamespace =
 
 type CssClasses
     = Root
+    | List
+    | Player
+    | Score
 
 
 localClass : List class -> Html.Attribute msg
@@ -30,5 +33,7 @@ styles =
         , color (hex white)
         , textAlign center
         ]
+    , class List [ margin2 (px 0) (px 20) ]
+    , class Player [ marginRight (px 8) ]
     ]
         |> namespace cssNamespace

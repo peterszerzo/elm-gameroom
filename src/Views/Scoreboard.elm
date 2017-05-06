@@ -13,9 +13,9 @@ view scores =
         [ scores
             |> List.map
                 (\( player, score ) ->
-                    span [ style [ ( "margin", "0 20px" ) ] ]
-                        [ span [ style [ ( "margin-right", "8px" ) ] ] [ (text player) ]
-                        , span [] [ (text (toString score)) ]
+                    span [ localClass [ List ] ]
+                        [ span [ localClass [ Player ] ] [ (text player) ]
+                        , span [ localClass [ Score ] ] [ (text (toString score)) ]
                         ]
                 )
             |> (\list -> div [] list)

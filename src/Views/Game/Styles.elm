@@ -3,6 +3,7 @@ module Views.Game.Styles exposing (..)
 import Html
 import Html.CssHelpers
 import Css exposing (..)
+import Css.Elements exposing (ul, li)
 import Css.Namespace exposing (namespace)
 import Styles.Mixins as Mixins
 
@@ -19,6 +20,7 @@ type CssClasses
     | ReadyPrompt
     | Link
     | DisabledLink
+    | LoaderContainer
 
 
 localClass : List class -> Html.Attribute msg
@@ -45,8 +47,21 @@ styles =
     , class GamePlayInCooldown
         [ opacity (num 0.3)
         ]
-    , class ReadyPrompt Mixins.centered
+    , class ReadyPrompt <|
+        [ descendants
+            [ ul
+                [ listStyle none
+                , margin (px 0)
+                , padding (px 0)
+                ]
+            , li
+                [ display inlineBlock
+                ]
+            ]
+        ]
+            ++ Mixins.centered
     , class Link Mixins.button
     , class DisabledLink Mixins.buttonDisabled
+    , class LoaderContainer Mixins.centered
     ]
         |> namespace cssNamespace

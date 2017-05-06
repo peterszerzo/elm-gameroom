@@ -24,21 +24,16 @@ viewReadyPrompt :
     -> Html (GameMsg problem guess)
 viewReadyPrompt spec model room =
     div [ localClass [ ReadyPrompt ] ] <|
-        [ h2 [] [ text ("Welcome to room " ++ model.roomId) ]
+        [ h2 [] [ text ("Welcome to " ++ model.roomId) ]
         , p [] [ text "Mark yourself ready:" ]
         , ul
-            [ style
-                [ ( "list-style", "none" )
-                , ( "padding", "0" )
-                , ( "margin", "0" )
-                ]
-            ]
+            []
             (room.players
                 |> Dict.toList
                 |> List.map Tuple.second
                 |> List.map
                     (\pl ->
-                        li [ style [ ( "display", "inline-block" ) ] ]
+                        li []
                             [ span
                                 ([ localClassList
                                     [ ( Link, True )
@@ -140,5 +135,5 @@ view spec model =
                 viewRoom spec model room
 
             Nothing ->
-                [ Loader.view ]
+                [ div [ localClass [ LoaderContainer ] ] [ Loader.view ] ]
         )
