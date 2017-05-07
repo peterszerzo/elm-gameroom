@@ -82,7 +82,7 @@ view spec model =
         content =
             case model.route of
                 Router.Home ->
-                    Views.Home.view
+                    Views.Home.view spec
 
                 Router.Game game ->
                     Views.Game.view spec game
@@ -100,7 +100,7 @@ view spec model =
                         |> Html.map TutorialMsg
 
                 Router.About ->
-                    Views.About.view
+                    Views.About.view spec
     in
         div
             [ class [ Root ]

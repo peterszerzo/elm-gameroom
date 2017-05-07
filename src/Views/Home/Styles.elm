@@ -17,6 +17,8 @@ type CssClasses
     = Root
     | Logo
     | Link
+    | Subheading
+    | Content
 
 
 localClass : List class -> Html.Attribute msg
@@ -34,5 +36,7 @@ styles =
         , border3 (px 1) solid (hex white)
         ]
     , class Link Mixins.button
+    , class Subheading [ fontSize (Css.rem 1.5) ]
+    , class Content [ margin2 (px 40) auto ]
     ]
         |> namespace cssNamespace

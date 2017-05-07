@@ -30,7 +30,12 @@ type alias Guess =
 
 spec : Spec Problem Guess
 spec =
-    { view =
+    { copy =
+        { name = "The Capitalist"
+        , subheading = "Person who knows the capital of a lot of countries, that is.."
+        , instructions = "Find the capital of the country!"
+        }
+    , view =
         (\playerId players ticksSinceNewRound problem ->
             div
                 [ class "spinning-shapes-container"

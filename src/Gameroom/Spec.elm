@@ -6,7 +6,7 @@ module Gameroom.Spec exposing (..)
 @docs Spec
 
 # The view
-@docs View
+@docs View, Copy
 
 # Game logic
 @docs ProblemGenerator
@@ -25,13 +25,29 @@ import Models.Player exposing (PlayerId, Players)
 {-| Define every moving part of a multiplayer game, all generalized over a type variable representing a `problem`, and one representing a `guess`. Each field in the record is documented separately in this module.
 -}
 type alias Spec problem guess =
-    { view : View problem guess
+    { copy : Copy
+    , view : View problem guess
     , isGuessCorrect : problem -> guess -> Bool
     , problemGenerator : ProblemGenerator problem
     , problemEncoder : ProblemEncoder problem
     , problemDecoder : ProblemDecoder problem
     , guessEncoder : GuessEncoder guess
     , guessDecoder : GuessDecoder guess
+    }
+
+
+{-| Some copy to populate the game's interface. Includes the game title, subheading and instruction.
+
+    copy =
+        { name = "Simple Game"
+        , subheading = "You don't want to play this one.."
+        , instructions = "Just hit no!"
+        }
+-}
+type alias Copy =
+    { name : String
+    , subheading : String
+    , instructions : String
     }
 
 

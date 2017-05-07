@@ -35,7 +35,12 @@ type alias Guess =
 
 spec : Spec Problem Guess
 spec =
-    { view =
+    { copy =
+        { name = "Counterclockwooze"
+        , subheading = "A great game to play with your friends"
+        , instructions = "Find the one shape that spins the other way."
+        }
+    , view =
         (\playerId players ticksSinceNewRound problem ->
             div
                 [ class "spinning-shapes-container"

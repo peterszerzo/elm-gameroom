@@ -27,7 +27,12 @@ type alias Guess =
 
 spec : Spec Problem Guess
 spec =
-    { view =
+    { copy =
+        { name = "Lettero"
+        , subheading = "A mildly frustrating wordgame!"
+        , instructions = "Hit the first letter of the word!"
+        }
+    , view =
         (\playerId players ticksSinceNewRound problem ->
             div
                 [ style

@@ -1,7 +1,7 @@
 module Views.NewRoom exposing (..)
 
 import Html exposing (Html, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
-import Html.Attributes exposing (class, style, type_, value, id, for, href)
+import Html.Attributes exposing (class, style, type_, value, id, for, href, placeholder)
 import Html.Events exposing (onClick, onInput)
 import Models.NewRoom as NewRoom
 import Messages exposing (NewRoomMsg(..))
@@ -24,6 +24,7 @@ viewForm model =
                 [ id "roomid"
                 , type_ "text"
                 , onInput ChangeRoomId
+                , placeholder "e.g. theroom"
                 , value model.roomId
                 ]
                 []
@@ -41,6 +42,12 @@ viewForm model =
                                 [ id fieldId
                                 , type_ "text"
                                 , onInput (ChangePlayerId index)
+                                , placeholder
+                                    (if rem index 2 == 0 then
+                                        "e.g. alfred"
+                                     else
+                                        "e.g. samantha"
+                                    )
                                 , value (List.drop index model.playerIds |> List.head |> Maybe.withDefault "")
                                 ]
                                 []

@@ -34,7 +34,7 @@ lightGrey =
 
 darkGrey : String
 darkGrey =
-    "898A88"
+    "3d3d3c"
 
 
 blue : String

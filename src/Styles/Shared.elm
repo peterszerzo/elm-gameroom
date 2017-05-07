@@ -1,7 +1,7 @@
 module Styles.Shared exposing (..)
 
 import Css exposing (..)
-import Css.Elements exposing (html, body, input, label, button, a, h1, h2, h3)
+import Css.Elements exposing (html, body, input, label, button, a, h1, h2, h3, p)
 import Styles.Constants exposing (..)
 import Styles.Mixins as Mixins
 
@@ -17,6 +17,14 @@ styles =
         , property "font-family" "Source Sans Pro, Verdana, Geneva, sans-serif"
         , property "-webkit-font-smoothing" "antialiased"
         , property "-moz-osx-font-smoothing" "grayscale"
+        ]
+    , html
+        [ fontSize (pct 80)
+        ]
+    , mediaQuery ("screen and (min-width: 500px)")
+        [ html
+            [ fontSize (pct 100)
+            ]
         ]
     , each [ html, body ]
         [ padding (px 0)
@@ -35,6 +43,7 @@ styles =
     , h1 Mixins.heroType
     , h2 Mixins.subheroType
     , h3 Mixins.headingType
+    , p Mixins.bodyType
     , input
         [ display block
         , width (pct 100)

@@ -9,13 +9,14 @@ import Styles.Constants exposing (..)
 
 centered : List Mixin
 centered =
-    [ maxWidth (px 400)
+    [ maxWidth (px 540)
     , maxHeight (pct 100)
     , overflowY auto
     , width (pct 100)
     , position absolute
     , top (pct 50)
     , left (pct 50)
+    , padding (px 20)
     , transform (translate2 (pct -50) (pct -50))
     , textAlign center
     ]
@@ -33,10 +34,10 @@ standardBoxShadow =
 
 heroType : List Mixin
 heroType =
-    [ fontSize (Css.rem 3.25)
+    [ fontSize (Css.rem 2.5)
     , property "font-weight" "300"
     , letterSpacing (Css.rem 0.05)
-    , margin2 (px 20) auto
+    , margin2 (px 10) auto
     ]
 
 
@@ -45,7 +46,7 @@ subheroType =
     [ fontSize (Css.rem 2.25)
     , property "font-weight" "300"
     , letterSpacing (Css.rem 0.05)
-    , margin3 (px 20) auto (px 40)
+    , margin3 (px 20) auto (px 20)
     ]
 
 
@@ -63,6 +64,7 @@ bodyType =
     [ fontSize (Css.rem 1)
     , property "font-weight" "400"
     , letterSpacing (Css.rem 0.05)
+    , lineHeight (num 1.5)
     , margin2 (px 10) auto
     ]
 
