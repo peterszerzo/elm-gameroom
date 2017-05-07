@@ -24,7 +24,7 @@ view spec model =
                     (\problem ->
                         case model.guess of
                             Nothing ->
-                                "Take a guess. Take your time now, just bear in mind it'll be against the clock in the real game!"
+                                spec.copy.instructions ++ " " ++ "Take your time now, just bear in mind it'll be against the clock in the real game!"
 
                             Just guess ->
                                 if spec.isGuessCorrect problem guess then
