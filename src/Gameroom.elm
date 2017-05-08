@@ -14,9 +14,7 @@ module Gameroom exposing (..)
 @docs Model, Msg
 -}
 
-import Task
 import Navigation
-import Window
 import Models
 import Models.Ports as Ports
 import Gameroom.Spec exposing (Spec)
@@ -25,6 +23,7 @@ import Messages
 import Update exposing (update, cmdOnRouteChange)
 import Router as Router
 import Models.Ports as Ports
+import Init exposing (init)
 import Views exposing (view)
 
 
@@ -65,24 +64,7 @@ program :
     -> Program Never (Model problem guess) (Msg problem guess)
 program spec ports =
     Navigation.program (Messages.ChangeRoute << Router.parse)
-        { init =
-            (\loc ->
-                let
-                    route =
-                        Router.parse loc
-
-                    cmd =
-                        Cmd.batch
-                            [ cmdOnRouteChange spec ports route Nothing
-                            , Window.size |> Task.perform Messages.Resize
-                            ]
-                in
-                    ( { route = route
-                      , windowSize = Window.Size 0 0
-                      }
-                    , cmd
-                    )
-            )
+        { init = init spec ports
         , view = view spec
         , update = update spec ports
         , subscriptions = subscriptions spec ports
