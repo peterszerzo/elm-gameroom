@@ -4,6 +4,7 @@ import Router as Router
 import Models.IncomingMessage as InMsg
 import Models.Room as Room
 import Messages.Tutorial
+import Window
 
 
 type GameMsg problem guess
@@ -31,4 +32,5 @@ type Msg problem guess
     | NewRoomMsg NewRoomMsg
     | TutorialMsg (Messages.Tutorial.Msg problem guess)
     | Navigate String
+    | Resize Window.Size
     | NoOp

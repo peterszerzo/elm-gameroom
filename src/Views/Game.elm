@@ -1,6 +1,7 @@
 module Views.Game exposing (..)
 
 import Dict
+import Window
 import Html exposing (Html, div, text, p, h2, ul, li, span, a)
 import Html.Attributes exposing (class, style, href)
 import Html.Events exposing (onClick)
@@ -86,10 +87,11 @@ viewReadyPrompt spec model room =
 
 viewRoom :
     Spec problem guess
+    -> Window.Size
     -> Game.Game problem guess
     -> Room.Room problem guess
     -> List (Html (GameMsg problem guess))
-viewRoom spec model room =
+viewRoom spec windowSize model room =
     [ if Room.allPlayersReady room then
         (case room.round of
             Just round ->
@@ -99,7 +101,7 @@ viewRoom spec model room =
                         , ( GamePlayInCooldown, model.ticksSinceNewRound > Constants.ticksInRound )
                         ]
                     ]
-                    [ Html.map Guess (spec.view model.playerId room.players model.animationTicksSinceNewRound round.problem)
+                    [ Html.map Guess (spec.view windowSize model.animationTicksSinceNewRound model.playerId room.players round.problem)
                     ]
 
             Nothing ->
@@ -126,13 +128,14 @@ viewRoom spec model room =
 
 view :
     Spec problem guess
+    -> Window.Size
     -> Game.Game problem guess
     -> Html (GameMsg problem guess)
-view spec model =
+view spec windowSize model =
     div [ localClass [ Root ] ]
         (case model.room of
             Just room ->
-                viewRoom spec model room
+                viewRoom spec windowSize model room
 
             Nothing ->
                 [ div [ localClass [ LoaderContainer ] ] [ Loader.view ] ]

@@ -33,7 +33,7 @@ spec =
         , instructions = "Hit the first letter of the word!"
         }
     , view =
-        (\playerId players ticksSinceNewRound problem ->
+        (\windowSize ticksSinceNewRound playerId players problem ->
             div
                 [ style
                     [ ( "position", "absolute" )

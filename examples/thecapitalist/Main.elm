@@ -36,7 +36,7 @@ spec =
         , instructions = "Find the capital of the country!"
         }
     , view =
-        (\playerId players ticksSinceNewRound problem ->
+        (\windowSize ticksSinceNewRound playerId players problem ->
             div
                 [ class "spinning-shapes-container"
                 , style

@@ -14,7 +14,9 @@ module Gameroom exposing (..)
 @docs Model, Msg
 -}
 
+import Task
 import Navigation
+import Window
 import Models
 import Models.Ports as Ports
 import Gameroom.Spec exposing (Spec)
@@ -70,9 +72,16 @@ program spec ports =
                         Router.parse loc
 
                     cmd =
-                        cmdOnRouteChange spec ports route Nothing
+                        Cmd.batch
+                            [ cmdOnRouteChange spec ports route Nothing
+                            , Window.size |> Task.perform Messages.Resize
+                            ]
                 in
-                    ( { route = route }, cmd )
+                    ( { route = route
+                      , windowSize = Window.Size 0 0
+                      }
+                    , cmd
+                    )
             )
         , view = view spec
         , update = update spec ports

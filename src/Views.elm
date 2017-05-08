@@ -85,7 +85,7 @@ view spec model =
                     Views.Home.view spec
 
                 Router.Game game ->
-                    Views.Game.view spec game
+                    Views.Game.view spec model.windowSize game
                         |> Html.map GameMsg
 
                 Router.NewRoom newRoom ->
@@ -96,7 +96,7 @@ view spec model =
                     Views.NotFound.view
 
                 Router.Tutorial tutorial ->
-                    Views.Tutorial.view spec tutorial
+                    Views.Tutorial.view spec model.windowSize tutorial
                         |> Html.map TutorialMsg
 
                 Router.About ->

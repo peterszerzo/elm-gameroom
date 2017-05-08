@@ -63,6 +63,9 @@ update spec ports msg model =
             , cmdOnRouteChange spec ports route (Just oldRoute)
             )
 
+        ( _, Resize newWindowSize ) ->
+            ( { model | windowSize = newWindowSize }, Cmd.none )
+
         ( Router.Game game, GameMsg gameMsg ) ->
             let
                 ( newGame, cmd ) =

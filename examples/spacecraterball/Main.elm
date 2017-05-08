@@ -1,59 +1,108 @@
-module Main exposing (..)
+port module Main exposing (..)
 
-import Html exposing (Html, text)
-import Html.Attributes exposing (width, height)
+import Html.Attributes exposing (width, height, style)
 import Math.Vector3 as Vector3 exposing (Vec3, vec3)
 import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import WebGL
+import Json.Encode as JE
+import Json.Decode as JD
 import WebGL.Settings.Blend
 import Math.Matrix4 as Matrix4
+import Gameroom exposing (program, Ports, Model, Msg)
+import Gameroom.Utilities exposing (generatorFromList)
+
+
+type alias Problem =
+    String
+
+
+type alias Guess =
+    String
+
+
+port outgoing : String -> Cmd msg
+
+
+port incoming : (String -> msg) -> Sub msg
+
+
+ports : Ports (Msg Problem Guess)
+ports =
+    { outgoing = outgoing
+    , incoming = incoming
+    }
 
 
 type alias Vertex =
     { position : Vec3, color : Vec4 }
 
 
-main : Html msg
+main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    view 2
+    program
+        { copy =
+            { name = "Spacecraterball"
+            , instructions = "Will it go in?"
+            , subheading = "Let the game begin!"
+            }
+        , view =
+            (\windowSize ticks _ _ _ ->
+                let
+                    theta =
+                        pi / 2
+
+                    phi =
+                        pi / 6
+
+                    eye =
+                        vec3
+                            (sin theta * cos phi)
+                            (cos theta * cos phi)
+                            (sin phi)
+                            |> Vector3.scale 2
+                            |> Debug.log ""
+
+                    minWH =
+                        min windowSize.width windowSize.height
+
+                    left =
+                        (max (windowSize.width - windowSize.height) 0) // 2
+
+                    top =
+                        (max (windowSize.height - windowSize.width) 0) // 2
+                in
+                    WebGL.toHtml
+                        [ width minWH
+                        , height minWH
+                        , style
+                            [ ( "position", "absolute" )
+                            , ( "top", (toString top) ++ "px" )
+                            , ( "left", (toString left) ++ "px" )
+                            ]
+                        ]
+                        [ WebGL.entityWith
+                            [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
+                            ]
+                            vertexShader
+                            fragmentShader
+                            (mesh ticks)
+                            { perspective = perspective eye }
+                        ]
+            )
+        , isGuessCorrect = (\problem guess -> guess == "Yes")
+        , problemDecoder = JD.string
+        , problemEncoder = JE.string
+        , guessDecoder = JD.string
+        , guessEncoder = JE.string
+        , problemGenerator = generatorFromList "1" [ "2" ]
+        }
+        ports
 
 
 mesh : Int -> WebGL.Mesh Vertex
 mesh tick =
     terrain
         |> WebGL.triangles
-
-
-view : Int -> Html msg
-view ticks =
-    let
-        theta =
-            pi / 2
-
-        phi =
-            pi / 4
-
-        eye =
-            vec3
-                (sin theta * cos phi)
-                (cos theta * cos phi)
-                (sin phi)
-                |> Vector3.scale 2
-                |> Debug.log ""
-
-        minWH =
-            300
-    in
-        WebGL.toHtml
-            [ width minWH, height minWH ]
-            [ WebGL.entityWith
-                [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
-                ]
-                vertexShader
-                fragmentShader
-                (mesh ticks)
-                { perspective = perspective eye }
-            ]
 
 
 perspective : Vec3 -> Matrix4.Mat4

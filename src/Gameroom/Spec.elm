@@ -16,6 +16,7 @@ module Gameroom.Spec exposing (..)
 -}
 
 import Html
+import Window
 import Random
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -51,10 +52,17 @@ type alias Copy =
     }
 
 
-{-| Game view, based on current player, all players, current number of repaints since the round began, and the current problem. Emits guesses.
+{-| The core of the View of the current game round, excluding all navigation, notifications and the score boards. Emits guesses.
+
+The arguments in order, are the following:
+* windowSize: the size of the window as per the `elm-lang/window` package (e.g. `{ width = 500, height = 300 }`).
+* animationTicksSinceNewRound: the number of repaints since the round started.
+* playerId: string id of the player.
+* players: a dictionary with all players. Example player: { id = "samantha", guess = { value = 3, madeAt = 11 } }
+* problem: the current game problem.
 -}
 type alias View problem guess =
-    PlayerId -> Players guess -> Int -> problem -> Html.Html guess
+    Window.Size -> Int -> PlayerId -> Players guess -> problem -> Html.Html guess
 
 
 {-| Generate game problems.
