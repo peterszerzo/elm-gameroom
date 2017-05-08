@@ -49,7 +49,7 @@ main =
             (\windowSize ticks _ _ _ ->
                 let
                     theta =
-                        pi / 2
+                        (ticks |> toFloat) / 200
 
                     phi =
                         pi / 6
@@ -60,7 +60,6 @@ main =
                             (cos theta * cos phi)
                             (sin phi)
                             |> Vector3.scale 2
-                            |> Debug.log ""
 
                     minWH =
                         min windowSize.width windowSize.height
@@ -101,7 +100,23 @@ main =
 
 mesh : Int -> WebGL.Mesh Vertex
 mesh tick =
-    terrain
+    (ball
+        (Matrix4.mul
+            (Matrix4.makeTranslate
+                (vec3
+                    (0)
+                    (0)
+                    (-0.5)
+                )
+            )
+            (Matrix4.makeRotate
+                ((tick |> toFloat) / 10)
+                (vec3 0.2 0.4 0.8)
+            )
+        )
+    )
+        |> (++)
+            terrain
         |> WebGL.triangles
 
 
@@ -112,12 +127,76 @@ perspective eye =
 
 
 
+-- Ball
+
+
+ball : Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
+ball transform =
+    let
+        pt1 =
+            vec3 -0.767 7.703 4.056
+
+        pt2 =
+            vec3 6.558 -1.018 2.76
+
+        pt3 =
+            vec3 -2.475 -6.075 2.169
+
+        pt4 =
+            vec3 -5.315 -4.073 -0.228
+
+        pt5 =
+            vec3 -5.672 3.194 -2.916
+
+        pt6 =
+            vec3 3.878 4.616 -2.916
+
+        pt7 =
+            vec3 1.59 -5.296 -2.916
+
+        transformPoint =
+            (\transform pt ->
+                pt
+                    |> Vector3.scale 0.005
+                    |> Matrix4.transform transform
+                    |> Vector3.add (vec3 0 0 0.5)
+            )
+
+        ptToVertex =
+            let
+                color_ =
+                    vec4 0.30588 0.235 0.498 1
+            in
+                (flip Vertex <| color_) << (transformPoint transform)
+    in
+        List.map
+            (\( pt1, pt2, pt3 ) ->
+                ( (ptToVertex pt1)
+                , (ptToVertex pt2)
+                , (ptToVertex pt3)
+                )
+            )
+            [ ( pt1, pt2, pt3 )
+            , ( pt1, pt3, pt4 )
+            , ( pt1, pt4, pt5 )
+            , ( pt1, pt5, pt6 )
+            , ( pt1, pt2, pt3 )
+            , ( pt1, pt6, pt2 )
+            , ( pt7, pt2, pt6 )
+            , ( pt7, pt3, pt2 )
+            , ( pt7, pt4, pt3 )
+            , ( pt7, pt5, pt4 )
+            , ( pt7, pt6, pt5 )
+            ]
+
+
+
 -- Terrain
 
 
 terrainUnitSize : Int
 terrainUnitSize =
-    29
+    51
 
 
 light : Vec3
@@ -170,8 +249,8 @@ terrainSquare n i j =
         fac =
             (toFloat (i + j)) * d / 2
 
-        color_ =
-            vec4 1 1 1 fac
+        baseColor =
+            vec4 (39 / 255 / 1.2) (171 / 255 / 1.2) (178 / 255 / 1.2)
 
         pt11 =
             terrainPoint n i j
@@ -186,10 +265,9 @@ terrainSquare n i j =
             Vector3.cross (Vector3.sub pt11 pt12) (Vector3.sub pt11 pt13)
                 |> Vector3.normalize
                 |> Vector3.dot light
-                |> (*) 0.8
 
         color1 =
-            vec4 1 0 0 op1
+            baseColor op1
 
         pt21 =
             terrainPoint n i j
@@ -204,10 +282,9 @@ terrainSquare n i j =
             Vector3.cross (Vector3.sub pt21 pt22) (Vector3.sub pt21 pt23)
                 |> Vector3.normalize
                 |> Vector3.dot light
-                |> (*) 0.8
 
         color2 =
-            vec4 1 0 0 op2
+            baseColor op2
     in
         [ ( Vertex pt11 color1
           , Vertex pt12 color1
@@ -226,7 +303,18 @@ terrain =
         |> List.indexedMap
             (\i _ ->
                 List.repeat terrainUnitSize 0
-                    |> List.indexedMap (\j _ -> terrainSquare terrainUnitSize i j)
+                    |> List.indexedMap
+                        (\j _ ->
+                            let
+                                distance =
+                                    ((i - terrainUnitSize // 2) ^ 2 + (j - terrainUnitSize // 2) ^ 2 |> toFloat) ^ 0.5
+                            in
+                                ( terrainSquare terrainUnitSize i j
+                                , (distance > (terrainUnitSize // 8 |> toFloat))
+                                )
+                        )
+                    |> List.filter (\( geo, isIncluded ) -> isIncluded)
+                    |> List.map (\( geo, isIncluded ) -> geo)
                     |> List.concat
             )
         |> List.concat
