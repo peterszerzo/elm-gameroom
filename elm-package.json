@@ -4,8 +4,7 @@
     "repository": "https://github.com/peterszerzo/elm-gameroom.git",
     "license": "BSD3",
     "source-directories": [
-        "./src/",
-        "./examples/spacecraterball"
+        "./src/"
     ],
     "exposed-modules": [
         "Gameroom",
