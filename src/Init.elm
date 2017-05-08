@@ -12,14 +12,15 @@ import Update exposing (cmdOnRouteChange)
 
 
 init :
-    Spec problem guess
+    Maybe String
+    -> Spec problem guess
     -> Ports (Msg problem guess)
     -> Navigation.Location
     -> ( Model problem guess, Cmd (Messages.Msg problem guess) )
-init spec ports loc =
+init baseSlug spec ports loc =
     let
         route =
-            Router.parse loc
+            Router.parse baseSlug loc
 
         cmd =
             Cmd.batch

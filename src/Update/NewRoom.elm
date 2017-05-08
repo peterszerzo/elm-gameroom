@@ -50,5 +50,6 @@ update msg model =
         CreateResponse response ->
             ( model
             , False
-            , Just ("/rooms/" ++ model.roomId ++ "/" ++ (model.playerIds |> List.head |> Maybe.withDefault ""))
+            , Just
+                ("/rooms/" ++ model.roomId ++ "/" ++ (model.playerIds |> List.head |> Maybe.withDefault ""))
             )

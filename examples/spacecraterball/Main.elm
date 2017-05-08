@@ -8,7 +8,7 @@ import Json.Encode as JE
 import Json.Decode as JD
 import WebGL.Settings.Blend
 import Math.Matrix4 as Matrix4
-import Gameroom exposing (program, Ports, Model, Msg)
+import Gameroom exposing (programAt, Ports, Model, Msg)
 import Gameroom.Utilities exposing (generatorFromList)
 
 
@@ -39,7 +39,7 @@ type alias Vertex =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    program
+    programAt "scb"
         { copy =
             { name = "Spacecraterball"
             , instructions = "Will it go in?"

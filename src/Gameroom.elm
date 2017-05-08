@@ -5,7 +5,7 @@ module Gameroom exposing (..)
 `elm-gameroom` takes care of calling game rounds, generating problems and reconciling scores, as well as talking to either a generic real-time database such as Firebase (JS adapter provided), with have clients sort things out amongst themselves via WebRTC (JavaScript glue code provided).
 
 # The program
-@docs program
+@docs program, programAt
 
 # Ports
 @docs Ports
@@ -63,9 +63,25 @@ program :
     -> Ports.Ports (Msg problem guess)
     -> Program Never (Model problem guess) (Msg problem guess)
 program spec ports =
-    Navigation.program (Messages.ChangeRoute << Router.parse)
-        { init = init spec ports
+    Navigation.program (Messages.ChangeRoute << (Router.parse Nothing))
+        { init = init Nothing spec ports
         , view = view spec
-        , update = update spec ports
+        , update = update Nothing spec ports
+        , subscriptions = subscriptions spec ports
+        }
+
+
+{-| Same as program, but runs at a base url different from root, e.g. programAt "coolgame" will run on "/coolgame", "/coolgame/new", "/coolgame/tutorial" etc. Useful if you wish to host several games on one page.
+-}
+programAt :
+    String
+    -> Spec problem guess
+    -> Ports.Ports (Msg problem guess)
+    -> Program Never (Model problem guess) (Msg problem guess)
+programAt baseSlug spec ports =
+    Navigation.program (Messages.ChangeRoute << (Router.parse (Just baseSlug)))
+        { init = init (Just baseSlug) spec ports
+        , view = view spec
+        , update = update (Just baseSlug) spec ports
         , subscriptions = subscriptions spec ports
         }

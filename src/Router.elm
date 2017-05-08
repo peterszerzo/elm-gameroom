@@ -16,22 +16,39 @@ type Route problem guess
     | NotFound
 
 
-matchers : UrlParser.Parser (Route problem guess -> a) a
-matchers =
-    UrlParser.oneOf
-        [ s "" |> map Home
-        , s "about" |> map About
-        , s "tutorial" |> map (Tutorial Models.Tutorial.init)
-        , s "rooms"
-            </> string
-            </> string
-            |> map (\roomId playerId -> Models.Game.init roomId playerId |> Game)
-        , s "new" |> map (NewRoom Models.NewRoom.init)
-        ]
+sWithBaseSlug : Maybe String -> String -> Parser a a
+sWithBaseSlug baseSlug slug =
+    case baseSlug of
+        Just baseSlug ->
+            if slug == "" then
+                s baseSlug
+            else
+                s baseSlug </> s slug
+
+        Nothing ->
+            s slug
 
 
-parse : Navigation.Location -> Route problem guess
-parse location =
+matchers : Maybe String -> UrlParser.Parser (Route problem guess -> a) a
+matchers baseSlug =
+    let
+        s_ =
+            sWithBaseSlug baseSlug
+    in
+        UrlParser.oneOf
+            [ s_ "" |> map Home
+            , s_ "about" |> map About
+            , s_ "tutorial" |> map (Tutorial Models.Tutorial.init)
+            , s_ "rooms"
+                </> string
+                </> string
+                |> map (\roomId playerId -> Models.Game.init roomId playerId |> Game)
+            , s_ "new" |> map (NewRoom Models.NewRoom.init)
+            ]
+
+
+parse : Maybe String -> Navigation.Location -> Route problem guess
+parse baseSlug location =
     location
-        |> UrlParser.parsePath matchers
+        |> UrlParser.parsePath (matchers baseSlug)
         |> Maybe.withDefault NotFound

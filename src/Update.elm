@@ -47,16 +47,27 @@ cmdOnRouteChange spec ports route prevRoute =
                 |> Maybe.withDefault Cmd.none
 
 
+navigationNewUrl : Maybe String -> String -> Cmd (Msg problem guess)
+navigationNewUrl baseSlug newUrl =
+    baseSlug
+        |> Maybe.map (\baseSlug -> "/" ++ baseSlug ++ newUrl)
+        |> Maybe.withDefault newUrl
+        |> Navigation.newUrl
+
+
 update :
-    Spec problem guess
+    Maybe String
+    -> Spec problem guess
     -> Ports (Msg problem guess)
     -> Msg problem guess
     -> Model problem guess
     -> ( Model problem guess, Cmd (Msg problem guess) )
-update spec ports msg model =
+update baseSlug spec ports msg model =
     case ( model.route, msg ) of
         ( _, Navigate newUrl ) ->
-            ( model, Navigation.newUrl newUrl )
+            ( model
+            , navigationNewUrl baseSlug newUrl
+            )
 
         ( oldRoute, ChangeRoute route ) ->
             ( { model | route = route }
@@ -100,7 +111,9 @@ update spec ports msg model =
                     | route =
                         Router.NewRoom newRoom
                   }
-                , newUrl |> Maybe.map Navigation.newUrl |> Maybe.withDefault Cmd.none
+                , newUrl
+                    |> Maybe.map (navigationNewUrl baseSlug)
+                    |> Maybe.withDefault Cmd.none
                 )
 
         ( Router.Game game, IncomingSubscription (InMsg.RoomUpdated room) ) ->
