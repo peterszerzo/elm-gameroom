@@ -37,28 +37,40 @@ spec =
             div
                 [ style
                     [ ( "position", "absolute" )
-                    , ( "max-width", "800px" )
-                    , ( "max-height", "800px" )
+                    , ( "width", "80vmin" )
+                    , ( "height", "80vmin" )
                     , ( "top", "50%" )
                     , ( "left", "50%" )
-                    , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0)" )
+                    , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0) rotate(" ++ ((ticksSinceNewRound |> toFloat) / 5 |> toString) ++ "deg)" )
                     ]
                 ]
-                [ div [ class "word " ]
-                    (problem
-                        |> String.toList
-                        |> List.indexedMap
-                            (\index c ->
+                (problem
+                    |> String.toList
+                    |> List.indexedMap
+                        (\index c ->
+                            let
+                                angle =
+                                    (index |> toFloat)
+                                        / (problem
+                                            |> String.length
+                                            |> toFloat
+                                          )
+                                        |> (*) (2 * pi)
+                            in
                                 span
                                     [ style
-                                        [ ( "font-size", "2rem" )
+                                        [ ( "position", "absolute" )
+                                        , ( "font-size", "calc(3vh + 3vw)" )
+                                        , ( "top", ((1 - sin angle) * 50 |> toString) ++ "%" )
+                                        , ( "left", ((1 - cos angle) * 50 |> toString) ++ "%" )
+                                        , ( "transform", "translate3d(-50%, -50%, 0) rotate(" ++ ((angle * 180 / pi - 90) |> toString) ++ "deg)" )
+                                        , ( "text-transform", "uppercase" )
                                         ]
                                     , onClick index
                                     ]
                                     [ text (String.fromChar c) ]
-                            )
-                    )
-                ]
+                        )
+                )
         )
     , isGuessCorrect = (\problem guess -> (guess == 0))
     , problemGenerator =
