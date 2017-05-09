@@ -37,8 +37,8 @@ spec =
             div
                 [ style
                     [ ( "position", "absolute" )
-                    , ( "width", "80vmin" )
-                    , ( "height", "80vmin" )
+                    , ( "width", "75vmin" )
+                    , ( "height", "75vmin" )
                     , ( "top", "50%" )
                     , ( "left", "50%" )
                     , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0) rotate(" ++ ((ticksSinceNewRound |> toFloat) / 5 |> toString) ++ "deg)" )
@@ -60,7 +60,11 @@ spec =
                                 span
                                     [ style
                                         [ ( "position", "absolute" )
+                                        , ( "display", "block" )
+                                        , ( "cursor", "pointer" )
+                                        , ( "background-color", "rgba(255, 255, 255, 0.1)" )
                                         , ( "font-size", "calc(3vh + 3vw)" )
+                                        , ( "padding", "20px" )
                                         , ( "top", ((1 - sin angle) * 50 |> toString) ++ "%" )
                                         , ( "left", ((1 - cos angle) * 50 |> toString) ++ "%" )
                                         , ( "transform", "translate3d(-50%, -50%, 0) rotate(" ++ ((angle * 180 / pi - 90) |> toString) ++ "deg)" )

@@ -32,13 +32,12 @@ styles =
         , backgroundColor (hex blue)
         , color (hex white)
         , position fixed
-        , top (pct 50)
-        , right (px 20)
+        , bottom (px 20)
+        , left (px 20)
         , textAlign center
         , fontSize (px 20)
         , paddingTop (px 8)
         , borderRadius (pct 50)
-        , transform (translate3d (px 0) (pct -50) (px 0))
         , after
             [ property "content" "' '"
             , position absolute
