@@ -154,24 +154,31 @@ main =
 
 mesh : Int -> WebGL.Mesh Vertex
 mesh tick =
-    (ball
-        (Matrix4.mul
-            (Matrix4.makeTranslate
-                (vec3
-                    (0)
-                    (0)
-                    (-0.5)
+    let
+        ratio =
+            min ((tick |> toFloat) / 100) 1
+
+        isOver =
+            ratio > 1
+    in
+        (ball 1.5
+            (Matrix4.mul
+                (Matrix4.makeTranslate
+                    (vec3
+                        (0 - 0.5 * (1 - ratio))
+                        0
+                        (-0.5 + 0.2 * (cos (ratio * pi / 2)))
+                    )
+                )
+                (Matrix4.makeRotate
+                    ((tick |> toFloat) / 10)
+                    (vec3 0.2 0.4 0.8)
                 )
             )
-            (Matrix4.makeRotate
-                ((tick |> toFloat) / 10)
-                (vec3 0.2 0.4 0.8)
-            )
         )
-    )
-        |> (++)
-            terrain
-        |> WebGL.triangles
+            |> (++)
+                terrain
+            |> WebGL.triangles
 
 
 perspective : Vec3 -> Matrix4.Mat4
@@ -184,8 +191,8 @@ perspective eye =
 -- Ball
 
 
-ball : Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
-ball transform =
+ball : Float -> Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
+ball scaleFactor transform =
     let
         pt1 =
             vec3 -0.767 7.703 4.056
@@ -211,7 +218,7 @@ ball transform =
         transformPoint =
             (\transform pt ->
                 pt
-                    |> Vector3.scale 0.005
+                    |> Vector3.scale (0.005 * scaleFactor)
                     |> Matrix4.transform transform
                     |> Vector3.add (vec3 0 0 0.5)
             )
