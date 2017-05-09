@@ -27,8 +27,12 @@
     }
     document.body.appendChild(scriptTag)
   } else {
-    rootNode.innerHTML = games.map(function (game) {
-      return '<a href="/' + game + '">' + game + '</a>'
-    }).join('')
+    games.forEach(function (game) {
+      var linkTag = document.createElement('a')
+      linkTag.href = '/' + game
+      linkTag.className = 'elm-gameroom-link'
+      linkTag.innerHTML = game
+      rootNode.appendChild(linkTag)
+    })
   }
 }())
