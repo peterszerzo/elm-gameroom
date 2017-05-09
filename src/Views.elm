@@ -76,8 +76,8 @@ class =
     Html.CssHelpers.withNamespace cssNamespace |> .class
 
 
-view : Spec problem guess -> Model problem guess -> Html (Msg problem guess)
-view spec model =
+view : Maybe String -> Spec problem guess -> Model problem guess -> Html (Msg problem guess)
+view baseSlug spec model =
     let
         content =
             case model.route of
@@ -85,7 +85,7 @@ view spec model =
                     Views.Home.view spec
 
                 Router.Game game ->
-                    Views.Game.view spec model.windowSize game
+                    Views.Game.view baseSlug spec model.windowSize game
                         |> Html.map GameMsg
 
                 Router.NewRoom newRoom ->

@@ -65,7 +65,7 @@ program :
 program spec ports =
     Navigation.program (Messages.ChangeRoute << (Router.parse Nothing))
         { init = init Nothing spec ports
-        , view = view spec
+        , view = view Nothing spec
         , update = update Nothing spec ports
         , subscriptions = subscriptions spec ports
         }
@@ -81,7 +81,7 @@ programAt :
 programAt baseSlug spec ports =
     Navigation.program (Messages.ChangeRoute << (Router.parse (Just baseSlug)))
         { init = init (Just baseSlug) spec ports
-        , view = view spec
+        , view = view (Just baseSlug) spec
         , update = update (Just baseSlug) spec ports
         , subscriptions = subscriptions spec ports
         }
