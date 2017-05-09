@@ -39,7 +39,7 @@ type alias Vertex =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    programAt "scb"
+    programAt "spacecraterball"
         { copy =
             { name = "Spacecraterball"
             , instructions = "Will it go in?"

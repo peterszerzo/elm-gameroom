@@ -105,4 +105,4 @@ ports =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    Gameroom.program spec ports
+    Gameroom.programAt "thecapitalist" spec ports
