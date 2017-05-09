@@ -38,30 +38,64 @@ spec =
     , view =
         (\windowSize ticksSinceNewRound playerId players problem ->
             div
-                [ class "spinning-shapes-container"
-                , style
-                    [ ( "position", "absolute" )
-                    , ( "width", "80vmin" )
-                    , ( "height", "80vmin" )
-                    , ( "top", "50%" )
-                    , ( "left", "50%" )
-                    , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0)" )
+                [ style
+                    [ ( "width", "100%" )
+                    , ( "height", "100%" )
+                    , ( "display", "flex" )
+                    , ( "align-items", "center" )
+                    , ( "vertical-align", "middle" )
                     ]
                 ]
-                [ h1 [] [ text problem.question ]
-                , ul [] (List.indexedMap (\index answer -> li [ onClick index ] [ text answer ]) problem.answers)
+                [ div
+                    [ style
+                        [ ( "margin", "0" )
+                        , ( "width", "auto" )
+                        , ( "max-width", "400px" )
+                        , ( "text-align", "center" )
+                        ]
+                    ]
+                    [ h1 [] [ text problem.question ]
+                    , ul
+                        [ style
+                            [ ( "list-style", "none" )
+                            , ( "padding-left", "0" )
+                            ]
+                        ]
+                        (List.indexedMap
+                            (\index answer ->
+                                li
+                                    [ onClick index
+                                    , style
+                                        [ ( "margin", "20px" )
+                                        , ( "border", "1px solid currentColor" )
+                                        , ( "padding", "6px 12px" )
+                                        ]
+                                    ]
+                                    [ text answer ]
+                            )
+                            problem.answers
+                        )
+                    ]
                 ]
         )
     , isGuessCorrect = (\problem guess -> (guess == problem.correct))
     , problemGenerator =
         generatorFromList
-            { question = "What's the capital of Latvia?"
+            { question = "🇱🇻 Latvia"
             , answers = [ "Tallin", "Riga", "Vilnius", "Moscow" ]
-            , correct = 2
+            , correct = 1
             }
-            [ { question = "What's the capital of Hungary?"
+            [ { question = "🇭🇺 Hungary"
               , answers = [ "Budapest", "Pécs", "Mosonmagyaróvár", "Garmisch-Partenkirchen" ]
               , correct = 0
+              }
+            , { question = "🇧🇳 Brunei"
+              , answers = [ "Munich", "Copenhagen", "Jakarta", "Bandar Seri Begawan" ]
+              , correct = 3
+              }
+            , { question = "🇸🇮 Slovenia"
+              , answers = [ "Munich", "Ljubljana", "Jakarta", "Bandar Seri Begawan" ]
+              , correct = 1
               }
             ]
     , guessEncoder = JE.int
