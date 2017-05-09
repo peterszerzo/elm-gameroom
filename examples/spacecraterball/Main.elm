@@ -1,6 +1,10 @@
 port module Main exposing (..)
 
+import Html exposing (div)
 import Html.Attributes exposing (width, height, style)
+import Html.Events exposing (onClick)
+import Svg exposing (svg, use)
+import Svg.Attributes exposing (xlinkHref, viewBox)
 import Math.Vector3 as Vector3 exposing (Vec3, vec3)
 import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import WebGL
@@ -17,7 +21,7 @@ type alias Problem =
 
 
 type alias Guess =
-    String
+    Bool
 
 
 port outgoing : String -> Cmd msg
@@ -69,30 +73,80 @@ main =
 
                     top =
                         (max (windowSize.height - windowSize.width) 0) // 2
+
+                    button =
+                        (\guess ->
+                            div
+                                [ style
+                                    [ ( "display", "inline-block" )
+                                    , ( "width", "60px" )
+                                    , ( "height", "60px" )
+                                    , ( "margin", "15px" )
+                                    ]
+                                , onClick guess
+                                ]
+                                [ svg
+                                    [ viewBox "0 0 200 200"
+                                    , style
+                                        [ ( "width", "100%" )
+                                        , ( "height", "100%" )
+                                        , ( "fill", "rgba(78,60,127,0.9)" )
+                                        , ( "cursor", "pointer" )
+                                        ]
+                                    ]
+                                    [ use
+                                        [ xlinkHref
+                                            ("#spacecraterball-"
+                                                ++ (if guess then
+                                                        "in"
+                                                    else
+                                                        "out"
+                                                   )
+                                            )
+                                        ]
+                                        []
+                                    ]
+                                ]
+                        )
                 in
-                    WebGL.toHtml
-                        [ width minWH
-                        , height minWH
-                        , style
-                            [ ( "position", "absolute" )
-                            , ( "top", (toString top) ++ "px" )
-                            , ( "left", (toString left) ++ "px" )
+                    div []
+                        [ div
+                            [ style
+                                [ ( "position", "absolute" )
+                                , ( "bottom", "60px" )
+                                , ( "left", "50%" )
+                                , ( "transform", "translateX(-50%)" )
+                                , ( "z-index", "100" )
+                                ]
                             ]
-                        ]
-                        [ WebGL.entityWith
-                            [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
+                            [ button True
+                            , button False
                             ]
-                            vertexShader
-                            fragmentShader
-                            (mesh ticks)
-                            { perspective = perspective eye }
+                        , WebGL.toHtml
+                            [ width minWH
+                            , height minWH
+                            , style
+                                [ ( "position", "absolute" )
+                                , ( "top", (toString top) ++ "px" )
+                                , ( "left", (toString left) ++ "px" )
+                                , ( "z-index", "99" )
+                                ]
+                            ]
+                            [ WebGL.entityWith
+                                [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
+                                ]
+                                vertexShader
+                                fragmentShader
+                                (mesh ticks)
+                                { perspective = perspective eye }
+                            ]
                         ]
             )
-        , isGuessCorrect = (\problem guess -> guess == "Yes")
+        , isGuessCorrect = (\problem guess -> guess)
         , problemDecoder = JD.string
         , problemEncoder = JE.string
-        , guessDecoder = JD.string
-        , guessEncoder = JE.string
+        , guessDecoder = JD.bool
+        , guessEncoder = JE.bool
         , problemGenerator = generatorFromList "1" [ "2" ]
         }
         ports
@@ -165,7 +219,7 @@ ball transform =
         ptToVertex =
             let
                 color_ =
-                    vec4 0.30588 0.235 0.498 1
+                    vec4 (78.0 / 255) (60.0 / 255) (127.0 / 255) 1
             in
                 (flip Vertex <| color_) << (transformPoint transform)
     in
