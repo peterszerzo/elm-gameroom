@@ -27,12 +27,17 @@
     }
     document.body.appendChild(scriptTag)
   } else {
-    games.forEach(function (game) {
-      var linkTag = document.createElement('a')
-      linkTag.href = '/' + game
-      linkTag.className = 'elm-gameroom-link'
-      linkTag.innerHTML = game
-      rootNode.appendChild(linkTag)
-    })
+    (function () {
+      var html =
+        '<div class="elm-gameroom-home">' +
+        '<h1>elm-gameroom demo</h1>' +
+        '<p>Hey, thanks for stopping by. Come play some games with your friends:</p>' +
+        games.map(function (game) {
+          return '<a class="elm-gameroom-home-link" href="/' + game + '">' + game + '</a>'
+        }).join('') +
+        '<p>This is a demo for <a href="http://package.elm-lang.org/packages/peterszerzo/elm-gameroom/latest">elm-gameroom</a></p>'
+        '</div>'
+      rootNode.innerHTML = html
+    }())
   }
 }())
