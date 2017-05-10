@@ -71,7 +71,7 @@ type alias Ticks =
 -}
 type alias Status guess =
     { playerId : PlayerId
-    , guesses : Dict.Dict String guess
+    , guesses : Dict.Dict PlayerId guess
     , roundResult : RoundResult
     }
 

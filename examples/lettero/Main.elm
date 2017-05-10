@@ -48,7 +48,7 @@ spec =
                 (problem
                     |> String.toList
                     |> List.indexedMap
-                        (\index c ->
+                        (\index character ->
                             let
                                 angle =
                                     (index |> toFloat)
@@ -58,9 +58,24 @@ spec =
                                           )
                                         |> (*) (2 * pi)
 
-                                isGuessed =
+                                isRoundOver =
+                                    status.roundResult /= Gameroom.Spec.Pending
+
+                                ownGuess =
                                     Dict.get status.playerId status.guesses
-                                        |> Maybe.map (\guess -> guess == index)
+
+                                isGuessedBySelf =
+                                    ownGuess == (Just index)
+
+                                isMarkedCorrect =
+                                    (index == 0) && (isGuessedBySelf || isRoundOver)
+
+                                isGuessed =
+                                    status.guesses
+                                        |> Dict.toList
+                                        |> List.filter (\( playerId, guess ) -> guess == index)
+                                        |> List.head
+                                        |> Maybe.map (\( playerId, guess ) -> guess == index)
                                         |> Maybe.withDefault False
                             in
                                 span
@@ -75,22 +90,28 @@ spec =
                                          , ( "padding-top", "calc(0.2vh + 0.2vw)" )
                                          , ( "border-radius", "50%" )
                                          , ( "text-align", "center" )
-                                         , ( "transition", "border-color 0.3s" )
+                                         , ( "transition", "border-color 0.3s, background-color 0.3s, color 0.3s" )
                                          , ( "border", "2px solid white" )
                                          , ( "top", ((1 - sin angle) * 50 |> toString) ++ "%" )
                                          , ( "left", ((1 - cos angle) * 50 |> toString) ++ "%" )
                                          , ( "transform", "translate3d(-50%, -50%, 0) rotate(" ++ ((angle * 180 / pi - 90) |> toString) ++ "deg)" )
                                          , ( "text-transform", "uppercase" )
                                          ]
-                                            ++ (if isGuessed then
-                                                    [ ( "border", "2px solid currentColor" ) ]
+                                            ++ (if isMarkedCorrect then
+                                                    [ ( "border", "2px solid black" )
+                                                    , ( "background-color", "black" )
+                                                    , ( "color", "white" )
+                                                    ]
+                                                else if (isGuessedBySelf || (isGuessed && isRoundOver)) then
+                                                    [ ( "border", "2px solid black" )
+                                                    ]
                                                 else
                                                     []
                                                )
                                         )
                                     , onClick index
                                     ]
-                                    [ text (String.fromChar c) ]
+                                    [ text (String.fromChar character) ]
                         )
                 )
         )
