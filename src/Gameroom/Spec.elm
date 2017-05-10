@@ -6,7 +6,7 @@ module Gameroom.Spec exposing (..)
 @docs Spec
 
 # The view
-@docs View, Copy
+@docs View, Ticks, Copy, RoundResult, Status
 
 # Game logic
 @docs ProblemGenerator
@@ -16,6 +16,7 @@ module Gameroom.Spec exposing (..)
 -}
 
 import Html
+import Dict
 import Window
 import Random
 import Json.Decode as Decode
@@ -52,6 +53,29 @@ type alias Copy =
     }
 
 
+{-| The result of the current game round, either pending, with a winner, or with a tie. This is useful so that the client may display feedback on the opponent's guess once the round is over.
+-}
+type RoundResult
+    = Pending
+    | Winner String
+    | Tie
+
+
+{-| Counts the number of repaints using `AnimationFrame`.
+-}
+type alias Ticks =
+    Int
+
+
+{-| Game room status information passed to the view. Contains own player, a dictionary of guesses, and the round result.
+-}
+type alias Status guess =
+    { playerId : PlayerId
+    , guesses : Dict.Dict String guess
+    , roundResult : RoundResult
+    }
+
+
 {-| The core of the View of the current game round, excluding all navigation, notifications and the score boards. Emits guesses.
 
 The arguments in order, are the following:
@@ -62,7 +86,7 @@ The arguments in order, are the following:
 * problem: the current game problem.
 -}
 type alias View problem guess =
-    Window.Size -> Int -> PlayerId -> Players guess -> problem -> Html.Html guess
+    Window.Size -> Ticks -> Status guess -> problem -> Html.Html guess
 
 
 {-| Generate game problems.

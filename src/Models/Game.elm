@@ -5,7 +5,8 @@ import Constants
 import Gameroom.Spec as Spec
 import Models.Guess exposing (Guess)
 import Models.Room as Room
-import Models.Player exposing (Player)
+import Models.RoomId exposing (RoomId)
+import Models.Player exposing (Player, PlayerId)
 
 
 type alias Game problem guess =
@@ -21,7 +22,7 @@ type alias Game problem guess =
 -- Helpers
 
 
-init : String -> String -> Game problem guess
+init : RoomId -> PlayerId -> Game problem guess
 init roomId playerId =
     { roomId = roomId
     , playerId = playerId

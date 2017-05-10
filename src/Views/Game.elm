@@ -5,9 +5,10 @@ import Window
 import Html exposing (Html, div, text, p, h2, ul, li, span, a)
 import Html.Attributes exposing (class, style, href)
 import Html.Events exposing (onClick)
-import Gameroom.Spec exposing (Spec)
+import Gameroom.Spec exposing (Spec, RoundResult(..))
 import Constants
 import Models.Game as Game
+import Models.Player as Player
 import Models.Room as Room
 import Messages exposing (GameMsg(..))
 import Views.Footer as Footer
@@ -112,7 +113,30 @@ viewRoom baseSlug spec windowSize model room =
                         , ( GamePlayInCooldown, model.ticksSinceNewRound > Constants.ticksInRound )
                         ]
                     ]
-                    [ Html.map Guess (spec.view windowSize model.animationTicksSinceNewRound model.playerId room.players round.problem)
+                    [ Html.map Guess
+                        (spec.view
+                            windowSize
+                            model.animationTicksSinceNewRound
+                            { playerId = model.playerId
+                            , guesses =
+                                room.players
+                                    |> Dict.toList
+                                    |> Player.extractGuesses
+                                    |> Dict.fromList
+                            , roundResult =
+                                if model.ticksSinceNewRound > Constants.ticksInRound then
+                                    (case Room.getRoundWinner spec room of
+                                        Just winnerId ->
+                                            Winner winnerId
+
+                                        Nothing ->
+                                            Tie
+                                    )
+                                else
+                                    Pending
+                            }
+                            round.problem
+                        )
                     ]
 
             Nothing ->

@@ -4,7 +4,7 @@ import Dict
 import Window
 import Html exposing (Html, map, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
 import Html.Events exposing (onClick)
-import Gameroom.Spec exposing (Spec)
+import Gameroom.Spec exposing (Spec, RoundResult(..))
 import Models.Tutorial
 import Messages.Tutorial
 import Views.Tutorial.Styles exposing (CssClasses(..), localClass)
@@ -39,7 +39,21 @@ view spec windowSize model =
             )
         , div [ localClass [ Button ], onClick Messages.Tutorial.RequestNewProblem ] [ text "▶" ]
         , model.problem
-            |> Maybe.map (spec.view windowSize model.animationTicksSinceNewRound "testplayer" Dict.empty)
+            |> Maybe.map
+                (spec.view
+                    windowSize
+                    model.animationTicksSinceNewRound
+                    { playerId = "testplayer"
+                    , guesses =
+                        case model.guess of
+                            Nothing ->
+                                Dict.empty
+
+                            Just guess ->
+                                Dict.fromList [ ( "testplayer", guess ) ]
+                    , roundResult = Pending
+                    }
+                )
             |> Maybe.map (map Messages.Tutorial.Guess)
             |> Maybe.withDefault (div [] [])
         ]

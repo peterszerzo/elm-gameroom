@@ -9,7 +9,7 @@ module Gameroom.Utilities exposing (..)
 import Random
 
 
-{-| Create a generator from a discrete list of problems. For instance,
+{-| Create a generator from a discrete list of problems, the first of which is supplied separately to make sure the list is not empty. For instance,
 
     generatorFromList "apples" [ "oranges", "lemons" ] == generator yielding random problems from ["apples", "oranges", "lemons"]
 -}

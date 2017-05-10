@@ -1,5 +1,6 @@
 port module Main exposing (..)
 
+import Dict
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
@@ -33,7 +34,7 @@ spec =
         , instructions = "Hit the first letter of the word!"
         }
     , view =
-        (\windowSize ticksSinceNewRound playerId players problem ->
+        (\windowSize ticksSinceNewRound status problem ->
             div
                 [ style
                     [ ( "position", "absolute" )
@@ -56,20 +57,37 @@ spec =
                                             |> toFloat
                                           )
                                         |> (*) (2 * pi)
+
+                                isGuessed =
+                                    Dict.get status.playerId status.guesses
+                                        |> Maybe.map (\guess -> guess == index)
+                                        |> Maybe.withDefault False
                             in
                                 span
                                     [ style
-                                        [ ( "position", "absolute" )
-                                        , ( "display", "block" )
-                                        , ( "cursor", "pointer" )
-                                        , ( "background-color", "rgba(255, 255, 255, 0.1)" )
-                                        , ( "font-size", "calc(3vh + 3vw)" )
-                                        , ( "padding", "20px" )
-                                        , ( "top", ((1 - sin angle) * 50 |> toString) ++ "%" )
-                                        , ( "left", ((1 - cos angle) * 50 |> toString) ++ "%" )
-                                        , ( "transform", "translate3d(-50%, -50%, 0) rotate(" ++ ((angle * 180 / pi - 90) |> toString) ++ "deg)" )
-                                        , ( "text-transform", "uppercase" )
-                                        ]
+                                        ([ ( "position", "absolute" )
+                                         , ( "display", "block" )
+                                         , ( "cursor", "pointer" )
+                                         , ( "background-color", "rgba(255, 255, 255, 0.1)" )
+                                         , ( "font-size", "calc(3vh + 3vw)" )
+                                         , ( "width", "calc(4.5vh + 4.5vw)" )
+                                         , ( "height", "calc(4.5vh + 4.5vw)" )
+                                         , ( "padding-top", "calc(0.2vh + 0.2vw)" )
+                                         , ( "border-radius", "50%" )
+                                         , ( "text-align", "center" )
+                                         , ( "transition", "border-color 0.3s" )
+                                         , ( "border", "2px solid white" )
+                                         , ( "top", ((1 - sin angle) * 50 |> toString) ++ "%" )
+                                         , ( "left", ((1 - cos angle) * 50 |> toString) ++ "%" )
+                                         , ( "transform", "translate3d(-50%, -50%, 0) rotate(" ++ ((angle * 180 / pi - 90) |> toString) ++ "deg)" )
+                                         , ( "text-transform", "uppercase" )
+                                         ]
+                                            ++ (if isGuessed then
+                                                    [ ( "border", "2px solid currentColor" ) ]
+                                                else
+                                                    []
+                                               )
+                                        )
                                     , onClick index
                                     ]
                                     [ text (String.fromChar c) ]

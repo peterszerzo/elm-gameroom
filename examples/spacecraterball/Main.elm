@@ -50,7 +50,7 @@ main =
             , subheading = "Let the game begin!"
             }
         , view =
-            (\windowSize ticks _ _ _ ->
+            (\windowSize ticks _ _ ->
                 let
                     theta =
                         (ticks |> toFloat) / 200

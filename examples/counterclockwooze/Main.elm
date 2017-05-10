@@ -41,7 +41,7 @@ spec =
         , instructions = "Find the one shape that spins the other way."
         }
     , view =
-        (\windowSize ticksSinceNewRound playerId players problem ->
+        (\windowSize ticksSinceNewRound _ problem ->
             div
                 [ class "spinning-shapes-container"
                 , style

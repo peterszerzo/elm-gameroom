@@ -6,6 +6,7 @@ import Json.Encode as JE
 import Gameroom.Spec as Spec
 import Models.Player as Player
 import Models.Round as Round
+import Models.RoomId exposing (RoomId)
 import Constants exposing (nullString)
 
 
@@ -13,8 +14,8 @@ import Constants exposing (nullString)
 
 
 type alias Room problem guess =
-    { id : String
-    , host : String
+    { id : RoomId
+    , host : Player.PlayerId
     , round : Maybe (Round.Round problem)
     , players : Dict.Dict String (Player.Player guess)
     }
@@ -98,7 +99,7 @@ bigNumber =
     100000
 
 
-getRoundWinner : Spec.Spec problem guess -> Room problem guess -> Maybe String
+getRoundWinner : Spec.Spec problem guess -> Room problem guess -> Maybe Player.PlayerId
 getRoundWinner spec room =
     room.players
         |> Dict.toList
@@ -120,7 +121,7 @@ getRoundWinner spec room =
 
 updatePlayer :
     (Player.Player guess -> Player.Player guess)
-    -> String
+    -> Player.PlayerId
     -> Room problem guess
     -> Room problem guess
 updatePlayer transform playerId room =
@@ -133,7 +134,7 @@ updatePlayer transform playerId room =
 
 
 setScores :
-    Maybe String
+    Maybe Player.PlayerId
     -> Room problem guess
     -> Room problem guess
 setScores maybeWinnerId room =

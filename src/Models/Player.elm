@@ -4,6 +4,7 @@ import Dict
 import Json.Decode as JD
 import Json.Encode as JE
 import Models.Guess as Guess
+import Models.RoomId exposing (RoomId)
 import Constants exposing (nullString)
 
 
@@ -13,7 +14,7 @@ type alias PlayerId =
 
 type alias Player guess =
     { id : PlayerId
-    , roomId : String
+    , roomId : RoomId
     , isReady : Bool
     , score : Int
     , guess :
@@ -25,7 +26,7 @@ type alias Players guess =
     Dict.Dict PlayerId (Player guess)
 
 
-create : String -> String -> Player guess
+create : PlayerId -> RoomId -> Player guess
 create id roomId =
     { id = id
     , roomId = roomId
@@ -33,6 +34,23 @@ create id roomId =
     , score = 0
     , guess = Nothing
     }
+
+
+extractGuesses : List ( PlayerId, Player guess ) -> List ( PlayerId, guess )
+extractGuesses players =
+    case players of
+        [] ->
+            []
+
+        ( playerId, player ) :: tail ->
+            (case player.guess of
+                Just guess ->
+                    [ ( playerId, guess.value ) ]
+
+                Nothing ->
+                    []
+            )
+                ++ (extractGuesses tail)
 
 
 

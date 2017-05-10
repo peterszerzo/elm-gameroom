@@ -36,7 +36,7 @@ spec =
         , instructions = "Find the capital of the country!"
         }
     , view =
-        (\windowSize ticksSinceNewRound playerId players problem ->
+        (\_ _ _ problem ->
             div
                 [ style
                     [ ( "width", "100%" )

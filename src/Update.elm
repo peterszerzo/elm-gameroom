@@ -1,8 +1,10 @@
 module Update exposing (..)
 
 import Navigation
+import Random
 import Models.OutgoingMessage as OutgoingMessage
 import Messages exposing (..)
+import Messages.Tutorial
 import Models.Room as Room
 import Models exposing (Model)
 import Gameroom.Spec exposing (Spec)
@@ -22,29 +24,25 @@ cmdOnRouteChange :
     -> Maybe (Router.Route problem guess)
     -> Cmd (Msg problem guess)
 cmdOnRouteChange spec ports route prevRoute =
-    case route of
-        Router.Game game ->
+    case ( route, prevRoute ) of
+        ( Router.Game game, _ ) ->
             OutgoingMessage.SubscribeToRoom game.roomId
                 |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
                 |> JE.encode 0
                 |> ports.outgoing
 
-        _ ->
-            prevRoute
-                |> Maybe.andThen
-                    (\rt ->
-                        case rt of
-                            Router.Game game ->
-                                OutgoingMessage.UnsubscribeFromRoom game.roomId
-                                    |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
-                                    |> JE.encode 0
-                                    |> ports.outgoing
-                                    |> Just
+        ( _, Just (Router.Game prevGame) ) ->
+            -- Unsubscribe from a previous room
+            OutgoingMessage.UnsubscribeFromRoom prevGame.roomId
+                |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
+                |> JE.encode 0
+                |> ports.outgoing
 
-                            _ ->
-                                Nothing
-                    )
-                |> Maybe.withDefault Cmd.none
+        ( Router.Tutorial _, _ ) ->
+            Random.generate (Messages.TutorialMsg << Messages.Tutorial.ReceiveProblem) spec.problemGenerator
+
+        ( _, _ ) ->
+            Cmd.none
 
 
 navigationNewUrl : Maybe String -> String -> Cmd (Msg problem guess)
