@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, style, type_, value, id, for, href, plac
 import Html.Events exposing (onClick, onInput)
 import Models.NewRoom as NewRoom
 import Messages exposing (NewRoomMsg(..))
-import Views.NewRoom.Styles exposing (CssClasses(..), localClass)
+import Views.NewRoom.Styles exposing (CssClasses(..), localClass, localClassList)
 import Views.Loader
 
 
@@ -17,7 +17,7 @@ viewForm model =
                 && (model.playerIds |> List.map (\playerId -> String.length playerId > 0) |> List.all identity)
     in
         [ h2 [] [ text "Create your room" ]
-        , p [] [ text "Casual is key - so please excuse our insistence to make your names URL-friendly as you type :)." ]
+        , p [] [ text "" ]
         , label [ for "roomid" ]
             [ text "Room Id"
             , input
@@ -80,6 +80,13 @@ viewForm model =
            else
             div [] []
           )
+        , div
+            [ localClassList
+                [ ( Notification, True )
+                , ( NotificationHidden, not model.entriesUrlized || model.isUrlizedNotificationDismissed )
+                ]
+            ]
+            [ p [] [ text "We took the liberty to make your names casual and URL-friendly for your convenience :)." ] ]
         ]
 
 

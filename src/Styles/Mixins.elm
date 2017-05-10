@@ -13,11 +13,8 @@ centered =
     , maxHeight (pct 100)
     , overflowY auto
     , width (pct 100)
-    , position absolute
-    , top (pct 50)
-    , left (pct 50)
+    , margin (px 0)
     , padding (px 20)
-    , transform (translate2 (pct -50) (pct -50))
     , textAlign center
     ]
 

@@ -23,6 +23,7 @@ type NewRoomMsg
     | CreateRequest
     | CreateResponse String
     | RemovePlayer Int
+    | DismissUrlizeNotification
 
 
 type Msg problem guess

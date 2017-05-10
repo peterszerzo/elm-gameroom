@@ -2,6 +2,7 @@ module Views exposing (view)
 
 import Html exposing (Html, div, node, text)
 import Css exposing (Stylesheet, stylesheet, position, fixed, top, px, bottom, left, right, backgroundColor, hex)
+import Css.Namespace exposing (namespace)
 import Html.CssHelpers
 import Css.File exposing (compile)
 import Gameroom.Spec exposing (Spec)
@@ -47,9 +48,13 @@ styles =
         , bottom (px 0)
         , left (px 0)
         , right (px 0)
+        , Css.displayFlex
+        , Css.alignItems Css.center
+        , Css.justifyContent Css.center
         , backgroundColor (hex white)
         ]
     ]
+        |> namespace cssNamespace
 
 
 css : Stylesheet
