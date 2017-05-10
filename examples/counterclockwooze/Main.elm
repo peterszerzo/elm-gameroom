@@ -1,11 +1,12 @@
 port module Main exposing (..)
 
 import Random
+import Dict
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style, attribute)
 import Html.Events exposing (onClick)
-import Svg exposing (polygon, svg, g)
-import Svg.Attributes exposing (width, height, viewBox, points, transform)
+import Svg exposing (polygon, svg, g, circle)
+import Svg.Attributes exposing (width, height, viewBox, points, transform, r, cx, cy, fill, stroke, strokeWidth)
 import Json.Encode as JE
 import Json.Decode as JD
 import Gameroom exposing (program, Model, Msg, Ports)
@@ -33,6 +34,11 @@ type alias Guess =
 -- Spec
 
 
+grey : String
+grey =
+    "#222226"
+
+
 spec : Spec Problem Guess
 spec =
     { copy =
@@ -41,7 +47,7 @@ spec =
         , instructions = "Find the one shape that spins the other way."
         }
     , view =
-        (\windowSize ticksSinceNewRound _ problem ->
+        (\windowSize ticksSinceNewRound status problem ->
             div
                 [ class "spinning-shapes-container"
                 , style
@@ -57,12 +63,60 @@ spec =
                     (List.indexedMap
                         (\index { x, y } ->
                             let
+                                isRoundOver =
+                                    status.roundResult /= Gameroom.Spec.Pending
+
+                                isCorrect =
+                                    (index == 0)
+
+                                ownGuess =
+                                    Dict.get status.playerId status.guesses
+
+                                isGuessedBySelf =
+                                    ownGuess == (Just index)
+
+                                isMarkedCorrect =
+                                    isCorrect && (isGuessedBySelf || isRoundOver)
+
+                                isGuessed =
+                                    status.guesses
+                                        |> Dict.toList
+                                        |> List.filter (\( playerId, guess ) -> guess == index)
+                                        |> List.head
+                                        |> Maybe.map (\( playerId, guess ) -> guess == index)
+                                        |> Maybe.withDefault False
+
                                 translateString =
-                                    ("translate(" ++ (toString (x * 900 + 50)) ++ "," ++ (toString (y * 900 + 50)) ++ ")")
+                                    ("translate(" ++ (toString (x * 800 + 100)) ++ "," ++ (toString (y * 800 + 100)) ++ ")")
                             in
                                 g [ transform translateString ]
-                                    [ polygon
+                                    [ circle
+                                        [ r "80"
+                                        , cx "0"
+                                        , cy "0"
+                                        , fill
+                                            (if (isCorrect && (isRoundOver || isGuessedBySelf)) then
+                                                grey
+                                             else
+                                                "none"
+                                            )
+                                        , stroke
+                                            (if (isGuessedBySelf || (isGuessed && isRoundOver)) then
+                                                grey
+                                             else
+                                                "rgba(255, 255, 255, 0)"
+                                            )
+                                        , strokeWidth "2"
+                                        ]
+                                        []
+                                    , polygon
                                         [ points "-50,-28.8 50,-28.8 0,57.7"
+                                        , fill
+                                            (if (isCorrect && (isRoundOver || isGuessedBySelf)) then
+                                                "white"
+                                             else
+                                                grey
+                                            )
                                         , attribute "transform"
                                             ("rotate("
                                                 ++ ((ticksSinceNewRound |> toFloat)
