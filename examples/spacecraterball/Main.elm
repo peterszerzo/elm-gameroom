@@ -2,6 +2,7 @@ port module Main exposing (..)
 
 import Html exposing (Html, div)
 import Window
+import Color
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
 import Svg exposing (svg, use)
@@ -195,13 +196,13 @@ ball problem ticks =
             (toFloat problem) * 0.08
     in
         (viewBall 1.5
-            (vec4 (78.0 / 255) (60.0 / 255) (127.0 / 255) 1)
+            (purple |> colorToVec4)
             (Matrix4.mul
                 (Matrix4.makeTranslate
                     (vec3
                         ((0 + offset) - (0.8 + offset) * (1 - ratio))
                         0
-                        (-0.5 + 0.2 * (cos (ratio * pi - pi / 2) |> abs))
+                        (0.2 * (cos (ratio * pi - pi / 2) |> abs))
                     )
                 )
                 (Matrix4.makeRotate
@@ -216,60 +217,64 @@ ball problem ticks =
 -- Ball
 
 
+type alias Shape =
+    { nodes : List ( Float, Float, Float )
+    , faces : List ( Int, Int, Int )
+    }
+
+
+getNode : Int -> Shape -> ( Float, Float, Float )
+getNode i { nodes } =
+    nodes |> List.drop i |> List.head |> Maybe.withDefault ( 0, 0, 0 )
+
+
+ballShape : Shape
+ballShape =
+    { nodes =
+        [ ( -0.767, 7.703, 4.056 )
+        , ( 6.558, -1.018, 2.76 )
+        , ( -2.475, -6.075, 2.169 )
+        , ( -5.315, -4.073, -0.228 )
+        , ( -5.672, 3.194, -2.916 )
+        , ( 3.878, 4.616, -2.916 )
+        , ( 1.59, -5.296, -2.916 )
+        ]
+    , faces =
+        [ ( 0, 1, 2 )
+        , ( 0, 2, 3 )
+        , ( 0, 3, 4 )
+        , ( 0, 4, 5 )
+        , ( 0, 5, 1 )
+        , ( 6, 1, 5 )
+        , ( 6, 2, 1 )
+        , ( 6, 3, 2 )
+        , ( 6, 4, 3 )
+        , ( 6, 5, 4 )
+        ]
+    }
+
+
 viewBall : Float -> Vec4 -> Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
 viewBall scaleFactor color_ transform =
     let
-        pt1 =
-            vec3 -0.767 7.703 4.056
-
-        pt2 =
-            vec3 6.558 -1.018 2.76
-
-        pt3 =
-            vec3 -2.475 -6.075 2.169
-
-        pt4 =
-            vec3 -5.315 -4.073 -0.228
-
-        pt5 =
-            vec3 -5.672 3.194 -2.916
-
-        pt6 =
-            vec3 3.878 4.616 -2.916
-
-        pt7 =
-            vec3 1.59 -5.296 -2.916
-
         transformPoint =
             (\transform pt ->
                 pt
                     |> Vector3.scale (0.005 * scaleFactor)
                     |> Matrix4.transform transform
-                    |> Vector3.add (vec3 0 0 0.5)
             )
 
-        ptToVertex =
-            (flip Vertex <| color_) << (transformPoint transform)
+        ptIndexToVertex =
+            (flip getNode <| ballShape) >> ((\( x, y, z ) -> vec3 x y z)) >> (transformPoint transform) >> (flip Vertex <| color_)
     in
         List.map
-            (\( pt1, pt2, pt3 ) ->
-                ( (ptToVertex pt1)
-                , (ptToVertex pt2)
-                , (ptToVertex pt3)
+            (\( pointIndex1, pointIndex2, pointIndex3 ) ->
+                ( ptIndexToVertex pointIndex1
+                , ptIndexToVertex pointIndex2
+                , ptIndexToVertex pointIndex3
                 )
             )
-            [ ( pt1, pt2, pt3 )
-            , ( pt1, pt3, pt4 )
-            , ( pt1, pt4, pt5 )
-            , ( pt1, pt5, pt6 )
-            , ( pt1, pt2, pt3 )
-            , ( pt1, pt6, pt2 )
-            , ( pt7, pt2, pt6 )
-            , ( pt7, pt3, pt2 )
-            , ( pt7, pt4, pt3 )
-            , ( pt7, pt5, pt4 )
-            , ( pt7, pt6, pt5 )
-            ]
+            ballShape.faces
 
 
 
@@ -322,6 +327,35 @@ terrainPoint n i j =
         vec3 x y z
 
 
+colorToVec4 : Color.Color -> Vec4
+colorToVec4 color_ =
+    color_
+        |> Color.toRgb
+        |> (\{ red, green, blue, alpha } ->
+                vec4
+                    ((toFloat red) / 255)
+                    ((toFloat green) / 255)
+                    ((toFloat blue) / 255)
+                    alpha
+           )
+
+
+cyan : Color.Color
+cyan =
+    Color.rgb 39 171 178
+
+
+purple : Color.Color
+purple =
+    Color.rgb 78 60 127
+
+
+brighten : Float -> Color.Color -> Color.Color
+brighten fact =
+    Color.toHsl
+        >> (\{ hue, saturation, lightness } -> Color.hsl hue saturation (lightness * fact))
+
+
 terrainSquare : Int -> Int -> Int -> List ( Vertex, Vertex, Vertex )
 terrainSquare n i j =
     let
@@ -330,9 +364,6 @@ terrainSquare n i j =
 
         fac =
             (toFloat (i + j)) * d / 2
-
-        baseColor =
-            vec4 (39 / 255 / 1.2) (171 / 255 / 1.2) (178 / 255 / 1.2)
 
         pt11 =
             terrainPoint n i j
@@ -349,7 +380,7 @@ terrainSquare n i j =
                 |> Vector3.dot light
 
         color1 =
-            baseColor op1
+            cyan |> brighten op1 |> colorToVec4
 
         pt21 =
             terrainPoint n i j
@@ -366,7 +397,7 @@ terrainSquare n i j =
                 |> Vector3.dot light
 
         color2 =
-            baseColor op2
+            cyan |> brighten op2 |> colorToVec4
     in
         [ ( Vertex pt11 color1
           , Vertex pt12 color1
