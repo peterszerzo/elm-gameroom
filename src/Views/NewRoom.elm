@@ -7,6 +7,7 @@ import Models.NewRoom as NewRoom
 import Messages exposing (NewRoomMsg(..))
 import Views.NewRoom.Styles exposing (CssClasses(..), localClass, localClassList)
 import Views.Loader
+import Views.Notification
 
 
 viewForm : NewRoom.NewRoom -> List (Html NewRoomMsg)
@@ -80,13 +81,13 @@ viewForm model =
            else
             div [] []
           )
-        , div
-            [ localClassList
-                [ ( Notification, True )
-                , ( NotificationHidden, not model.entriesUrlized || model.isUrlizedNotificationDismissed )
-                ]
-            ]
-            [ p [] [ text "We took the liberty to make your names casual and URL-friendly for your convenience :)." ] ]
+        , Views.Notification.view
+            (if not model.entriesUrlized || model.isUrlizedNotificationDismissed then
+                Nothing
+             else
+                Just "We took the liberty to make your names casual and URL-friendly for your convenience :)."
+            )
+            (Just DismissUrlizeNotification)
         ]
 
 

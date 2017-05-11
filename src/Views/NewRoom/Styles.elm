@@ -18,8 +18,6 @@ type CssClasses
     | Logo
     | Button
     | FormButton
-    | Notification
-    | NotificationHidden
 
 
 localClass : List class -> Html.Attribute msg
@@ -40,23 +38,5 @@ styles =
         [ width (pct 100)
         , margin3 (px 25) (px 0) (px 0)
         ]
-    , class Notification <|
-        [ position fixed
-        , top (px 20)
-        , right (px 20)
-        , maxWidth (px 280)
-        , backgroundColor (hex blue)
-        , color (hex white)
-        , borderRadius (px standardBorderRadius)
-        , padding2 (px 8) (px 16)
-        , textAlign left
-        , descendants
-            [ everything
-                [ margin (px 0)
-                ]
-            ]
-        ]
-            ++ Mixins.standardBoxShadow
-    , class NotificationHidden [ display none ]
     ]
         |> namespace cssNamespace

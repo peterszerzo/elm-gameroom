@@ -19,7 +19,7 @@ styles =
         , property "-moz-osx-font-smoothing" "grayscale"
         ]
     , html
-        [ fontSize (pct 80)
+        [ fontSize (pct 85)
         ]
     , mediaQuery ("screen and (min-width: 500px)")
         [ html

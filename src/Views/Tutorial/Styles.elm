@@ -33,10 +33,11 @@ styles =
         , color (hex white)
         , position fixed
         , bottom (px 20)
+        , lineHeight (num 1)
         , left (px 20)
         , textAlign center
         , fontSize (px 20)
-        , paddingTop (px 8)
+        , paddingTop (px 10)
         , borderRadius (pct 50)
         , after
             [ property "content" "' '"

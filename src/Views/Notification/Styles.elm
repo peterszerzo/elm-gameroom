@@ -16,6 +16,8 @@ cssNamespace =
 type CssClasses
     = Root
     | RootActive
+    | RootWithCloseButton
+    | Close
 
 
 localClass : List class -> Html.Attribute msg
@@ -34,6 +36,7 @@ styles =
         [ position fixed
         , top (px 20)
         , right (px 20)
+        , textAlign left
         , opacity (num 0)
         , maxWidth (px 240)
         , property "pointer-events" "none"
@@ -50,6 +53,19 @@ styles =
         [ opacity (num 1)
         , property "pointer-events" "all"
         , property "transition" "opacity 0.3s"
+        ]
+    , class RootWithCloseButton
+        [ padding4 (px 10) (px 30) (px 10) (px 20)
+        ]
+    , class Close
+        [ position absolute
+        , top (px 0)
+        , right (px 0)
+        , padding (px 10)
+        , color (hex white)
+        , lineHeight (num 0.8)
+        , fontSize (Css.rem 2)
+        , cursor pointer
         ]
     ]
         |> namespace cssNamespace

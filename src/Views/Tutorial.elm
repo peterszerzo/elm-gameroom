@@ -37,6 +37,7 @@ view spec windowSize model =
                 |> Maybe.withDefault "Hey, let's practice. Click the button to get a game problem you can solve."
                 |> Just
             )
+            Nothing
         , div [ localClass [ Button ], onClick Messages.Tutorial.RequestNewProblem ] [ text "▶" ]
         , model.problem
             |> Maybe.map

@@ -144,7 +144,7 @@ viewRoom baseSlug spec windowSize model room =
         )
       else
         viewReadyPrompt baseSlug spec model room
-    , Notification.view (Game.getNotificationContent spec model)
+    , Notification.view (Game.getNotificationContent spec model) Nothing
     , if (Room.allPlayersReady room) then
         Timer.view ((model.ticksSinceNewRound |> toFloat) / (Constants.ticksInRound |> toFloat))
       else
