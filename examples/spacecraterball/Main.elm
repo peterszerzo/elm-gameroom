@@ -1,6 +1,7 @@
 port module Main exposing (..)
 
-import Html exposing (div)
+import Html exposing (Html, div)
+import Window
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
 import Svg exposing (svg, use)
@@ -17,7 +18,7 @@ import Gameroom.Utilities exposing (generatorFromList)
 
 
 type alias Problem =
-    String
+    Int
 
 
 type alias Guess =
@@ -50,149 +51,173 @@ main =
             , subheading = "Let the game begin!"
             }
         , view =
-            (\windowSize ticks _ _ ->
-                let
-                    theta =
-                        (ticks |> toFloat) / 200
-
-                    phi =
-                        pi / 6
-
-                    eye =
-                        vec3
-                            (sin theta * cos phi)
-                            (cos theta * cos phi)
-                            (sin phi)
-                            |> Vector3.scale 2
-
-                    minWH =
-                        min windowSize.width windowSize.height
-
-                    left =
-                        (max (windowSize.width - windowSize.height) 0) // 2
-
-                    top =
-                        (max (windowSize.height - windowSize.width) 0) // 2
-
-                    button =
-                        (\guess ->
-                            div
-                                [ style
-                                    [ ( "display", "inline-block" )
-                                    , ( "width", "60px" )
-                                    , ( "height", "60px" )
-                                    , ( "margin", "15px" )
-                                    ]
-                                , onClick guess
-                                ]
-                                [ svg
-                                    [ viewBox "0 0 200 200"
-                                    , style
-                                        [ ( "width", "100%" )
-                                        , ( "height", "100%" )
-                                        , ( "fill", "rgba(78,60,127,0.9)" )
-                                        , ( "cursor", "pointer" )
-                                        ]
-                                    ]
-                                    [ use
-                                        [ xlinkHref
-                                            ("#spacecraterball-"
-                                                ++ (if guess then
-                                                        "in"
-                                                    else
-                                                        "out"
-                                                   )
-                                            )
-                                        ]
-                                        []
-                                    ]
-                                ]
-                        )
-                in
-                    div []
-                        [ div
-                            [ style
-                                [ ( "position", "absolute" )
-                                , ( "bottom", "60px" )
-                                , ( "left", "50%" )
-                                , ( "transform", "translateX(-50%)" )
-                                , ( "z-index", "100" )
-                                ]
+            (\windowSize ticks _ problem ->
+                div []
+                    [ viewNav
+                    , viewWebglContainer windowSize
+                        [ WebGL.entityWith
+                            [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
                             ]
-                            [ button True
-                            , button False
-                            ]
-                        , WebGL.toHtml
-                            [ width minWH
-                            , height minWH
-                            , style
-                                [ ( "position", "absolute" )
-                                , ( "top", (toString top) ++ "px" )
-                                , ( "left", (toString left) ++ "px" )
-                                , ( "z-index", "99" )
-                                ]
-                            ]
-                            [ WebGL.entityWith
-                                [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
-                                ]
-                                vertexShader
-                                fragmentShader
-                                (mesh ticks)
-                                { perspective = perspective eye }
-                            ]
+                            vertexShader
+                            fragmentShader
+                            (terrain ++ (ball problem ticks) |> WebGL.triangles)
+                            { perspective = perspective ticks }
                         ]
+                    ]
             )
-        , isGuessCorrect = (\problem guess -> guess)
-        , problemDecoder = JD.string
-        , problemEncoder = JE.string
+        , isGuessCorrect =
+            (\problem guess ->
+                if problem == 0 then
+                    guess
+                else
+                    not guess
+            )
+        , problemDecoder = JD.int
+        , problemEncoder = JE.int
         , guessDecoder = JD.bool
         , guessEncoder = JE.bool
-        , problemGenerator = generatorFromList "1" [ "2" ]
+        , problemGenerator = generatorFromList -3 [ -2, -1, 0, 1, 2, 3 ]
         }
         ports
 
 
-mesh : Int -> WebGL.Mesh Vertex
-mesh tick =
+perspective : Int -> Matrix4.Mat4
+perspective ticks =
+    let
+        theta =
+            (ticks |> toFloat) / 200
+
+        phi =
+            pi / 6
+
+        eye =
+            vec3
+                (sin theta * cos phi)
+                (cos theta * cos phi)
+                (sin phi)
+                |> Vector3.scale 2
+    in
+        Matrix4.mul (Matrix4.makePerspective 45 1 0.01 100)
+            (Matrix4.makeLookAt eye (vec3 0 0 0) (vec3 0 0 1))
+
+
+viewWebglContainer : Window.Size -> List WebGL.Entity -> Html Bool
+viewWebglContainer windowSize children =
+    let
+        minWH =
+            min windowSize.width windowSize.height
+
+        left =
+            (max (windowSize.width - windowSize.height) 0) // 2
+
+        top =
+            (max (windowSize.height - windowSize.width) 0) // 2
+    in
+        WebGL.toHtml
+            [ width minWH
+            , height minWH
+            , style
+                [ ( "position", "absolute" )
+                , ( "top", (toString top) ++ "px" )
+                , ( "left", (toString left) ++ "px" )
+                , ( "z-index", "9" )
+                ]
+            ]
+            children
+
+
+viewNav : Html Bool
+viewNav =
+    div
+        [ style
+            [ ( "position", "absolute" )
+            , ( "bottom", "60px" )
+            , ( "left", "50%" )
+            , ( "transform", "translateX(-50%)" )
+            , ( "z-index", "100" )
+            , ( "cursor", "pointer" )
+            ]
+        ]
+        [ viewButton True
+        , viewButton False
+        ]
+
+
+viewButton : Bool -> Html Bool
+viewButton guess =
+    div
+        [ style
+            [ ( "display", "inline-block" )
+            , ( "width", "60px" )
+            , ( "height", "60px" )
+            , ( "margin", "15px" )
+            ]
+        , onClick guess
+        ]
+        [ svg
+            [ viewBox "0 0 200 200"
+            , style
+                [ ( "width", "100%" )
+                , ( "height", "100%" )
+                , ( "fill", "rgba(78,60,127,0.9)" )
+                , ( "cursor", "pointer" )
+                , ( "pointer-events", "none" )
+                ]
+            ]
+            [ use
+                [ xlinkHref
+                    ("#spacecraterball-"
+                        ++ (if guess then
+                                "in"
+                            else
+                                "out"
+                           )
+                    )
+                ]
+                []
+            ]
+        ]
+
+
+ball : Int -> Int -> List ( Vertex, Vertex, Vertex )
+ball problem ticks =
     let
         ratio =
-            min ((tick |> toFloat) / 100) 1
+            if problem == 0 then
+                min ((ticks |> toFloat) / 100) 1
+            else
+                (ticks |> toFloat) / 100
 
         isOver =
             ratio > 1
+
+        offset =
+            (toFloat problem) * 0.08
     in
-        (ball 1.5
+        (viewBall 1.5
+            (vec4 (78.0 / 255) (60.0 / 255) (127.0 / 255) 1)
             (Matrix4.mul
                 (Matrix4.makeTranslate
                     (vec3
-                        (0 - 0.5 * (1 - ratio))
+                        ((0 + offset) - (0.8 + offset) * (1 - ratio))
                         0
-                        (-0.5 + 0.2 * (cos (ratio * pi / 2)))
+                        (-0.5 + 0.2 * (cos (ratio * pi - pi / 2) |> abs))
                     )
                 )
                 (Matrix4.makeRotate
-                    ((tick |> toFloat) / 10)
+                    ((ticks |> toFloat) / 10)
                     (vec3 0.2 0.4 0.8)
                 )
             )
         )
-            |> (++)
-                terrain
-            |> WebGL.triangles
-
-
-perspective : Vec3 -> Matrix4.Mat4
-perspective eye =
-    Matrix4.mul (Matrix4.makePerspective 45 1 0.01 100)
-        (Matrix4.makeLookAt eye (vec3 0 0 0) (vec3 0 0 1))
 
 
 
 -- Ball
 
 
-ball : Float -> Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
-ball scaleFactor transform =
+viewBall : Float -> Vec4 -> Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
+viewBall scaleFactor color_ transform =
     let
         pt1 =
             vec3 -0.767 7.703 4.056
@@ -224,11 +249,7 @@ ball scaleFactor transform =
             )
 
         ptToVertex =
-            let
-                color_ =
-                    vec4 (78.0 / 255) (60.0 / 255) (127.0 / 255) 1
-            in
-                (flip Vertex <| color_) << (transformPoint transform)
+            (flip Vertex <| color_) << (transformPoint transform)
     in
         List.map
             (\( pt1, pt2, pt3 ) ->
@@ -277,7 +298,7 @@ terrainWaveHeight x y =
                         |> (*) (0.2 - 0.04 * i)
                         |> (+) acc
             in
-                h * 0.4
+                h * 0.3
         )
         0
         [ 1, 2, 3 ]
@@ -371,7 +392,7 @@ terrain =
                                     ((i - terrainUnitSize // 2) ^ 2 + (j - terrainUnitSize // 2) ^ 2 |> toFloat) ^ 0.5
                             in
                                 ( terrainSquare terrainUnitSize i j
-                                , (distance > (terrainUnitSize // 8 |> toFloat))
+                                , (distance > (terrainUnitSize // 12 |> toFloat))
                                 )
                         )
                     |> List.filter (\( geo, isIncluded ) -> isIncluded)
