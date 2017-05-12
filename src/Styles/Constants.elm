@@ -9,7 +9,7 @@ standardBorderRadius =
 
 
 
--- Colors
+-- Colors (developed under https://coolors.co/e52938-fcfefb-3fafb5-2d739e-173156)
 
 
 black : String
