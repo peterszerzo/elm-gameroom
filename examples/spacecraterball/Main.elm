@@ -3,6 +3,7 @@ port module Main exposing (..)
 import Html exposing (Html, div)
 import Window
 import Color
+import Dict
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
 import Svg exposing (svg, use)
@@ -52,19 +53,23 @@ main =
             , subheading = "Let the game begin!"
             }
         , view =
-            (\windowSize ticks _ problem ->
-                div []
-                    [ viewNav
-                    , viewWebglContainer windowSize
-                        [ WebGL.entityWith
-                            [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
+            (\windowSize ticks status problem ->
+                let
+                    ownGuess =
+                        Dict.get status.playerId status.guesses
+                in
+                    div []
+                        [ viewNav ownGuess
+                        , viewWebglContainer windowSize
+                            [ WebGL.entityWith
+                                [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
+                                ]
+                                vertexShader
+                                fragmentShader
+                                (terrain ++ (ball problem ticks) |> WebGL.triangles)
+                                { perspective = perspective ticks }
                             ]
-                            vertexShader
-                            fragmentShader
-                            (terrain ++ (ball problem ticks) |> WebGL.triangles)
-                            { perspective = perspective ticks }
                         ]
-                    ]
             )
         , isGuessCorrect =
             (\problem guess ->
@@ -86,7 +91,7 @@ perspective : Int -> Matrix4.Mat4
 perspective ticks =
     let
         theta =
-            (ticks |> toFloat) / 200
+            (ticks |> toFloat) / 400
 
         phi =
             pi / 6
@@ -127,8 +132,8 @@ viewWebglContainer windowSize children =
             children
 
 
-viewNav : Html Bool
-viewNav =
+viewNav : Maybe Guess -> Html Bool
+viewNav ownGuess =
     div
         [ style
             [ ( "position", "absolute" )
@@ -139,19 +144,29 @@ viewNav =
             , ( "cursor", "pointer" )
             ]
         ]
-        [ viewButton True
-        , viewButton False
+        [ viewButton { isHighlighted = (ownGuess == Just True), guess = True }
+        , viewButton { isHighlighted = (ownGuess == Just False), guess = False }
         ]
 
 
-viewButton : Bool -> Html Bool
-viewButton guess =
+viewButton : { isHighlighted : Bool, guess : Bool } -> Html Bool
+viewButton { isHighlighted, guess } =
     div
-        [ style
+        [ style <|
             [ ( "display", "inline-block" )
             , ( "width", "60px" )
             , ( "height", "60px" )
             , ( "margin", "15px" )
+            , ( "padding", "1px" )
+            , ( "border-radius", "50%" )
+            , ( "border"
+              , "2px solid "
+                    ++ (if isHighlighted then
+                            "rgb(78, 60, 127)"
+                        else
+                            "transparent"
+                       )
+              )
             ]
         , onClick guess
         ]
@@ -160,7 +175,7 @@ viewButton guess =
             , style
                 [ ( "width", "100%" )
                 , ( "height", "100%" )
-                , ( "fill", "rgba(78,60,127,0.9)" )
+                , ( "fill", "rgb(78, 60, 127)" )
                 , ( "cursor", "pointer" )
                 , ( "pointer-events", "none" )
                 ]
@@ -185,9 +200,9 @@ ball problem ticks =
     let
         ratio =
             if problem == 0 then
-                min ((ticks |> toFloat) / 100) 1
+                min ((ticks |> toFloat) / 200) 1
             else
-                (ticks |> toFloat) / 100
+                (ticks |> toFloat) / 200
 
         isOver =
             ratio > 1
@@ -196,7 +211,6 @@ ball problem ticks =
             (toFloat problem) * 0.08
     in
         (viewBall 1.5
-            (purple |> colorToVec4)
             (Matrix4.mul
                 (Matrix4.makeTranslate
                     (vec3
@@ -206,7 +220,7 @@ ball problem ticks =
                     )
                 )
                 (Matrix4.makeRotate
-                    ((ticks |> toFloat) / 10)
+                    ((ticks |> toFloat) / 20)
                     (vec3 0.2 0.4 0.8)
                 )
             )
@@ -254,8 +268,8 @@ ballShape =
     }
 
 
-viewBall : Float -> Vec4 -> Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
-viewBall scaleFactor color_ transform =
+viewBall : Float -> Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
+viewBall scaleFactor transform =
     let
         transformPoint =
             (\transform pt ->
@@ -264,15 +278,35 @@ viewBall scaleFactor color_ transform =
                     |> Matrix4.transform transform
             )
 
-        ptIndexToVertex =
-            (flip getNode <| ballShape) >> ((\( x, y, z ) -> vec3 x y z)) >> (transformPoint transform) >> (flip Vertex <| color_)
+        ptIndexToTransformedPoint =
+            (flip getNode <| ballShape) >> ((\( x, y, z ) -> vec3 x y z)) >> (transformPoint transform)
     in
         List.map
             (\( pointIndex1, pointIndex2, pointIndex3 ) ->
-                ( ptIndexToVertex pointIndex1
-                , ptIndexToVertex pointIndex2
-                , ptIndexToVertex pointIndex3
-                )
+                let
+                    pt1 =
+                        ptIndexToTransformedPoint pointIndex1
+
+                    pt2 =
+                        ptIndexToTransformedPoint pointIndex2
+
+                    pt3 =
+                        ptIndexToTransformedPoint pointIndex3
+
+                    normal =
+                        Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
+                            |> Vector3.normalize
+
+                    lightFactor =
+                        Vector3.dot light normal
+
+                    color_ =
+                        brighten (1 + (1 - lightFactor) * 0.5) purple |> colorToVec4
+                in
+                    ( Vertex pt1 color_
+                    , Vertex pt2 color_
+                    , Vertex pt3 color_
+                    )
             )
             ballShape.faces
 
@@ -283,7 +317,7 @@ viewBall scaleFactor color_ transform =
 
 terrainUnitSize : Int
 terrainUnitSize =
-    51
+    21
 
 
 light : Vec3
@@ -374,13 +408,15 @@ terrainSquare n i j =
         pt13 =
             terrainPoint n (i + 1) (j + 1)
 
-        op1 =
-            Vector3.cross (Vector3.sub pt11 pt12) (Vector3.sub pt11 pt13)
+        lightFactor1 =
+            Vector3.cross (Vector3.sub pt12 pt11) (Vector3.sub pt13 pt11)
                 |> Vector3.normalize
                 |> Vector3.dot light
 
         color1 =
-            cyan |> brighten op1 |> colorToVec4
+            cyan
+                |> brighten (1 - (1 - lightFactor1) * 1.6)
+                |> colorToVec4
 
         pt21 =
             terrainPoint n i j
@@ -391,13 +427,15 @@ terrainSquare n i j =
         pt23 =
             terrainPoint n i (j + 1)
 
-        op2 =
-            Vector3.cross (Vector3.sub pt21 pt22) (Vector3.sub pt21 pt23)
+        lightFactor2 =
+            Vector3.cross (Vector3.sub pt22 pt21) (Vector3.sub pt23 pt21)
                 |> Vector3.normalize
                 |> Vector3.dot light
 
         color2 =
-            cyan |> brighten op2 |> colorToVec4
+            cyan
+                |> brighten (1 - (1 - lightFactor2) * 1.6)
+                |> colorToVec4
     in
         [ ( Vertex pt11 color1
           , Vertex pt12 color1
@@ -423,7 +461,7 @@ terrain =
                                     ((i - terrainUnitSize // 2) ^ 2 + (j - terrainUnitSize // 2) ^ 2 |> toFloat) ^ 0.5
                             in
                                 ( terrainSquare terrainUnitSize i j
-                                , (distance > (terrainUnitSize // 12 |> toFloat))
+                                , (distance > (terrainUnitSize // 10 |> toFloat))
                                 )
                         )
                     |> List.filter (\( geo, isIncluded ) -> isIncluded)
