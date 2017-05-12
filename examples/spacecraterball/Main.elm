@@ -293,15 +293,11 @@ viewBall scaleFactor transform =
                     pt3 =
                         ptIndexToTransformedPoint pointIndex3
 
-                    normal =
-                        Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
-                            |> Vector3.normalize
-
                     lightFactor =
-                        Vector3.dot light normal
+                        applyLighting -0.5 pt1 pt2 pt3
 
                     color_ =
-                        brighten (1 + (1 - lightFactor) * 0.5) purple |> colorToVec4
+                        brighten lightFactor purple |> colorToVec4
                 in
                     ( Vertex pt1 color_
                     , Vertex pt2 color_
@@ -390,6 +386,14 @@ brighten fact =
         >> (\{ hue, saturation, lightness } -> Color.hsl hue saturation (lightness * fact))
 
 
+applyLighting : Float -> Vec3 -> Vec3 -> Vec3 -> Float
+applyLighting amplification pt1 pt2 pt3 =
+    Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
+        |> Vector3.normalize
+        |> Vector3.dot light
+        |> (\lightFactor -> (1 - (1 - lightFactor) * amplification))
+
+
 terrainSquare : Int -> Int -> Int -> List ( Vertex, Vertex, Vertex )
 terrainSquare n i j =
     let
@@ -409,13 +413,11 @@ terrainSquare n i j =
             terrainPoint n (i + 1) (j + 1)
 
         lightFactor1 =
-            Vector3.cross (Vector3.sub pt12 pt11) (Vector3.sub pt13 pt11)
-                |> Vector3.normalize
-                |> Vector3.dot light
+            applyLighting 1.6 pt11 pt12 pt13
 
         color1 =
             cyan
-                |> brighten (1 - (1 - lightFactor1) * 1.6)
+                |> brighten lightFactor1
                 |> colorToVec4
 
         pt21 =
@@ -428,13 +430,11 @@ terrainSquare n i j =
             terrainPoint n i (j + 1)
 
         lightFactor2 =
-            Vector3.cross (Vector3.sub pt22 pt21) (Vector3.sub pt23 pt21)
-                |> Vector3.normalize
-                |> Vector3.dot light
+            applyLighting 1.6 pt21 pt22 pt23
 
         color2 =
             cyan
-                |> brighten (1 - (1 - lightFactor2) * 1.6)
+                |> brighten lightFactor2
                 |> colorToVec4
     in
         [ ( Vertex pt11 color1
