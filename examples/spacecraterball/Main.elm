@@ -73,7 +73,7 @@ main =
             )
         , isGuessCorrect =
             (\problem guess ->
-                if problem == 0 then
+                if (problem == 0) then
                     guess
                 else
                     not guess
@@ -85,6 +85,10 @@ main =
         , problemGenerator = generatorFromList -3 [ -2, -1, 0, 1, 2, 3 ]
         }
         ports
+
+
+
+-- Views
 
 
 perspective : Int -> Matrix4.Mat4
@@ -208,7 +212,7 @@ ball problem ticks =
             ratio > 1
 
         offset =
-            (toFloat problem) * 0.08
+            (toFloat problem) * 0.1
     in
         (viewBall 1.5
             (Matrix4.mul
@@ -313,7 +317,7 @@ viewBall scaleFactor transform =
 
 terrainUnitSize : Int
 terrainUnitSize =
-    21
+    11
 
 
 light : Vec3
@@ -475,7 +479,14 @@ terrain =
 -- Shaders
 
 
-vertexShader : WebGL.Shader { attr | position : Vec3, color : Vec4 } { unif | perspective : Matrix4.Mat4 } { vcolor : Vec4 }
+vertexShader :
+    WebGL.Shader
+        { attr
+            | position : Vec3
+            , color : Vec4
+        }
+        { unif | perspective : Matrix4.Mat4 }
+        { vcolor : Vec4 }
 vertexShader =
     [glsl|
 attribute vec3 position;
