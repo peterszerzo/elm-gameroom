@@ -25,7 +25,13 @@ localClass =
 
 styles : List Snippet
 styles =
-    [ class Root [ width (pct 100), height (pct 100), position fixed ]
+    [ class Root
+        [ position absolute
+        , left (px 0)
+        , top (px 0)
+        , bottom (px 0)
+        , right (px 0)
+        ]
     , class Button <|
         [ width (px 40)
         , height (px 40)
