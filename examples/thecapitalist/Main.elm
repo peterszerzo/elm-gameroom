@@ -1,5 +1,6 @@
 port module Main exposing (..)
 
+import Dict
 import Html exposing (Html, div, text, span, h1, ul, li)
 import Html.Attributes exposing (class, style, attribute)
 import Html.Events exposing (onClick)
@@ -37,47 +38,91 @@ spec =
         , instructions = "Find the capital of the country!"
         }
     , view =
-        (\_ _ _ problem ->
-            div
-                [ style
-                    [ ( "width", "100%" )
-                    , ( "height", "100%" )
-                    , ( "display", "flex" )
-                    , ( "align-items", "center" )
-                    , ( "vertical-align", "middle" )
-                    ]
-                ]
-                [ div
+        (\_ _ status problem ->
+            let
+                ownGuess =
+                    Dict.get status.playerId status.guesses
+
+                isRoundOver =
+                    status.roundResult /= Gameroom.Spec.Pending
+            in
+                div
                     [ style
-                        [ ( "margin", "0" )
-                        , ( "width", "auto" )
-                        , ( "max-width", "400px" )
-                        , ( "text-align", "center" )
+                        [ ( "width", "100%" )
+                        , ( "height", "100%" )
+                        , ( "display", "flex" )
+                        , ( "align-items", "center" )
+                        , ( "justify-content", "center" )
                         ]
                     ]
-                    [ h1 [] [ text problem.question ]
-                    , ul
+                    [ div
                         [ style
-                            [ ( "list-style", "none" )
-                            , ( "padding-left", "0" )
+                            [ ( "margin", "0" )
+                            , ( "width", "auto" )
+                            , ( "max-width", "440px" )
+                            , ( "text-align", "center" )
                             ]
                         ]
-                        (List.indexedMap
-                            (\index answer ->
-                                li
-                                    [ onClick index
-                                    , style
-                                        [ ( "margin", "20px" )
-                                        , ( "border", "1px solid currentColor" )
-                                        , ( "padding", "6px 12px" )
-                                        ]
-                                    ]
-                                    [ text answer ]
+                        [ h1 [] [ text problem.question ]
+                        , ul
+                            [ style
+                                [ ( "list-style", "none" )
+                                , ( "padding-left", "0" )
+                                ]
+                            ]
+                            (List.indexedMap
+                                (\index answer ->
+                                    let
+                                        isGuessedBySelf =
+                                            ownGuess == (Just index)
+
+                                        isMarkedCorrect =
+                                            (index == problem.correct) && (isGuessedBySelf || isRoundOver)
+
+                                        isGuessed =
+                                            status.guesses
+                                                |> Dict.toList
+                                                |> List.filter (\( playerId, guess ) -> guess == index)
+                                                |> List.head
+                                                |> Maybe.map (\( playerId, guess ) -> guess == index)
+                                                |> Maybe.withDefault False
+                                    in
+                                        li
+                                            [ onClick index
+                                            , style
+                                                [ ( "margin", "12px" )
+                                                , ( "display", "inline-block" )
+                                                , ( "border-width", "1px" )
+                                                , ( "border-style", "solid" )
+                                                , ( "cursor", "pointer" )
+                                                , ( "border-color"
+                                                  , if isGuessedBySelf then
+                                                        "#333333"
+                                                    else
+                                                        "#ddd"
+                                                  )
+                                                , ( "background-color"
+                                                  , if isMarkedCorrect then
+                                                        "#333333"
+                                                    else
+                                                        "transparent"
+                                                  )
+                                                , ( "color"
+                                                  , if isMarkedCorrect then
+                                                        "#FFFFFF"
+                                                    else
+                                                        "#333333"
+                                                  )
+                                                , ( "padding", "8px 16px" )
+                                                , ( "border-radius", "6px" )
+                                                ]
+                                            ]
+                                            [ text answer ]
+                                )
+                                problem.answers
                             )
-                            problem.answers
-                        )
+                        ]
                     ]
-                ]
         )
     , isGuessCorrect = (\problem guess -> (guess == problem.correct))
     , problemGenerator =
@@ -97,6 +142,18 @@ spec =
             , { question = "🇸🇮 Slovenia"
               , answers = [ "Munich", "Ljubljana", "Jakarta", "Bandar Seri Begawan" ]
               , correct = 1
+              }
+            , { question = "🇫🇷 France"
+              , answers = [ "Bordeaux", "Paris", "Paris, NY" ]
+              , correct = 1
+              }
+            , { question = "🇩🇪 Germany"
+              , answers = [ "Bordeaux", "Berlin, NH", "Berlin", "Stuttgart" ]
+              , correct = 2
+              }
+            , { question = "🇩🇰 Denmark"
+              , answers = [ "Ansterdam", "Aarhus", "Copenhagen", "Christiania" ]
+              , correct = 2
               }
             ]
     , guessEncoder = JE.int
