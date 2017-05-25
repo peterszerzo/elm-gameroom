@@ -52,21 +52,30 @@ update spec ports msg model =
                 isNewRound =
                     Maybe.map2 (\newRound oldRound -> newRound.no /= oldRound.no) room.round prevRoom.round |> Maybe.withDefault True
 
+                allPlayersReady =
+                    Room.allPlayersReady room
+
+                prevAllPlayersReady =
+                    Room.allPlayersReady prevRoom
+
+                resetTicks =
+                    isNewRound || (allPlayersReady && (not prevAllPlayersReady))
+
                 newProblemCmd =
                     (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
 
                 initiateNewRound =
-                    isHost && (Room.allPlayersReady room) && (room.round == Nothing)
+                    isHost && allPlayersReady && (room.round == Nothing)
             in
                 ( { model
                     | room = Just room
                     , ticksSinceNewRound =
-                        if isNewRound then
+                        if resetTicks then
                             0
                         else
                             model.ticksSinceNewRound
                     , animationTicksSinceNewRound =
-                        if isNewRound then
+                        if resetTicks then
                             0
                         else
                             model.animationTicksSinceNewRound
@@ -106,6 +115,7 @@ update spec ports msg model =
                     { model
                         | room = Just newRoom
                         , ticksSinceNewRound = 0
+                        , animationTicksSinceNewRound = 0
                     }
 
                 cmd =
@@ -155,7 +165,11 @@ update spec ports msg model =
                            )
 
                 newModel =
-                    { model | room = Just newRoom }
+                    { model
+                        | room = Just newRoom
+                        , ticksSinceNewRound = 0
+                        , animationTicksSinceNewRound = 0
+                    }
 
                 cmd =
                     updateRoomCmd spec ports newModel
