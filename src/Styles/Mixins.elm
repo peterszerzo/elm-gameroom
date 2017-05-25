@@ -82,7 +82,7 @@ button =
     , margin (px 10)
     , padding2 (px 8) (px 16)
     , textDecoration none
-    , borderRadius (px 3)
+    , borderRadius (px standardBorderRadius)
     , border (px 0)
     , outline none
     , boxShadow none

@@ -26,9 +26,9 @@ styles =
     [ class Root
         [ position fixed
         , display block
-        , height (px 60)
-        , width (px 60)
-        , padding (px 10)
+        , height (px 80)
+        , width (px 80)
+        , padding (px 20)
         , top (px 0)
         , left (px 0)
         , zIndex (int 10)
@@ -36,6 +36,7 @@ styles =
     , class HomeLink
         [ height (pct 100)
         , width (pct 100)
+        , fontSize (px 40)
         , display block
         , cursor pointer
         ]

@@ -9,7 +9,6 @@ import Models.Tutorial
 
 type Route problem guess
     = Home
-    | About
     | NewRoom Models.NewRoom.NewRoom
     | Tutorial (Models.Tutorial.Tutorial problem guess)
     | Game (Models.Game.Game problem guess)
@@ -48,7 +47,6 @@ matchers baseSlug =
     in
         UrlParser.oneOf
             [ s_ "" |> map Home
-            , s_ "about" |> map About
             , s_ "tutorial" |> map (Tutorial Models.Tutorial.init)
             , s_ "rooms"
                 </> string

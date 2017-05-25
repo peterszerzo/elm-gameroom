@@ -9,8 +9,8 @@ import Gameroom.Spec exposing (Spec)
 import Models exposing (Model)
 import Messages exposing (Msg(..))
 import Router as Router
-import Views.About
-import Views.About.Styles
+import Views.Attribution
+import Views.Attribution.Styles
 import Views.Footer.Styles
 import Views.Game
 import Views.Game.Styles
@@ -62,7 +62,7 @@ css =
     stylesheet
         (Styles.Shared.styles
             ++ styles
-            ++ Views.About.Styles.styles
+            ++ Views.Attribution.Styles.styles
             ++ Views.Footer.Styles.styles
             ++ Views.Game.Styles.styles
             ++ Views.Header.Styles.styles
@@ -84,6 +84,9 @@ class =
 view : Maybe String -> Spec problem guess -> Model problem guess -> Html (Msg problem guess)
 view baseSlug spec model =
     let
+        isHome =
+            model.route == Router.Home
+
         content =
             case model.route of
                 Router.Home ->
@@ -106,14 +109,16 @@ view baseSlug spec model =
                 Router.Tutorial tutorial ->
                     Views.Tutorial.view spec model.windowSize tutorial
                         |> Html.map TutorialMsg
-
-                Router.About ->
-                    Views.About.view spec
     in
         div
             [ class [ Root ]
             ]
-            [ node "style" [] [ compile [ css ] |> .css |> text ]
-            , Views.Header.view
-            , content
-            ]
+        <|
+            [ node "style" [] [ compile [ css ] |> .css |> text ] ]
+                ++ (if isHome then
+                        [ Views.Attribution.view ]
+                    else
+                        [ Views.Header.view spec.copy.icon
+                        ]
+                   )
+                ++ [ content ]
