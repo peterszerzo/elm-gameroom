@@ -27,43 +27,11 @@ viewReadyPrompt :
     -> Html (GameMsg problem guess)
 viewReadyPrompt baseSlug spec model room =
     div [ localClass [ ReadyPrompt ] ] <|
-        [ h2 [] [ text ("Welcome to " ++ model.roomId) ]
-        , p [] [ text "Mark yourself ready:" ]
-        , ul
-            []
-            (room.players
-                |> Dict.toList
-                |> List.map Tuple.second
-                |> List.map
-                    (\pl ->
-                        li []
-                            [ span
-                                ([ localClassList
-                                    [ ( Link, True )
-                                    , ( DisabledLink, model.playerId /= pl.id )
-                                    ]
-                                 ]
-                                    ++ (if model.playerId == pl.id then
-                                            [ onClick MarkReady ]
-                                        else
-                                            []
-                                       )
-                                )
-                                [ text
-                                    (pl.id
-                                        ++ (if pl.isReady then
-                                                " ✓"
-                                            else
-                                                " .."
-                                           )
-                                    )
-                                ]
-                            ]
-                    )
-            )
+        [ h2 [] [ text ("Hello, gamer " ++ model.playerId ++ "!") ]
+        , p [] [ text ("And welcome to room " ++ model.roomId ++ ".") ]
         ]
             ++ (if Game.isHost model then
-                    [ p [] [ text "Share with your opponents:" ]
+                    [ p [] [ text "You are a host for this room. Here are the links to invite them to the game:" ]
                     , ul []
                         (model.room
                             |> Maybe.map .players
@@ -72,7 +40,7 @@ viewReadyPrompt baseSlug spec model room =
                                 (List.map
                                     ((\( playerId, player ) ->
                                         a
-                                            [ localClass [ Link ]
+                                            [ localClassList [ ( Link, True ), ( DisabledLink, playerId == model.playerId ) ]
                                             , href
                                                 ((baseSlug
                                                     |> Maybe.map (\bs -> "/" ++ bs)
@@ -94,6 +62,40 @@ viewReadyPrompt baseSlug spec model room =
                 else
                     []
                )
+            ++ [ p [] [ text "When you're ready, hit the mark by your name:" ]
+               , ul
+                    []
+                    (room.players
+                        |> Dict.toList
+                        |> List.map Tuple.second
+                        |> List.map
+                            (\pl ->
+                                li []
+                                    [ span
+                                        ([ localClassList
+                                            [ ( Link, True )
+                                            , ( DisabledLink, model.playerId /= pl.id )
+                                            ]
+                                         ]
+                                            ++ (if model.playerId == pl.id then
+                                                    [ onClick MarkReady ]
+                                                else
+                                                    []
+                                               )
+                                        )
+                                        [ text
+                                            (pl.id
+                                                ++ (if pl.isReady then
+                                                        " ✓"
+                                                    else
+                                                        " .."
+                                                   )
+                                            )
+                                        ]
+                                    ]
+                            )
+                    )
+               ]
 
 
 viewRoom :
