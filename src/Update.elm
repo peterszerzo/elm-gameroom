@@ -9,7 +9,7 @@ import Models.Room as Room
 import Models exposing (Model)
 import Gameroom.Spec exposing (Spec)
 import Models.Ports exposing (Ports)
-import Router as Router
+import Router
 import Models.IncomingMessage as InMsg
 import Json.Encode as JE
 import Update.NewRoom
@@ -69,7 +69,15 @@ update baseSlug spec ports msg model =
 
         ( oldRoute, ChangeRoute route ) ->
             ( { model | route = route }
-            , cmdOnRouteChange spec ports route (Just oldRoute)
+            , Cmd.batch
+                [ cmdOnRouteChange spec ports route (Just oldRoute)
+                , if route == Router.NotOnBaseRoute then
+                    (Navigation.newUrl
+                        ("/" ++ (baseSlug |> Maybe.withDefault ""))
+                    )
+                  else
+                    Cmd.none
+                ]
             )
 
         ( _, Resize newWindowSize ) ->

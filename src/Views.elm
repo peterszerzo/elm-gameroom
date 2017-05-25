@@ -100,6 +100,9 @@ view baseSlug spec model =
                 Router.NotFound ->
                     Views.NotFound.view
 
+                Router.NotOnBaseRoute ->
+                    div [] []
+
                 Router.Tutorial tutorial ->
                     Views.Tutorial.view spec model.windowSize tutorial
                         |> Html.map TutorialMsg

@@ -26,6 +26,12 @@ init baseSlug spec ports loc =
             Cmd.batch
                 [ cmdOnRouteChange spec ports route Nothing
                 , Window.size |> Task.perform Messages.Resize
+                , if route == Router.NotOnBaseRoute then
+                    (Navigation.newUrl
+                        ("/" ++ (baseSlug |> Maybe.withDefault ""))
+                    )
+                  else
+                    Cmd.none
                 ]
     in
         ( { route = route
