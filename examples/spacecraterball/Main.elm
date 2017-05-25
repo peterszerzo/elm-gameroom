@@ -13,7 +13,6 @@ import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import WebGL
 import Json.Encode as JE
 import Json.Decode as JD
-import WebGL.Settings.Blend
 import Math.Matrix4 as Matrix4
 import Gameroom exposing (programAt, Ports, Model, Msg)
 import Gameroom.Utilities exposing (generatorFromList)
@@ -61,9 +60,7 @@ main =
                     div []
                         [ viewNav ownGuess
                         , viewWebglContainer windowSize
-                            [ WebGL.entityWith
-                                [ WebGL.Settings.Blend.add WebGL.Settings.Blend.srcAlpha WebGL.Settings.Blend.oneMinusSrcAlpha
-                                ]
+                            [ WebGL.entity
                                 vertexShader
                                 fragmentShader
                                 (terrain ++ (ball problem ticks) |> WebGL.triangles)
@@ -220,7 +217,7 @@ ball problem ticks =
                     (vec3
                         ((0 + offset) - (0.8 + offset) * (1 - ratio))
                         0
-                        (0.2 * (cos (ratio * pi - pi / 2) |> abs))
+                        (0.2 * (cos (ratio * pi - pi / 2) |> abs) + 0.05)
                     )
                 )
                 (Matrix4.makeRotate
@@ -401,12 +398,6 @@ applyLighting amplification pt1 pt2 pt3 =
 terrainSquare : Int -> Int -> Int -> List ( Vertex, Vertex, Vertex )
 terrainSquare n i j =
     let
-        d =
-            1.0 / ((n - 1) |> toFloat)
-
-        fac =
-            (toFloat (i + j)) * d / 2
-
         pt11 =
             terrainPoint n i j
 
@@ -415,6 +406,15 @@ terrainSquare n i j =
 
         pt13 =
             terrainPoint n (i + 1) (j + 1)
+
+        d1 =
+            (((toFloat i) + 2.0 / 3.0 - (toFloat n) / 2)
+                ^ 2
+                + ((toFloat j) + 1.0 / 3.0 - (toFloat n) / 2)
+                ^ 2
+            )
+                ^ 0.5
+                / (toFloat n)
 
         lightFactor1 =
             applyLighting 1.6 pt11 pt12 pt13
@@ -433,6 +433,15 @@ terrainSquare n i j =
         pt23 =
             terrainPoint n i (j + 1)
 
+        d2 =
+            (((toFloat i) + 1.0 / 3.0 - (toFloat n) / 2)
+                ^ 2
+                + ((toFloat j) + 2.0 / 3.0 - (toFloat n) / 2)
+                ^ 2
+            )
+                ^ 0.5
+                / (toFloat n)
+
         lightFactor2 =
             applyLighting 1.6 pt21 pt22 pt23
 
@@ -441,15 +450,24 @@ terrainSquare n i j =
                 |> brighten lightFactor2
                 |> colorToVec4
     in
-        [ ( Vertex pt11 color1
-          , Vertex pt12 color1
-          , Vertex pt13 color1
-          )
-        , ( Vertex pt21 color2
-          , Vertex pt22 color2
-          , Vertex pt23 color2
-          )
-        ]
+        (if d1 < 0.1 then
+            []
+         else
+            [ ( Vertex pt11 color1
+              , Vertex pt12 color1
+              , Vertex pt13 color1
+              )
+            ]
+        )
+            ++ (if d2 < 0.1 then
+                    []
+                else
+                    [ ( Vertex pt21 color2
+                      , Vertex pt22 color2
+                      , Vertex pt23 color2
+                      )
+                    ]
+               )
 
 
 terrain : List ( Vertex, Vertex, Vertex )
@@ -458,18 +476,7 @@ terrain =
         |> List.indexedMap
             (\i _ ->
                 List.repeat terrainUnitSize 0
-                    |> List.indexedMap
-                        (\j _ ->
-                            let
-                                distance =
-                                    ((i - terrainUnitSize // 2) ^ 2 + (j - terrainUnitSize // 2) ^ 2 |> toFloat) ^ 0.5
-                            in
-                                ( terrainSquare terrainUnitSize i j
-                                , (distance > (terrainUnitSize // 10 |> toFloat))
-                                )
-                        )
-                    |> List.filter (\( geo, isIncluded ) -> isIncluded)
-                    |> List.map (\( geo, isIncluded ) -> geo)
+                    |> List.indexedMap (\j _ -> terrainSquare terrainUnitSize i j)
                     |> List.concat
             )
         |> List.concat
