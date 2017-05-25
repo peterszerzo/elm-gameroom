@@ -31,8 +31,9 @@ type alias Guess =
 spec : Spec Problem Guess
 spec =
     { copy =
-        { name = "The Capitalist"
-        , subheading = "Person who knows the capital of a lot of countries, that is.."
+        { icon = "💰"
+        , name = "The Capitalist"
+        , subheading = "Oh, not that kind, though, more like a person who knows the capital of a lot of countries.."
         , instructions = "Find the capital of the country!"
         }
     , view =

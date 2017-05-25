@@ -29,9 +29,10 @@ type alias Guess =
 spec : Spec Problem Guess
 spec =
     { copy =
-        { name = "Lettero"
+        { icon = "\x1F913"
+        , name = "Lettero"
         , subheading = "A mildly frustrating wordgame!"
-        , instructions = "Hit the first letter of the word!"
+        , instructions = "There is a word in there somewhere - tap its first letter!"
         }
     , view =
         (\windowSize ticksSinceNewRound status problem ->

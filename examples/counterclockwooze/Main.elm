@@ -42,9 +42,10 @@ grey =
 spec : Spec Problem Guess
 spec =
     { copy =
-        { name = "Counterclockwooze"
-        , subheading = "A great game to play with your friends"
-        , instructions = "Find the one shape that spins the other way."
+        { icon = "🕒"
+        , name = "Counterclockwooze"
+        , subheading = "A dizzying geometric game for the family"
+        , instructions = "One of the shapes spins the other way - care to find it?"
         }
     , view =
         (\windowSize ticksSinceNewRound status problem ->

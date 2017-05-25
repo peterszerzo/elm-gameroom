@@ -47,7 +47,8 @@ type alias Spec problem guess =
         }
 -}
 type alias Copy =
-    { name : String
+    { icon : String
+    , name : String
     , subheading : String
     , instructions : String
     }

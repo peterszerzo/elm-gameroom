@@ -18,7 +18,7 @@ type CssClasses
     | Logo
     | Link
     | Subheading
-    | Content
+    | Nav
 
 
 localClass : List class -> Html.Attribute msg
@@ -34,9 +34,10 @@ styles =
         , height (px 80)
         , margin auto
         , border3 (px 1) solid (hex white)
+        , fontSize (px 60)
         ]
     , class Link Mixins.button
-    , class Subheading [ fontSize (Css.rem 1.5) ]
-    , class Content [ margin2 (px 40) auto ]
+    , class Subheading [ fontSize (Css.rem 1.25), margin2 (px 10) auto ]
+    , class Nav [ marginTop (px 30) ]
     ]
         |> namespace cssNamespace

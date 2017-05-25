@@ -47,9 +47,10 @@ main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     programAt "spacecraterball"
         { copy =
-            { name = "Spacecraterball"
-            , instructions = "Will it go in?"
-            , subheading = "Let the game begin!"
+            { icon = "🚀"
+            , name = "Spacecraterball"
+            , subheading = "A futuristic physics game"
+            , instructions = "Will the rock land inside the crater or bounce off?"
             }
         , view =
             (\windowSize ticks status problem ->
