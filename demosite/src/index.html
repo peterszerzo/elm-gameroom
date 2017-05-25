@@ -5,7 +5,65 @@
     <title>elm-gameroom</title>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
-    <link href="/index.css?a1bcc55" rel="stylesheet" type="text/css">
+    <style>
+      * {
+        -webkit-font-smoothing: antialiased;
+        font-family: 'Source Sans Pro', sans-serif;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      .elm-gameroom-home {
+        padding: 60px 20px;
+        text-align: center;
+      }
+
+      .elm-gameroom-home h1 {
+        font-weight: 300;
+      }
+
+      .elm-gameroom-home svg {
+        display: block;
+        width: 60px;
+        height: 60px;
+        margin: 20px auto;
+      }
+
+      .elm-gameroom-home-simple-link {
+        text-decoration: none;
+        color: #2D739E;
+        border-bottom: 1px solid currentColor;
+        transition: all 0.3s;
+      }
+
+      .elm-gameroom-home-simple-link:hover {
+        color: #3890c6;
+      }
+
+      .elm-gameroom-home-link {
+        display: inline-block;
+        max-width: 300px;
+        text-align: center;
+        font-size: 16px;
+        letter-spacing: 0.5px;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: white;
+        background: #2D739E;
+        margin: 12px;
+        transition: all 0.3s;
+      }
+
+      .elm-gameroom-home-link:hover {
+        background: #3890c6;
+      }
+    </style>
     <svg style="display:none">
       <symbol id="logo" viewBox="-30 -30 60 60">
         <polygon points="30,30 30,-3.33 13.33,13.33" stroke="#FFF" stroke-width="1.5" fill="#27ABB2"></polygon>
@@ -26,9 +84,12 @@
   </head>
   <body>
     <div id="Root"></div>
+    <script>
+      window.__ELM_GAMEROOM_HASH__ = 'a1bcc57'
+    </script>
     <script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
-    <script src="/db-firebase.js?a1bcc55"></script>
-    <script src="/talk-to-ports.js?a1bcc55"></script>
-    <script src="/index.js?a1bcc55"></script>
+    <script src="/db-firebase.js?a1bcc57"></script>
+    <script src="/talk-to-ports.js?a1bcc57"></script>
+    <script src="/index.js?a1bcc57"></script>
   </body>
 </html>
