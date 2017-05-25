@@ -85,7 +85,8 @@ button =
     , borderRadius (px standardBorderRadius)
     , border (px 0)
     , outline none
-    , boxShadow none
+    , border3 (px 1) solid (hex blue)
+    , property "transition" "all 0.3s"
     , after
         [ property "content" "' '"
         , position absolute
@@ -100,13 +101,20 @@ button =
             [ property "background-color" "rgba(255, 255, 255, 0.1)"
             ]
         ]
+    , focus
+        [ outline3 (px 2) solid (hex blue)
+        , outlineOffset (px 2)
+        ]
     ]
+        ++ standardBoxShadow
 
 
 buttonDisabled : List Mixin
 buttonDisabled =
-    [ border3 (px 2) solid (hex blue)
-    , color (hex blue)
+    [ borderColor (hex darkGrey)
+    , color (hex darkGrey)
     , backgroundColor transparent
-    , property "opacity" "0.8"
+    , property "opacity" "0.6"
+    , cursor initial
+    , boxShadow none
     ]

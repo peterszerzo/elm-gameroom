@@ -37,24 +37,25 @@ viewReadyPrompt baseSlug spec model room =
                             |> Maybe.map .players
                             |> Maybe.map Dict.toList
                             |> Maybe.map
-                                (List.map
-                                    ((\( playerId, player ) ->
-                                        a
-                                            [ localClassList [ ( Link, True ), ( DisabledLink, playerId == model.playerId ) ]
-                                            , href
-                                                ((baseSlug
-                                                    |> Maybe.map (\bs -> "/" ++ bs)
-                                                    |> Maybe.withDefault ""
-                                                 )
-                                                    ++ "/rooms/"
-                                                    ++ model.roomId
-                                                    ++ "/"
-                                                    ++ playerId
-                                                )
-                                            ]
-                                            [ text playerId ]
-                                     )
-                                    )
+                                (List.filter (\( playerId, _ ) -> model.playerId /= playerId)
+                                    >> List.map
+                                        ((\( playerId, player ) ->
+                                            a
+                                                [ localClassList [ ( Link, True ), ( DisabledLink, playerId == model.playerId ) ]
+                                                , href
+                                                    ((baseSlug
+                                                        |> Maybe.map (\bs -> "/" ++ bs)
+                                                        |> Maybe.withDefault ""
+                                                     )
+                                                        ++ "/rooms/"
+                                                        ++ model.roomId
+                                                        ++ "/"
+                                                        ++ playerId
+                                                    )
+                                                ]
+                                                [ text (playerId ++ "'s game link") ]
+                                         )
+                                        )
                                 )
                             |> Maybe.withDefault []
                         )
@@ -62,7 +63,7 @@ viewReadyPrompt baseSlug spec model room =
                 else
                     []
                )
-            ++ [ p [] [ text "When you're ready, hit the mark by your name:" ]
+            ++ [ p [] [ text "Do let us know when you're ready - the game starts immediately once all players marked themselves as such." ]
                , ul
                     []
                     (room.players
@@ -84,12 +85,20 @@ viewReadyPrompt baseSlug spec model room =
                                                )
                                         )
                                         [ text
-                                            (pl.id
-                                                ++ (if pl.isReady then
-                                                        " ✓"
-                                                    else
-                                                        " .."
-                                                   )
+                                            (if pl.id == model.playerId then
+                                                (if pl.isReady then
+                                                    "Mark me non-ready"
+                                                 else
+                                                    "I feel ready"
+                                                )
+                                             else
+                                                (pl.id
+                                                    ++ (if pl.isReady then
+                                                            " is ready"
+                                                        else
+                                                            " is prepping"
+                                                       )
+                                                )
                                             )
                                         ]
                                     ]

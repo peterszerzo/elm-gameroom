@@ -160,7 +160,7 @@ update spec ports msg model =
                 newRoom =
                     room
                         |> (Room.updatePlayer
-                                (\pl -> { pl | isReady = True })
+                                (\pl -> { pl | isReady = not pl.isReady })
                                 model.playerId
                            )
 

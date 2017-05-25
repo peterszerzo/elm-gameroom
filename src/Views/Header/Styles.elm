@@ -37,6 +37,8 @@ styles =
         [ height (pct 100)
         , width (pct 100)
         , fontSize (px 40)
+        , lineHeight (num 1.1)
+        , textAlign left
         , display block
         , cursor pointer
         ]

@@ -28,6 +28,8 @@ styles =
         [ position fixed
         , bottom (px 10)
         , opacity (num 0.4)
+        , width (px 240)
+        , property "left" "calc(50% - 120px)"
         , color (hex black)
         , textDecoration none
         , fontSize (Css.rem 0.75)
