@@ -24,7 +24,7 @@ ticksInRound =
     if debugMode then
         10
     else
-        100
+        40
 
 
 ticksInCooldown : Int
@@ -32,4 +32,4 @@ ticksInCooldown =
     if debugMode then
         5
     else
-        50
+        20
