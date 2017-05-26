@@ -1,7 +1,7 @@
 #!/bin/sh
 
 DIST=demosite/dist
-EXAMPLES=(spacecraterball counterclockwooze lettero thecapitalist)
+EXAMPLES=(spacecraterball counterclockwooze lettero the-capitalist)
 
 rm -rf $DIST
 mkdir $DIST
@@ -10,7 +10,6 @@ cp src/js/talk-to-ports.js $DIST
 cp src/js/db/firebase.js $DIST/db-firebase.js
 cp demosite/src/index.html $DIST
 cp demosite/src/index.js $DIST
-cp demosite/src/index.css $DIST
 
 for EXAMPLE in "${EXAMPLES[@]}"
 do

@@ -12,7 +12,7 @@
     'lettero',
     'counterclockwooze',
     'spacecraterball',
-    'thecapitalist'
+    'the-capitalist'
   ]
   var path = window.location.pathname
   var game = games.filter(function (url) {
