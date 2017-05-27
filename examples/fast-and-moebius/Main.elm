@@ -6,8 +6,6 @@ import Color
 import Dict
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
-import Svg exposing (svg, use)
-import Svg.Attributes exposing (xlinkHref, viewBox)
 import Math.Vector3 as Vector3 exposing (Vec3, vec3)
 import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import WebGL
@@ -63,29 +61,29 @@ cars : List Car
 cars =
     [ { color = red
       , specs =
-            { acceleration = 0
-            , maxSpeed = 0
+            { acceleration = 0.5
+            , maxSpeed = 2
             }
       , lateralPosition = -1
       }
-    , { color = white
+    , { color = lightGrey
       , specs =
-            { acceleration = 0
-            , maxSpeed = 0
+            { acceleration = 0.375
+            , maxSpeed = 3
             }
       , lateralPosition = -0.33
       }
     , { color = black
       , specs =
-            { acceleration = 0
-            , maxSpeed = 0
+            { acceleration = 0.75
+            , maxSpeed = 1.5
             }
       , lateralPosition = 0.33
       }
     , { color = purple
       , specs =
-            { acceleration = 0
-            , maxSpeed = 0
+            { acceleration = 0.625
+            , maxSpeed = 2.5
             }
       , lateralPosition = 1
       }
@@ -94,11 +92,11 @@ cars =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    programAt "spacecraterball"
+    programAt "fast-and-moebius"
         { copy =
             { icon = "🏎️"
             , name = "Fast and Moebius"
-            , subheading = "Engines and linear algebra!"
+            , subheading = "Engines and linear algebra! (dev in progress, not yet playable)"
             , instructions = "Which car is the winner?"
             }
         , view =
@@ -123,13 +121,32 @@ main =
                             ]
                                 ++ (List.map
                                         (\car ->
-                                            WebGL.entity
-                                                vertexShader
-                                                fragmentShader
-                                                (carMesh car.color)
-                                                { perspective = perspective_
-                                                , transform = carTransform car.lateralPosition ticks
-                                                }
+                                            let
+                                                t =
+                                                    (toFloat ticks) / 100
+
+                                                vMax =
+                                                    car.specs.maxSpeed
+
+                                                a =
+                                                    car.specs.acceleration
+
+                                                tMax =
+                                                    vMax / a
+
+                                                carAngle =
+                                                    if (t < tMax) then
+                                                        a * (t ^ 2) / 2
+                                                    else
+                                                        a * (tMax ^ 2) / 2 + vMax * (t - tMax)
+                                            in
+                                                WebGL.entity
+                                                    vertexShader
+                                                    fragmentShader
+                                                    (carMesh car.color)
+                                                    { perspective = perspective_
+                                                    , transform = carTransform car.lateralPosition carAngle
+                                                    }
                                         )
                                         cars
                                    )
@@ -159,10 +176,10 @@ perspective : Int -> Matrix4.Mat4
 perspective ticks =
     let
         theta =
-            0
+            0 + (sin ((toFloat ticks) / 800)) * pi / 6
 
         phi =
-            pi / 8
+            pi / 6
 
         eye =
             vec3
@@ -205,32 +222,37 @@ viewNav ownGuess =
     div
         [ style
             [ ( "position", "absolute" )
-            , ( "bottom", "60px" )
+            , ( "bottom", "40px" )
             , ( "left", "50%" )
             , ( "transform", "translateX(-50%)" )
             , ( "z-index", "100" )
             , ( "cursor", "pointer" )
             ]
         ]
-        [ viewButton { isHighlighted = (ownGuess == Just True), guess = True }
-        , viewButton { isHighlighted = (ownGuess == Just False), guess = False }
-        ]
+    <|
+        List.map
+            (\car ->
+                viewButton car.color { isHighlighted = (ownGuess == Just True), guess = True }
+            )
+            cars
 
 
-viewButton : { isHighlighted : Bool, guess : Bool } -> Html Bool
-viewButton { isHighlighted, guess } =
+viewButton : Color.Color -> { isHighlighted : Bool, guess : Bool } -> Html Bool
+viewButton color { isHighlighted, guess } =
     div
         [ style <|
             [ ( "display", "inline-block" )
-            , ( "width", "60px" )
-            , ( "height", "60px" )
-            , ( "margin", "15px" )
+            , ( "width", "45px" )
+            , ( "height", "45px" )
+            , ( "margin", "0 15px" )
             , ( "padding", "1px" )
+            , ( "color", colorToString color )
+            , ( "background-color", "currentColor" )
             , ( "border-radius", "50%" )
             , ( "border"
               , "2px solid "
                     ++ (if isHighlighted then
-                            "rgb(78, 60, 127)"
+                            "currentColor"
                         else
                             "transparent"
                        )
@@ -238,29 +260,7 @@ viewButton { isHighlighted, guess } =
             ]
         , onClick guess
         ]
-        [ svg
-            [ viewBox "0 0 200 200"
-            , style
-                [ ( "width", "100%" )
-                , ( "height", "100%" )
-                , ( "fill", "rgb(78, 60, 127)" )
-                , ( "cursor", "pointer" )
-                , ( "pointer-events", "none" )
-                ]
-            ]
-            [ use
-                [ xlinkHref
-                    ("#spacecraterball-"
-                        ++ (if guess then
-                                "in"
-                            else
-                                "out"
-                           )
-                    )
-                ]
-                []
-            ]
-        ]
+        []
 
 
 type alias Shape =
@@ -291,14 +291,20 @@ colorToVec4 color_ =
            )
 
 
+colorToString : Color.Color -> String
+colorToString color =
+    Color.toRgb color
+        |> (\{ red, green, blue, alpha } -> "rgba(" ++ (toString red) ++ "," ++ (toString green) ++ "," ++ (toString blue) ++ "," ++ (toString alpha) ++ ")")
+
+
 cyan : Color.Color
 cyan =
     Color.rgb 39 171 178
 
 
-white : Color.Color
-white =
-    Color.rgb 255 255 255
+lightGrey : Color.Color
+lightGrey =
+    Color.rgb 230 230 230
 
 
 red : Color.Color
@@ -388,12 +394,9 @@ type alias TrianglesShape =
         }
 
 
-carTransform : Float -> Int -> Matrix4.Mat4
-carTransform lateralPosition ticks =
+carTransform : Float -> Float -> Matrix4.Mat4
+carTransform lateralPosition carAngle =
     let
-        carAngle =
-            (toFloat ticks) / 100
-
         translateXY =
             Matrix4.makeTranslate (vec3 (0.5 * (cos carAngle)) (0.5 * (sin carAngle)) 0)
 
