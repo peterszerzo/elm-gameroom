@@ -18,10 +18,6 @@ import Gameroom exposing (programAt, Ports, Model, Msg)
 import Gameroom.Utilities exposing (generatorFromList)
 
 
-type alias Ticks =
-    Int
-
-
 type alias Problem =
     Int
 
@@ -213,68 +209,37 @@ viewButton { isHighlighted, guess } =
         ]
 
 
-ballMesh : WebGL.Mesh Vertex
-ballMesh =
-    ballShape.faces
-        |> List.map
-            (\( ptIndex1, ptIndex2, ptIndex3 ) ->
-                let
-                    color_ =
-                        colorToVec4 purple
 
-                    pt1 =
-                        getNode ptIndex1 ballShape |> (\( x, y, z ) -> vec3 x y z)
-
-                    pt2 =
-                        getNode ptIndex2 ballShape |> (\( x, y, z ) -> vec3 x y z)
-
-                    pt3 =
-                        getNode ptIndex3 ballShape |> (\( x, y, z ) -> vec3 x y z)
-
-                    normal =
-                        Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
-                            |> Vector3.normalize
-                in
-                    ( Vertex pt1 normal color_
-                    , Vertex pt1 normal color_
-                    , Vertex pt1 normal color_
-                    )
-            )
-        |> WebGL.triangles
+-- Colors
 
 
-ballTransform : Problem -> Ticks -> Matrix4.Mat4
-ballTransform problem ticks =
-    let
-        ratio =
-            if problem == 0 then
-                min ((ticks |> toFloat) / 200) 1
-            else
-                (ticks |> toFloat) / 200
+cyan : Color.Color
+cyan =
+    Color.rgb 39 171 178
 
-        isOver =
-            ratio > 1
 
-        offset =
-            (toFloat problem) * 0.1
+purple : Color.Color
+purple =
+    Color.rgb 78 60 127
 
-        translate =
-            Matrix4.makeTranslate
-                (vec3
-                    ((0 + offset) - (0.8 + offset) * (1 - ratio))
-                    0
-                    (0.2 * (cos (ratio * pi - pi / 2) |> abs) + 0.05)
-                )
 
-        rotate =
-            Matrix4.makeRotate
-                ((ticks |> toFloat) / 20)
-                (vec3 0.2 0.4 0.8)
+brighten : Float -> Color.Color -> Color.Color
+brighten fact =
+    Color.toHsl
+        >> (\{ hue, saturation, lightness } -> Color.hsl hue saturation (lightness * fact))
 
-        scale =
-            Matrix4.makeScale (vec3 0.0075 0.0075 0.0075)
-    in
-        List.foldr (\current accumulator -> Matrix4.mul current accumulator) Matrix4.identity [ translate, rotate, scale ]
+
+colorToVec4 : Color.Color -> Vec4
+colorToVec4 color_ =
+    color_
+        |> Color.toRgb
+        |> (\{ red, green, blue, alpha } ->
+                vec4
+                    ((toFloat red) / 255)
+                    ((toFloat green) / 255)
+                    ((toFloat blue) / 255)
+                    alpha
+           )
 
 
 
@@ -285,14 +250,6 @@ type alias Shape =
     { nodes : List ( Float, Float, Float )
     , faces : List ( Int, Int, Int )
     }
-
-
-getNode : Int -> Shape -> ( Float, Float, Float )
-getNode i { nodes } =
-    nodes
-        |> List.drop i
-        |> List.head
-        |> Maybe.withDefault ( 0, 0, 0 )
 
 
 ballShape : Shape
@@ -321,6 +278,85 @@ ballShape =
     }
 
 
+getNode : Int -> Shape -> Vec3
+getNode i { nodes } =
+    nodes
+        |> List.drop i
+        |> List.head
+        |> Maybe.withDefault ( 0, 0, 0 )
+        |> (\( x, y, z ) -> vec3 x y z)
+
+
+ballMesh : WebGL.Mesh Vertex
+ballMesh =
+    ballShape.faces
+        |> List.map
+            (\( ptIndex1, ptIndex2, ptIndex3 ) ->
+                let
+                    color_ =
+                        colorToVec4 purple
+
+                    pt1 =
+                        getNode ptIndex1 ballShape
+
+                    pt2 =
+                        getNode ptIndex2 ballShape
+
+                    pt3 =
+                        getNode ptIndex3 ballShape
+
+                    normal =
+                        Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
+                            |> Vector3.normalize
+                in
+                    ( Vertex pt1 normal color_
+                    , Vertex pt1 normal color_
+                    , Vertex pt1 normal color_
+                    )
+            )
+        |> WebGL.triangles
+
+
+ballTransform : Problem -> Int -> Matrix4.Mat4
+ballTransform problem ticks =
+    let
+        ratio =
+            if problem == 0 then
+                min ((ticks |> toFloat) / 200) 1
+            else
+                (ticks |> toFloat) / 200
+
+        isOver =
+            ratio > 1
+
+        offset =
+            (toFloat problem)
+                * 0.1
+
+        translate =
+            Matrix4.makeTranslate
+                (vec3
+                    ((0 + offset) - (0.8 + offset) * (1 - ratio))
+                    0
+                    (0.2 * (cos (ratio * pi - pi / 2) |> abs) + 0.05)
+                )
+
+        rotate =
+            Matrix4.makeRotate
+                ((ticks |> toFloat) / 20)
+                (vec3 0.2 0.4 0.8)
+
+        scale =
+            Matrix4.makeScale (vec3 0.075 0.075 0.075)
+    in
+        List.foldr (\current accumulator -> Matrix4.mul current accumulator)
+            Matrix4.identity
+            [ translate
+            , rotate
+            , scale
+            ]
+
+
 
 -- Terrain
 
@@ -328,11 +364,6 @@ ballShape =
 terrainUnitSize : Int
 terrainUnitSize =
     11
-
-
-light : Vec3
-light =
-    vec3 -0.3 0.2 1 |> Vector3.normalize
 
 
 terrainWaveHeight : Float -> Float -> Float
@@ -369,35 +400,6 @@ terrainPoint n i j =
             terrainWaveHeight x y
     in
         vec3 x y z
-
-
-colorToVec4 : Color.Color -> Vec4
-colorToVec4 color_ =
-    color_
-        |> Color.toRgb
-        |> (\{ red, green, blue, alpha } ->
-                vec4
-                    ((toFloat red) / 255)
-                    ((toFloat green) / 255)
-                    ((toFloat blue) / 255)
-                    alpha
-           )
-
-
-cyan : Color.Color
-cyan =
-    Color.rgb 39 171 178
-
-
-purple : Color.Color
-purple =
-    Color.rgb 78 60 127
-
-
-brighten : Float -> Color.Color -> Color.Color
-brighten fact =
-    Color.toHsl
-        >> (\{ hue, saturation, lightness } -> Color.hsl hue saturation (lightness * fact))
 
 
 terrainSquare : Int -> Int -> Int -> List ( Vertex, Vertex, Vertex )
@@ -510,7 +512,7 @@ uniform mat4 transform;
 varying vec4 vColor;
 void main () {
     gl_Position = (perspective * transform) * vec4(position, 1.0);
-    float brightness = 0.55 - dot(vec3(0, 0, 1), normal) * 0.45;
+    float brightness = 1.0 - (1.0 - dot(normalize(vec3(0.3, -0.2, 1)), normal)) * 1.2;
     vColor = vec4(color.r * brightness, color.g * brightness, color.b * brightness, color.a);
 }
 |]
