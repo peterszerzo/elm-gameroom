@@ -29,7 +29,7 @@ type alias Guess =
 spec : Spec Problem Guess
 spec =
     { copy =
-        { icon = "\x1F913"
+        { icon = "✏️"
         , name = "Lettero"
         , subheading = "A mildly frustrating wordgame!"
         , instructions = "There is a word in there somewhere - tap its first letter!"
