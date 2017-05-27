@@ -18,6 +18,10 @@ import Gameroom exposing (programAt, Ports, Model, Msg)
 import Gameroom.Utilities exposing (generatorFromList)
 
 
+type alias Ticks =
+    Int
+
+
 type alias Problem =
     Int
 
@@ -40,7 +44,10 @@ ports =
 
 
 type alias Vertex =
-    { position : Vec3, color : Vec4 }
+    { position : Vec3
+    , normal : Vec3
+    , color : Vec4
+    }
 
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
@@ -64,8 +71,17 @@ main =
                             [ WebGL.entity
                                 vertexShader
                                 fragmentShader
-                                (terrain ++ (ball problem ticks) |> WebGL.triangles)
-                                { perspective = perspective ticks }
+                                terrain
+                                { perspective = perspective ticks
+                                , transform = Matrix4.identity
+                                }
+                            , WebGL.entity
+                                vertexShader
+                                fragmentShader
+                                ballMesh
+                                { perspective = perspective ticks
+                                , transform = ballTransform problem ticks
+                                }
                             ]
                         ]
             )
@@ -197,8 +213,38 @@ viewButton { isHighlighted, guess } =
         ]
 
 
-ball : Int -> Int -> List ( Vertex, Vertex, Vertex )
-ball problem ticks =
+ballMesh : WebGL.Mesh Vertex
+ballMesh =
+    ballShape.faces
+        |> List.map
+            (\( ptIndex1, ptIndex2, ptIndex3 ) ->
+                let
+                    color_ =
+                        colorToVec4 purple
+
+                    pt1 =
+                        getNode ptIndex1 ballShape |> (\( x, y, z ) -> vec3 x y z)
+
+                    pt2 =
+                        getNode ptIndex2 ballShape |> (\( x, y, z ) -> vec3 x y z)
+
+                    pt3 =
+                        getNode ptIndex3 ballShape |> (\( x, y, z ) -> vec3 x y z)
+
+                    normal =
+                        Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
+                            |> Vector3.normalize
+                in
+                    ( Vertex pt1 normal color_
+                    , Vertex pt1 normal color_
+                    , Vertex pt1 normal color_
+                    )
+            )
+        |> WebGL.triangles
+
+
+ballTransform : Problem -> Ticks -> Matrix4.Mat4
+ballTransform problem ticks =
     let
         ratio =
             if problem == 0 then
@@ -211,22 +257,24 @@ ball problem ticks =
 
         offset =
             (toFloat problem) * 0.1
+
+        translate =
+            Matrix4.makeTranslate
+                (vec3
+                    ((0 + offset) - (0.8 + offset) * (1 - ratio))
+                    0
+                    (0.2 * (cos (ratio * pi - pi / 2) |> abs) + 0.05)
+                )
+
+        rotate =
+            Matrix4.makeRotate
+                ((ticks |> toFloat) / 20)
+                (vec3 0.2 0.4 0.8)
+
+        scale =
+            Matrix4.makeScale (vec3 0.0075 0.0075 0.0075)
     in
-        (viewBall 1.5
-            (Matrix4.mul
-                (Matrix4.makeTranslate
-                    (vec3
-                        ((0 + offset) - (0.8 + offset) * (1 - ratio))
-                        0
-                        (0.2 * (cos (ratio * pi - pi / 2) |> abs) + 0.05)
-                    )
-                )
-                (Matrix4.makeRotate
-                    ((ticks |> toFloat) / 20)
-                    (vec3 0.2 0.4 0.8)
-                )
-            )
-        )
+        List.foldr (\current accumulator -> Matrix4.mul current accumulator) Matrix4.identity [ translate, rotate, scale ]
 
 
 
@@ -241,7 +289,10 @@ type alias Shape =
 
 getNode : Int -> Shape -> ( Float, Float, Float )
 getNode i { nodes } =
-    nodes |> List.drop i |> List.head |> Maybe.withDefault ( 0, 0, 0 )
+    nodes
+        |> List.drop i
+        |> List.head
+        |> Maybe.withDefault ( 0, 0, 0 )
 
 
 ballShape : Shape
@@ -268,45 +319,6 @@ ballShape =
         , ( 6, 5, 4 )
         ]
     }
-
-
-viewBall : Float -> Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
-viewBall scaleFactor transform =
-    let
-        transformPoint =
-            (\transform pt ->
-                pt
-                    |> Vector3.scale (0.005 * scaleFactor)
-                    |> Matrix4.transform transform
-            )
-
-        ptIndexToTransformedPoint =
-            (flip getNode <| ballShape) >> ((\( x, y, z ) -> vec3 x y z)) >> (transformPoint transform)
-    in
-        List.map
-            (\( pointIndex1, pointIndex2, pointIndex3 ) ->
-                let
-                    pt1 =
-                        ptIndexToTransformedPoint pointIndex1
-
-                    pt2 =
-                        ptIndexToTransformedPoint pointIndex2
-
-                    pt3 =
-                        ptIndexToTransformedPoint pointIndex3
-
-                    lightFactor =
-                        applyLighting -0.5 pt1 pt2 pt3
-
-                    color_ =
-                        brighten lightFactor purple |> colorToVec4
-                in
-                    ( Vertex pt1 color_
-                    , Vertex pt2 color_
-                    , Vertex pt3 color_
-                    )
-            )
-            ballShape.faces
 
 
 
@@ -388,14 +400,6 @@ brighten fact =
         >> (\{ hue, saturation, lightness } -> Color.hsl hue saturation (lightness * fact))
 
 
-applyLighting : Float -> Vec3 -> Vec3 -> Vec3 -> Float
-applyLighting amplification pt1 pt2 pt3 =
-    Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
-        |> Vector3.normalize
-        |> Vector3.dot light
-        |> (\lightFactor -> (1 - (1 - lightFactor) * amplification))
-
-
 terrainSquare : Int -> Int -> Int -> List ( Vertex, Vertex, Vertex )
 terrainSquare n i j =
     let
@@ -408,6 +412,10 @@ terrainSquare n i j =
         pt13 =
             terrainPoint n (i + 1) (j + 1)
 
+        normal1 =
+            Vector3.cross (Vector3.sub pt12 pt11) (Vector3.sub pt13 pt11)
+                |> Vector3.normalize
+
         d1 =
             (((toFloat i) + 2.0 / 3.0 - (toFloat n) / 2)
                 ^ 2
@@ -416,14 +424,6 @@ terrainSquare n i j =
             )
                 ^ 0.5
                 / (toFloat n)
-
-        lightFactor1 =
-            applyLighting 1.6 pt11 pt12 pt13
-
-        color1 =
-            cyan
-                |> brighten lightFactor1
-                |> colorToVec4
 
         pt21 =
             terrainPoint n i j
@@ -434,6 +434,10 @@ terrainSquare n i j =
         pt23 =
             terrainPoint n i (j + 1)
 
+        normal2 =
+            Vector3.cross (Vector3.sub pt22 pt21) (Vector3.sub pt23 pt21)
+                |> Vector3.normalize
+
         d2 =
             (((toFloat i) + 1.0 / 3.0 - (toFloat n) / 2)
                 ^ 2
@@ -443,35 +447,31 @@ terrainSquare n i j =
                 ^ 0.5
                 / (toFloat n)
 
-        lightFactor2 =
-            applyLighting 1.6 pt21 pt22 pt23
-
-        color2 =
+        color_ =
             cyan
-                |> brighten lightFactor2
                 |> colorToVec4
     in
         (if d1 < 0.1 then
             []
          else
-            [ ( Vertex pt11 color1
-              , Vertex pt12 color1
-              , Vertex pt13 color1
+            [ ( Vertex pt11 normal1 color_
+              , Vertex pt12 normal1 color_
+              , Vertex pt13 normal1 color_
               )
             ]
         )
             ++ (if d2 < 0.1 then
                     []
                 else
-                    [ ( Vertex pt21 color2
-                      , Vertex pt22 color2
-                      , Vertex pt23 color2
+                    [ ( Vertex pt21 normal2 color_
+                      , Vertex pt22 normal2 color_
+                      , Vertex pt23 normal2 color_
                       )
                     ]
                )
 
 
-terrain : List ( Vertex, Vertex, Vertex )
+terrain : WebGL.Mesh Vertex
 terrain =
     List.repeat terrainUnitSize 0
         |> List.indexedMap
@@ -481,39 +481,47 @@ terrain =
                     |> List.concat
             )
         |> List.concat
+        |> WebGL.triangles
 
 
 
 -- Shaders
 
 
-vertexShader :
-    WebGL.Shader
-        { attr
-            | position : Vec3
-            , color : Vec4
-        }
-        { unif | perspective : Matrix4.Mat4 }
-        { vcolor : Vec4 }
+type alias Uniforms =
+    { perspective : Matrix4.Mat4
+    , transform : Matrix4.Mat4
+    }
+
+
+type alias Varyings =
+    { vColor : Vec4
+    }
+
+
+vertexShader : WebGL.Shader Vertex Uniforms Varyings
 vertexShader =
     [glsl|
 attribute vec3 position;
+attribute vec3 normal;
 attribute vec4 color;
 uniform mat4 perspective;
-varying vec4 vcolor;
+uniform mat4 transform;
+varying vec4 vColor;
 void main () {
-    gl_Position = perspective * vec4(position, 1.0);
-    vcolor = color;
+    gl_Position = (perspective * transform) * vec4(position, 1.0);
+    float brightness = 0.55 - dot(vec3(0, 0, 1), normal) * 0.45;
+    vColor = vec4(color.r * brightness, color.g * brightness, color.b * brightness, color.a);
 }
 |]
 
 
-fragmentShader : WebGL.Shader {} u { vcolor : Vec4 }
+fragmentShader : WebGL.Shader {} Uniforms Varyings
 fragmentShader =
     [glsl|
 precision mediump float;
-varying vec4 vcolor;
+varying vec4 vColor;
 void main () {
-    gl_FragColor = vcolor;
+    gl_FragColor = vColor;
 }
 |]
