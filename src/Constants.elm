@@ -1,10 +1,6 @@
 module Constants exposing (..)
 
-
-debugMode : Bool
-debugMode =
-    False
-
+import Time exposing (Time, millisecond)
 
 
 -- Null string value used in storage
@@ -21,15 +17,14 @@ nullString =
 
 ticksInRound : Int
 ticksInRound =
-    if debugMode then
-        10
-    else
-        40
+    40
 
 
 ticksInCooldown : Int
 ticksInCooldown =
-    if debugMode then
-        5
-    else
-        20
+    20
+
+
+tickDuration : Time
+tickDuration =
+    100 * millisecond

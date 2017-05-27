@@ -28,10 +28,7 @@ subscriptions spec ports model =
             Router.Game _ ->
                 -- Debugging mode only
                 Sub.batch
-                    [ if Constants.debugMode then
-                        Time.every (1000 * Time.millisecond) (Messages.GameMsg << Messages.Tick)
-                      else
-                        Time.every (100 * Time.millisecond) (Messages.GameMsg << Messages.Tick)
+                    [ Time.every (100 * Time.millisecond) (Messages.GameMsg << Messages.Tick)
                     , AnimationFrame.times (Messages.GameMsg << Messages.AnimationTick)
                     , Window.resizes Messages.Resize
                     ]

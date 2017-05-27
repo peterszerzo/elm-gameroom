@@ -5,6 +5,7 @@ import Html.CssHelpers
 import Css exposing (..)
 import Css.Namespace exposing (namespace)
 import Styles.Constants exposing (..)
+import Constants
 
 
 cssNamespace : String
@@ -30,7 +31,7 @@ styles =
         , height (px 2)
         , left (px 0)
         , backgroundColor (hex lightBlue)
-        , property "transition" "transform 0.1s linear"
+        , property "transition" ("transform " ++ (Constants.tickDuration / 1000 |> toString) ++ "s linear")
         ]
     ]
         |> namespace cssNamespace
