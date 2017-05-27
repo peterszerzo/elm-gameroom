@@ -27,7 +27,7 @@ styles =
         [ position absolute
         , top (px 0)
         , width (pct 100)
-        , height (px 1)
+        , height (px 2)
         , left (px 0)
         , backgroundColor (hex lightBlue)
         , property "transition" "transform 0.1s linear"
