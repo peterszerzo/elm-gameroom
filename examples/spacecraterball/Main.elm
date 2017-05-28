@@ -11,6 +11,7 @@ import Svg.Attributes exposing (xlinkHref, viewBox)
 import Math.Vector3 as Vector3 exposing (Vec3, vec3)
 import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import WebGL
+import WebGL.Settings.Blend as Blend
 import Json.Encode as JE
 import Json.Decode as JD
 import Math.Matrix4 as Matrix4
@@ -64,15 +65,17 @@ main =
                     div []
                         [ viewNav ownGuess
                         , viewWebglContainer windowSize
-                            [ WebGL.entity
-                                vertexShader
+                            [ WebGL.entityWith
+                                [ Blend.add Blend.srcAlpha Blend.oneMinusSrcAlpha ]
+                                terrainVertexShader
                                 fragmentShader
                                 terrain
                                 { perspective = perspective ticks
                                 , transform = Matrix4.identity
                                 }
-                            , WebGL.entity
-                                vertexShader
+                            , WebGL.entityWith
+                                [ Blend.add Blend.srcAlpha Blend.oneMinusSrcAlpha ]
+                                ballVertexShader
                                 fragmentShader
                                 ballMesh
                                 { perspective = perspective ticks
@@ -298,21 +301,25 @@ ballMesh =
 
                     pt1 =
                         getNode ptIndex1 ballShape
+                            |> Vector3.scale 0.0075
 
                     pt2 =
                         getNode ptIndex2 ballShape
+                            |> Vector3.scale 0.0075
 
                     pt3 =
                         getNode ptIndex3 ballShape
+                            |> Vector3.scale 0.0075
 
                     normal =
                         Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
                             |> Vector3.normalize
                 in
                     ( Vertex pt1 normal color_
-                    , Vertex pt1 normal color_
-                    , Vertex pt1 normal color_
+                    , Vertex pt2 normal color_
+                    , Vertex pt3 normal color_
                     )
+                        |> Debug.log "bal"
             )
         |> WebGL.triangles
 
@@ -345,15 +352,11 @@ ballTransform problem ticks =
             Matrix4.makeRotate
                 ((ticks |> toFloat) / 20)
                 (vec3 0.2 0.4 0.8)
-
-        scale =
-            Matrix4.makeScale (vec3 0.075 0.075 0.075)
     in
         List.foldr (\current accumulator -> Matrix4.mul current accumulator)
             Matrix4.identity
             [ translate
             , rotate
-            , scale
             ]
 
 
@@ -388,7 +391,7 @@ terrainPoint : Int -> Int -> Int -> Vec3
 terrainPoint n i j =
     let
         d =
-            1.0 / ((n - 1) |> toFloat)
+            1.0 / (n |> toFloat)
 
         x =
             (toFloat i) * d - 0.5
@@ -418,15 +421,6 @@ terrainSquare n i j =
             Vector3.cross (Vector3.sub pt12 pt11) (Vector3.sub pt13 pt11)
                 |> Vector3.normalize
 
-        d1 =
-            (((toFloat i) + 2.0 / 3.0 - (toFloat n) / 2)
-                ^ 2
-                + ((toFloat j) + 1.0 / 3.0 - (toFloat n) / 2)
-                ^ 2
-            )
-                ^ 0.5
-                / (toFloat n)
-
         pt21 =
             terrainPoint n i j
 
@@ -440,37 +434,19 @@ terrainSquare n i j =
             Vector3.cross (Vector3.sub pt22 pt21) (Vector3.sub pt23 pt21)
                 |> Vector3.normalize
 
-        d2 =
-            (((toFloat i) + 1.0 / 3.0 - (toFloat n) / 2)
-                ^ 2
-                + ((toFloat j) + 2.0 / 3.0 - (toFloat n) / 2)
-                ^ 2
-            )
-                ^ 0.5
-                / (toFloat n)
-
         color_ =
             cyan
                 |> colorToVec4
     in
-        (if d1 < 0.1 then
-            []
-         else
-            [ ( Vertex pt11 normal1 color_
-              , Vertex pt12 normal1 color_
-              , Vertex pt13 normal1 color_
-              )
-            ]
-        )
-            ++ (if d2 < 0.1 then
-                    []
-                else
-                    [ ( Vertex pt21 normal2 color_
-                      , Vertex pt22 normal2 color_
-                      , Vertex pt23 normal2 color_
-                      )
-                    ]
-               )
+        [ ( Vertex pt11 normal1 color_
+          , Vertex pt12 normal1 color_
+          , Vertex pt13 normal1 color_
+          )
+        , ( Vertex pt21 normal2 color_
+          , Vertex pt22 normal2 color_
+          , Vertex pt23 normal2 color_
+          )
+        ]
 
 
 terrain : WebGL.Mesh Vertex
@@ -501,8 +477,8 @@ type alias Varyings =
     }
 
 
-vertexShader : WebGL.Shader Vertex Uniforms Varyings
-vertexShader =
+terrainVertexShader : WebGL.Shader Vertex Uniforms Varyings
+terrainVertexShader =
     [glsl|
 attribute vec3 position;
 attribute vec3 normal;
@@ -513,7 +489,49 @@ varying vec4 vColor;
 void main () {
     gl_Position = (perspective * transform) * vec4(position, 1.0);
     float brightness = 1.0 - (1.0 - dot(normalize(vec3(0.3, -0.2, 1)), normal)) * 1.2;
-    vColor = vec4(color.r * brightness, color.g * brightness, color.b * brightness, color.a);
+    float opacityFactor;
+    float d = pow(pow(position.x, 2.0) + pow(position.y, 2.0), 0.5);
+    const float dMin = 0.05;
+    const float dMax = 0.08;
+    if (d < dMin) {
+      opacityFactor = 0.0;
+    } else if (d < dMax) {
+      opacityFactor = 1.0 * (d - dMin) / (dMax - dMin);
+    } else {
+      opacityFactor = 1.0;
+    }
+    vColor = vec4(
+      color.r * brightness,
+      color.g * brightness,
+      color.b * brightness,
+      color.a * opacityFactor
+    );
+}
+|]
+
+
+ballVertexShader : WebGL.Shader Vertex Uniforms Varyings
+ballVertexShader =
+    [glsl|
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec4 color;
+uniform mat4 perspective;
+uniform mat4 transform;
+varying vec4 vColor;
+void main () {
+    vec4 transformedNormal = transform * vec4(normal, 1.0);
+    gl_Position = (perspective * transform) * vec4(position, 1.0);
+    float brightness = 1.0 + (1.0 - dot(
+      normalize(vec3(0.3, -0.2, 1)),
+      normalize(vec3(transformedNormal))
+    )) * 0.8;
+    vColor = vec4(
+      color.r * brightness,
+      color.g * brightness,
+      color.b * brightness,
+      color.a
+    );
 }
 |]
 
