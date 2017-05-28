@@ -4,6 +4,7 @@ import Html exposing (Html, div)
 import Window
 import Color
 import Dict
+import Random
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
 import Svg exposing (svg, use)
@@ -16,11 +17,37 @@ import Json.Encode as JE
 import Json.Decode as JD
 import Math.Matrix4 as Matrix4
 import Gameroom exposing (programAt, Ports, Model, Msg)
-import Gameroom.Utilities exposing (generatorFromList)
 
 
 type alias Problem =
-    Int
+    { incomingAngle : Float
+    , deviationFromCorrectPath : Float
+    }
+
+
+problemDecoder : JD.Decoder Problem
+problemDecoder =
+    JD.map2 Problem
+        (JD.field "incomingAngle" JD.float)
+        (JD.field "deviationFromCorrectPath" JD.float)
+
+
+problemEncoder : Problem -> JE.Value
+problemEncoder record =
+    JE.object
+        [ ( "incomingAngle", JE.float <| record.incomingAngle )
+        , ( "deviationFromCorrectPath", JE.float <| record.deviationFromCorrectPath )
+        ]
+
+
+problemGenerator : Random.Generator Problem
+problemGenerator =
+    Random.map2 Problem (Random.float 0 (2 * pi)) (Random.float -0.3 0.3)
+
+
+willStayInCrater : Problem -> Bool
+willStayInCrater problem =
+    abs problem.deviationFromCorrectPath < 0.1
 
 
 type alias Guess =
@@ -86,16 +113,16 @@ main =
             )
         , isGuessCorrect =
             (\problem guess ->
-                if (problem == 0) then
+                if willStayInCrater problem then
                     guess
                 else
                     not guess
             )
-        , problemDecoder = JD.int
-        , problemEncoder = JE.int
+        , problemDecoder = problemDecoder
+        , problemEncoder = problemEncoder
         , guessDecoder = JD.bool
         , guessEncoder = JE.bool
-        , problemGenerator = generatorFromList -3 [ -2, -1, 0, 1, 2, 3 ]
+        , problemGenerator = problemGenerator
         }
         ports
 
@@ -328,7 +355,7 @@ ballTransform : Problem -> Int -> Matrix4.Mat4
 ballTransform problem ticks =
     let
         ratio =
-            if problem == 0 then
+            if willStayInCrater problem then
                 min ((ticks |> toFloat) / 200) 1
             else
                 (ticks |> toFloat) / 200
@@ -337,14 +364,16 @@ ballTransform problem ticks =
             ratio > 1
 
         offset =
-            (toFloat problem)
-                * 0.1
+            problem.deviationFromCorrectPath
+
+        xy =
+            (0 + offset) - (0.8 + offset) * (1 - ratio)
 
         translate =
             Matrix4.makeTranslate
                 (vec3
-                    ((0 + offset) - (0.8 + offset) * (1 - ratio))
-                    0
+                    (xy * (cos problem.incomingAngle))
+                    (xy * (sin problem.incomingAngle))
                     (0.2 * (cos (ratio * pi - pi / 2) |> abs) + 0.05)
                 )
 
