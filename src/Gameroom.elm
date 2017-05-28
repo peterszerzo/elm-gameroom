@@ -54,7 +54,7 @@ type alias Ports msg =
     Ports.Ports msg
 
 
-{-| Create a fully functional game program from a gamespec and a ports record. The `spec` is the declarative definition of the data structures, logic and view behind your game - see `Gameroom.Spec` documentation for details. `ports` is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.
+{-| Create a fully functional game program from a gamespec and a ports record. The [Spec](/Gameroom-Spec) is the declarative definition of the data structures, logic and view behind your game. [Ports](/Gameroom#Ports) is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.
 
 Notice you don't have to supply any `init`, `update` or `subscriptions` field yourself. All that is taken care of, and you wind up with a working interface that allows you to create game rooms, invite others, and play. Timers, scoreboards etc. all come straight out of the box.
 -}
