@@ -4,6 +4,7 @@ import Html exposing (Html, div)
 import Window
 import Color
 import Dict
+import Random
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
 import Svg exposing (svg, use)
@@ -11,15 +12,42 @@ import Svg.Attributes exposing (xlinkHref, viewBox)
 import Math.Vector3 as Vector3 exposing (Vec3, vec3)
 import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import WebGL
+import WebGL.Settings.Blend as Blend
 import Json.Encode as JE
 import Json.Decode as JD
 import Math.Matrix4 as Matrix4
 import Gameroom exposing (programAt, Ports, Model, Msg)
-import Gameroom.Utilities exposing (generatorFromList)
 
 
 type alias Problem =
-    Int
+    { incomingAngle : Float
+    , deviationFromCorrectPath : Float
+    }
+
+
+problemDecoder : JD.Decoder Problem
+problemDecoder =
+    JD.map2 Problem
+        (JD.field "incomingAngle" JD.float)
+        (JD.field "deviationFromCorrectPath" JD.float)
+
+
+problemEncoder : Problem -> JE.Value
+problemEncoder record =
+    JE.object
+        [ ( "incomingAngle", JE.float <| record.incomingAngle )
+        , ( "deviationFromCorrectPath", JE.float <| record.deviationFromCorrectPath )
+        ]
+
+
+problemGenerator : Random.Generator Problem
+problemGenerator =
+    Random.map2 Problem (Random.float 0 (2 * pi)) (Random.float -0.3 0.3)
+
+
+willStayInCrater : Problem -> Bool
+willStayInCrater problem =
+    abs problem.deviationFromCorrectPath < 0.1
 
 
 type alias Guess =
@@ -40,7 +68,10 @@ ports =
 
 
 type alias Vertex =
-    { position : Vec3, color : Vec4 }
+    { position : Vec3
+    , normal : Vec3
+    , color : Vec4
+    }
 
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
@@ -61,26 +92,37 @@ main =
                     div []
                         [ viewNav ownGuess
                         , viewWebglContainer windowSize
-                            [ WebGL.entity
-                                vertexShader
+                            [ WebGL.entityWith
+                                [ Blend.add Blend.srcAlpha Blend.oneMinusSrcAlpha ]
+                                terrainVertexShader
                                 fragmentShader
-                                (terrain ++ (ball problem ticks) |> WebGL.triangles)
-                                { perspective = perspective ticks }
+                                terrain
+                                { perspective = perspective ticks
+                                , transform = Matrix4.identity
+                                }
+                            , WebGL.entityWith
+                                [ Blend.add Blend.srcAlpha Blend.oneMinusSrcAlpha ]
+                                ballVertexShader
+                                fragmentShader
+                                ballMesh
+                                { perspective = perspective ticks
+                                , transform = ballTransform problem ticks
+                                }
                             ]
                         ]
             )
         , isGuessCorrect =
             (\problem guess ->
-                if (problem == 0) then
+                if willStayInCrater problem then
                     guess
                 else
                     not guess
             )
-        , problemDecoder = JD.int
-        , problemEncoder = JE.int
+        , problemDecoder = problemDecoder
+        , problemEncoder = problemEncoder
         , guessDecoder = JD.bool
         , guessEncoder = JE.bool
-        , problemGenerator = generatorFromList -3 [ -2, -1, 0, 1, 2, 3 ]
+        , problemGenerator = problemGenerator
         }
         ports
 
@@ -197,36 +239,37 @@ viewButton { isHighlighted, guess } =
         ]
 
 
-ball : Int -> Int -> List ( Vertex, Vertex, Vertex )
-ball problem ticks =
-    let
-        ratio =
-            if problem == 0 then
-                min ((ticks |> toFloat) / 200) 1
-            else
-                (ticks |> toFloat) / 200
 
-        isOver =
-            ratio > 1
+-- Colors
 
-        offset =
-            (toFloat problem) * 0.1
-    in
-        (viewBall 1.5
-            (Matrix4.mul
-                (Matrix4.makeTranslate
-                    (vec3
-                        ((0 + offset) - (0.8 + offset) * (1 - ratio))
-                        0
-                        (0.2 * (cos (ratio * pi - pi / 2) |> abs) + 0.05)
-                    )
-                )
-                (Matrix4.makeRotate
-                    ((ticks |> toFloat) / 20)
-                    (vec3 0.2 0.4 0.8)
-                )
-            )
-        )
+
+cyan : Color.Color
+cyan =
+    Color.rgb 39 171 178
+
+
+purple : Color.Color
+purple =
+    Color.rgb 78 60 127
+
+
+brighten : Float -> Color.Color -> Color.Color
+brighten fact =
+    Color.toHsl
+        >> (\{ hue, saturation, lightness } -> Color.hsl hue saturation (lightness * fact))
+
+
+colorToVec4 : Color.Color -> Vec4
+colorToVec4 color_ =
+    color_
+        |> Color.toRgb
+        |> (\{ red, green, blue, alpha } ->
+                vec4
+                    ((toFloat red) / 255)
+                    ((toFloat green) / 255)
+                    ((toFloat blue) / 255)
+                    alpha
+           )
 
 
 
@@ -237,11 +280,6 @@ type alias Shape =
     { nodes : List ( Float, Float, Float )
     , faces : List ( Int, Int, Int )
     }
-
-
-getNode : Int -> Shape -> ( Float, Float, Float )
-getNode i { nodes } =
-    nodes |> List.drop i |> List.head |> Maybe.withDefault ( 0, 0, 0 )
 
 
 ballShape : Shape
@@ -270,43 +308,85 @@ ballShape =
     }
 
 
-viewBall : Float -> Matrix4.Mat4 -> List ( Vertex, Vertex, Vertex )
-viewBall scaleFactor transform =
-    let
-        transformPoint =
-            (\transform pt ->
-                pt
-                    |> Vector3.scale (0.005 * scaleFactor)
-                    |> Matrix4.transform transform
-            )
+getNode : Int -> Shape -> Vec3
+getNode i { nodes } =
+    nodes
+        |> List.drop i
+        |> List.head
+        |> Maybe.withDefault ( 0, 0, 0 )
+        |> (\( x, y, z ) -> vec3 x y z)
 
-        ptIndexToTransformedPoint =
-            (flip getNode <| ballShape) >> ((\( x, y, z ) -> vec3 x y z)) >> (transformPoint transform)
-    in
-        List.map
-            (\( pointIndex1, pointIndex2, pointIndex3 ) ->
+
+ballMesh : WebGL.Mesh Vertex
+ballMesh =
+    ballShape.faces
+        |> List.map
+            (\( ptIndex1, ptIndex2, ptIndex3 ) ->
                 let
+                    color_ =
+                        colorToVec4 purple
+
                     pt1 =
-                        ptIndexToTransformedPoint pointIndex1
+                        getNode ptIndex1 ballShape
+                            |> Vector3.scale 0.0075
 
                     pt2 =
-                        ptIndexToTransformedPoint pointIndex2
+                        getNode ptIndex2 ballShape
+                            |> Vector3.scale 0.0075
 
                     pt3 =
-                        ptIndexToTransformedPoint pointIndex3
+                        getNode ptIndex3 ballShape
+                            |> Vector3.scale 0.0075
 
-                    lightFactor =
-                        applyLighting -0.5 pt1 pt2 pt3
-
-                    color_ =
-                        brighten lightFactor purple |> colorToVec4
+                    normal =
+                        Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
+                            |> Vector3.normalize
                 in
-                    ( Vertex pt1 color_
-                    , Vertex pt2 color_
-                    , Vertex pt3 color_
+                    ( Vertex pt1 normal color_
+                    , Vertex pt2 normal color_
+                    , Vertex pt3 normal color_
                     )
+                        |> Debug.log "bal"
             )
-            ballShape.faces
+        |> WebGL.triangles
+
+
+ballTransform : Problem -> Int -> Matrix4.Mat4
+ballTransform problem ticks =
+    let
+        ratio =
+            if willStayInCrater problem then
+                min ((ticks |> toFloat) / 200) 1
+            else
+                (ticks |> toFloat) / 200
+
+        isOver =
+            ratio > 1
+
+        offset =
+            problem.deviationFromCorrectPath
+
+        xy =
+            (0 + offset) - (0.8 + offset) * (1 - ratio)
+
+        translate =
+            Matrix4.makeTranslate
+                (vec3
+                    (xy * (cos problem.incomingAngle))
+                    (xy * (sin problem.incomingAngle))
+                    (0.2 * (cos (ratio * pi - pi / 2) |> abs) + 0.05)
+                )
+
+        rotate =
+            Matrix4.makeRotate
+                ((ticks |> toFloat) / 20)
+                (vec3 0.2 0.4 0.8)
+    in
+        List.foldr (\current accumulator -> Matrix4.mul current accumulator)
+            Matrix4.identity
+            [ translate
+            , rotate
+            ]
 
 
 
@@ -316,11 +396,6 @@ viewBall scaleFactor transform =
 terrainUnitSize : Int
 terrainUnitSize =
     11
-
-
-light : Vec3
-light =
-    vec3 -0.3 0.2 1 |> Vector3.normalize
 
 
 terrainWaveHeight : Float -> Float -> Float
@@ -345,7 +420,7 @@ terrainPoint : Int -> Int -> Int -> Vec3
 terrainPoint n i j =
     let
         d =
-            1.0 / ((n - 1) |> toFloat)
+            1.0 / (n |> toFloat)
 
         x =
             (toFloat i) * d - 0.5
@@ -357,43 +432,6 @@ terrainPoint n i j =
             terrainWaveHeight x y
     in
         vec3 x y z
-
-
-colorToVec4 : Color.Color -> Vec4
-colorToVec4 color_ =
-    color_
-        |> Color.toRgb
-        |> (\{ red, green, blue, alpha } ->
-                vec4
-                    ((toFloat red) / 255)
-                    ((toFloat green) / 255)
-                    ((toFloat blue) / 255)
-                    alpha
-           )
-
-
-cyan : Color.Color
-cyan =
-    Color.rgb 39 171 178
-
-
-purple : Color.Color
-purple =
-    Color.rgb 78 60 127
-
-
-brighten : Float -> Color.Color -> Color.Color
-brighten fact =
-    Color.toHsl
-        >> (\{ hue, saturation, lightness } -> Color.hsl hue saturation (lightness * fact))
-
-
-applyLighting : Float -> Vec3 -> Vec3 -> Vec3 -> Float
-applyLighting amplification pt1 pt2 pt3 =
-    Vector3.cross (Vector3.sub pt2 pt1) (Vector3.sub pt3 pt1)
-        |> Vector3.normalize
-        |> Vector3.dot light
-        |> (\lightFactor -> (1 - (1 - lightFactor) * amplification))
 
 
 terrainSquare : Int -> Int -> Int -> List ( Vertex, Vertex, Vertex )
@@ -408,22 +446,9 @@ terrainSquare n i j =
         pt13 =
             terrainPoint n (i + 1) (j + 1)
 
-        d1 =
-            (((toFloat i) + 2.0 / 3.0 - (toFloat n) / 2)
-                ^ 2
-                + ((toFloat j) + 1.0 / 3.0 - (toFloat n) / 2)
-                ^ 2
-            )
-                ^ 0.5
-                / (toFloat n)
-
-        lightFactor1 =
-            applyLighting 1.6 pt11 pt12 pt13
-
-        color1 =
-            cyan
-                |> brighten lightFactor1
-                |> colorToVec4
+        normal1 =
+            Vector3.cross (Vector3.sub pt12 pt11) (Vector3.sub pt13 pt11)
+                |> Vector3.normalize
 
         pt21 =
             terrainPoint n i j
@@ -434,44 +459,26 @@ terrainSquare n i j =
         pt23 =
             terrainPoint n i (j + 1)
 
-        d2 =
-            (((toFloat i) + 1.0 / 3.0 - (toFloat n) / 2)
-                ^ 2
-                + ((toFloat j) + 2.0 / 3.0 - (toFloat n) / 2)
-                ^ 2
-            )
-                ^ 0.5
-                / (toFloat n)
+        normal2 =
+            Vector3.cross (Vector3.sub pt22 pt21) (Vector3.sub pt23 pt21)
+                |> Vector3.normalize
 
-        lightFactor2 =
-            applyLighting 1.6 pt21 pt22 pt23
-
-        color2 =
+        color_ =
             cyan
-                |> brighten lightFactor2
                 |> colorToVec4
     in
-        (if d1 < 0.1 then
-            []
-         else
-            [ ( Vertex pt11 color1
-              , Vertex pt12 color1
-              , Vertex pt13 color1
-              )
-            ]
-        )
-            ++ (if d2 < 0.1 then
-                    []
-                else
-                    [ ( Vertex pt21 color2
-                      , Vertex pt22 color2
-                      , Vertex pt23 color2
-                      )
-                    ]
-               )
+        [ ( Vertex pt11 normal1 color_
+          , Vertex pt12 normal1 color_
+          , Vertex pt13 normal1 color_
+          )
+        , ( Vertex pt21 normal2 color_
+          , Vertex pt22 normal2 color_
+          , Vertex pt23 normal2 color_
+          )
+        ]
 
 
-terrain : List ( Vertex, Vertex, Vertex )
+terrain : WebGL.Mesh Vertex
 terrain =
     List.repeat terrainUnitSize 0
         |> List.indexedMap
@@ -481,39 +488,89 @@ terrain =
                     |> List.concat
             )
         |> List.concat
+        |> WebGL.triangles
 
 
 
 -- Shaders
 
 
-vertexShader :
-    WebGL.Shader
-        { attr
-            | position : Vec3
-            , color : Vec4
-        }
-        { unif | perspective : Matrix4.Mat4 }
-        { vcolor : Vec4 }
-vertexShader =
+type alias Uniforms =
+    { perspective : Matrix4.Mat4
+    , transform : Matrix4.Mat4
+    }
+
+
+type alias Varyings =
+    { vColor : Vec4
+    }
+
+
+terrainVertexShader : WebGL.Shader Vertex Uniforms Varyings
+terrainVertexShader =
     [glsl|
 attribute vec3 position;
+attribute vec3 normal;
 attribute vec4 color;
 uniform mat4 perspective;
-varying vec4 vcolor;
+uniform mat4 transform;
+varying vec4 vColor;
 void main () {
-    gl_Position = perspective * vec4(position, 1.0);
-    vcolor = color;
+    gl_Position = (perspective * transform) * vec4(position, 1.0);
+    float brightness = 1.0 - (1.0 - dot(normalize(vec3(0.3, -0.2, 1)), normal)) * 1.2;
+    float opacityFactor;
+    float d = pow(pow(position.x, 2.0) + pow(position.y, 2.0), 0.5);
+    const float dMin = 0.05;
+    const float dMax = 0.08;
+    if (d < dMin) {
+      opacityFactor = 0.0;
+    } else if (d < dMax) {
+      opacityFactor = 1.0 * (d - dMin) / (dMax - dMin);
+    } else {
+      opacityFactor = 1.0;
+    }
+    vColor = vec4(
+      color.r * brightness,
+      color.g * brightness,
+      color.b * brightness,
+      color.a * opacityFactor
+    );
 }
 |]
 
 
-fragmentShader : WebGL.Shader {} u { vcolor : Vec4 }
+ballVertexShader : WebGL.Shader Vertex Uniforms Varyings
+ballVertexShader =
+    [glsl|
+attribute vec3 position;
+attribute vec3 normal;
+attribute vec4 color;
+uniform mat4 perspective;
+uniform mat4 transform;
+varying vec4 vColor;
+void main () {
+    vec4 transformedNormal = transform * vec4(normal, 1.0);
+    gl_Position = (perspective * transform) * vec4(position, 1.0);
+    float brightness = 1.0 + (1.0 - dot(
+      normalize(vec3(0.3, -0.2, 1)),
+      normalize(vec3(transformedNormal))
+    )) * 0.8;
+    vColor = vec4(
+      color.r * brightness,
+      color.g * brightness,
+      color.b * brightness,
+      color.a
+    );
+}
+|]
+
+
+fragmentShader : WebGL.Shader {} Uniforms Varyings
 fragmentShader =
     [glsl|
 precision mediump float;
-varying vec4 vcolor;
+varying vec4 vColor;
 void main () {
-    gl_FragColor = vcolor;
+    gl_FragColor = vColor;
 }
 |]
