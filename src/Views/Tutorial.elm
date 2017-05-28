@@ -42,17 +42,11 @@ view spec windowSize model =
         , model.problem
             |> Maybe.map
                 (spec.view
-                    windowSize
-                    model.animationTicksSinceNewRound
-                    { playerId = "testplayer"
-                    , guesses =
-                        case model.guess of
-                            Nothing ->
-                                Dict.empty
-
-                            Just guess ->
-                                Dict.fromList [ ( "testplayer", guess ) ]
-                    , roundResult = Pending
+                    { windowSize = windowSize
+                    , animationTicksSinceNewRound = model.animationTicksSinceNewRound
+                    , ownGuess = model.guess
+                    , opponentGuesses = []
+                    , isRoundOver = False
                     }
                 )
             |> Maybe.map (map Messages.Tutorial.Guess)

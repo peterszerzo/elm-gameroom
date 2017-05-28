@@ -1,7 +1,6 @@
 port module Main exposing (..)
 
 import Random
-import Dict
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style, attribute)
 import Html.Events exposing (onClick)
@@ -48,7 +47,7 @@ spec =
         , instructions = "One of the shapes spins the other way - care to find it?"
         }
     , view =
-        (\windowSize ticksSinceNewRound status problem ->
+        (\context problem ->
             div
                 [ class "spinning-shapes-container"
                 , style
@@ -64,24 +63,17 @@ spec =
                     (List.indexedMap
                         (\index { x, y } ->
                             let
-                                isRoundOver =
-                                    status.roundResult /= Gameroom.Spec.Pending
-
                                 isCorrect =
                                     (index == 0)
 
-                                ownGuess =
-                                    Dict.get status.playerId status.guesses
-
                                 isGuessedBySelf =
-                                    ownGuess == (Just index)
+                                    context.ownGuess == (Just index)
 
                                 isMarkedCorrect =
-                                    isCorrect && (isGuessedBySelf || isRoundOver)
+                                    isCorrect && (isGuessedBySelf || context.isRoundOver)
 
-                                isGuessed =
-                                    status.guesses
-                                        |> Dict.toList
+                                isGuessedByOthers =
+                                    context.opponentGuesses
                                         |> List.filter (\( playerId, guess ) -> guess == index)
                                         |> List.head
                                         |> Maybe.map (\( playerId, guess ) -> guess == index)
@@ -96,13 +88,13 @@ spec =
                                         , cx "0"
                                         , cy "0"
                                         , fill
-                                            (if (isCorrect && (isRoundOver || isGuessedBySelf)) then
+                                            (if (isCorrect && (context.isRoundOver || isGuessedBySelf)) then
                                                 grey
                                              else
                                                 "none"
                                             )
                                         , stroke
-                                            (if (isGuessedBySelf || (isGuessed && isRoundOver)) then
+                                            (if (isGuessedBySelf || (isGuessedByOthers && context.isRoundOver)) then
                                                 grey
                                              else
                                                 "rgba(255, 255, 255, 0)"
@@ -113,14 +105,14 @@ spec =
                                     , polygon
                                         [ points "-50,-28.8 50,-28.8 0,57.7"
                                         , fill
-                                            (if (isCorrect && (isRoundOver || isGuessedBySelf)) then
+                                            (if (isCorrect && (context.isRoundOver || isGuessedBySelf)) then
                                                 "white"
                                              else
                                                 grey
                                             )
                                         , attribute "transform"
                                             ("rotate("
-                                                ++ ((ticksSinceNewRound |> toFloat)
+                                                ++ ((context.animationTicksSinceNewRound |> toFloat)
                                                         |> (*) 0.5
                                                         |> (*)
                                                             (if index == 0 then

@@ -6,7 +6,7 @@ module Gameroom.Spec exposing (..)
 @docs Spec
 
 # The view
-@docs View, Ticks, Copy, RoundResult, Status
+@docs View, Ticks, Copy, RoundResult
 
 # Game logic
 @docs ProblemGenerator
@@ -16,12 +16,10 @@ module Gameroom.Spec exposing (..)
 -}
 
 import Html
-import Dict
-import Window
 import Random
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Models.Player exposing (PlayerId, Players)
+import Gameroom.Context exposing (Context)
 
 
 {-| Define every moving part of a multiplayer game, all generalized over a type variable representing a `problem`, and one representing a `guess`. Each field in the record is documented separately in this module.
@@ -68,26 +66,14 @@ type alias Ticks =
     Int
 
 
-{-| Game room status information passed to the view. Contains own player, a dictionary of guesses, and the round result.
--}
-type alias Status guess =
-    { playerId : PlayerId
-    , guesses : Dict.Dict PlayerId guess
-    , roundResult : RoundResult
-    }
-
-
 {-| The core of the View of the current game round, excluding all navigation, notifications and the score boards. Emits guesses.
 
 The arguments in order, are the following:
-* windowSize: the size of the window as per the `elm-lang/window` package (e.g. `{ width = 500, height = 300 }`).
-* animationTicksSinceNewRound: the number of repaints since the round started.
-* playerId: string id of the player.
-* players: a dictionary with all players. Example player: { id = "samantha", guess = { value = 3, madeAt = 11 } }
+* context: see [Context](/Gameroom-Context) docs.
 * problem: the current game problem.
 -}
 type alias View problem guess =
-    Window.Size -> Ticks -> Status guess -> problem -> Html.Html guess
+    Context guess -> problem -> Html.Html guess
 
 
 {-| Generate game problems.

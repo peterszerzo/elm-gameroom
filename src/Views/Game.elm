@@ -8,7 +8,6 @@ import Html.Events exposing (onClick)
 import Gameroom.Spec exposing (Spec, RoundResult(..))
 import Constants
 import Models.Game as Game
-import Models.Player as Player
 import Models.Room as Room
 import Messages exposing (GameMsg(..))
 import Views.Footer as Footer
@@ -126,25 +125,22 @@ viewRoom baseSlug spec windowSize model room =
                     ]
                     [ Html.map Guess
                         (spec.view
-                            windowSize
-                            model.animationTicksSinceNewRound
-                            { playerId = model.playerId
-                            , guesses =
+                            { windowSize = windowSize
+                            , animationTicksSinceNewRound = model.animationTicksSinceNewRound
+                            , ownGuess = room.players |> Dict.get model.playerId |> Maybe.andThen .guess |> Maybe.map .value
+                            , opponentGuesses =
                                 room.players
                                     |> Dict.toList
-                                    |> Player.extractGuesses
-                                    |> Dict.fromList
-                            , roundResult =
-                                if model.ticksSinceNewRound > Constants.ticksInRound then
-                                    (case Room.getRoundWinner spec room of
-                                        Just winnerId ->
-                                            Winner winnerId
-
-                                        Nothing ->
-                                            Tie
-                                    )
-                                else
-                                    Pending
+                                    |> List.filterMap
+                                        (\( playerId, player ) ->
+                                            if playerId /= model.playerId then
+                                                player.guess
+                                                    |> Maybe.map .value
+                                                    |> Maybe.map (\val -> ( playerId, val ))
+                                            else
+                                                Nothing
+                                        )
+                            , isRoundOver = model.ticksSinceNewRound > Constants.ticksInRound
                             }
                             round.problem
                         )

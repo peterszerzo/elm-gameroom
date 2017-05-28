@@ -1,6 +1,5 @@
 port module Main exposing (..)
 
-import Dict
 import Html exposing (Html, div, text, span, h1, ul, li)
 import Html.Attributes exposing (class, style, attribute)
 import Html.Events exposing (onClick)
@@ -38,91 +37,76 @@ spec =
         , instructions = "Find the capital of the country!"
         }
     , view =
-        (\_ _ status problem ->
-            let
-                ownGuess =
-                    Dict.get status.playerId status.guesses
-
-                isRoundOver =
-                    status.roundResult /= Gameroom.Spec.Pending
-            in
-                div
+        (\context problem ->
+            div
+                [ style
+                    [ ( "width", "100%" )
+                    , ( "height", "100%" )
+                    , ( "display", "flex" )
+                    , ( "align-items", "center" )
+                    , ( "justify-content", "center" )
+                    ]
+                ]
+                [ div
                     [ style
-                        [ ( "width", "100%" )
-                        , ( "height", "100%" )
-                        , ( "display", "flex" )
-                        , ( "align-items", "center" )
-                        , ( "justify-content", "center" )
+                        [ ( "margin", "0" )
+                        , ( "width", "auto" )
+                        , ( "max-width", "440px" )
+                        , ( "text-align", "center" )
                         ]
                     ]
-                    [ div
+                    [ h1 [] [ text problem.question ]
+                    , ul
                         [ style
-                            [ ( "margin", "0" )
-                            , ( "width", "auto" )
-                            , ( "max-width", "440px" )
-                            , ( "text-align", "center" )
+                            [ ( "list-style", "none" )
+                            , ( "padding-left", "0" )
                             ]
                         ]
-                        [ h1 [] [ text problem.question ]
-                        , ul
-                            [ style
-                                [ ( "list-style", "none" )
-                                , ( "padding-left", "0" )
-                                ]
-                            ]
-                            (List.indexedMap
-                                (\index answer ->
-                                    let
-                                        isGuessedBySelf =
-                                            ownGuess == (Just index)
+                        (List.indexedMap
+                            (\index answer ->
+                                let
+                                    isGuessedBySelf =
+                                        context.ownGuess == (Just index)
 
-                                        isMarkedCorrect =
-                                            (index == problem.correct) && (isGuessedBySelf || isRoundOver)
-
-                                        isGuessed =
-                                            status.guesses
-                                                |> Dict.toList
-                                                |> List.filter (\( playerId, guess ) -> guess == index)
-                                                |> List.head
-                                                |> Maybe.map (\( playerId, guess ) -> guess == index)
-                                                |> Maybe.withDefault False
-                                    in
-                                        li
-                                            [ onClick index
-                                            , style
-                                                [ ( "margin", "12px" )
-                                                , ( "display", "inline-block" )
-                                                , ( "border-width", "1px" )
-                                                , ( "border-style", "solid" )
-                                                , ( "cursor", "pointer" )
-                                                , ( "border-color"
-                                                  , if isGuessedBySelf then
-                                                        "#333333"
-                                                    else
-                                                        "#ddd"
-                                                  )
-                                                , ( "background-color"
-                                                  , if isMarkedCorrect then
-                                                        "#333333"
-                                                    else
-                                                        "transparent"
-                                                  )
-                                                , ( "color"
-                                                  , if isMarkedCorrect then
-                                                        "#FFFFFF"
-                                                    else
-                                                        "#333333"
-                                                  )
-                                                , ( "padding", "8px 16px" )
-                                                , ( "border-radius", "6px" )
-                                                ]
+                                    isMarkedCorrect =
+                                        (index == problem.correct) && (isGuessedBySelf || context.isRoundOver)
+                                in
+                                    li
+                                        [ onClick index
+                                        , style
+                                            [ ( "margin", "12px" )
+                                            , ( "display", "inline-block" )
+                                            , ( "border-width", "1px" )
+                                            , ( "border-style", "solid" )
+                                            , ( "cursor", "pointer" )
+                                            , ( "border-color"
+                                              , if isGuessedBySelf then
+                                                    "#333333"
+                                                else
+                                                    "#ddd"
+                                              )
+                                            , ( "background-color"
+                                              , if isMarkedCorrect then
+                                                    "#333333"
+                                                else
+                                                    "transparent"
+                                              )
+                                            , ( "color"
+                                              , if isMarkedCorrect then
+                                                    "#FFFFFF"
+                                                else
+                                                    "#333333"
+                                              )
+                                            , ( "padding", "8px 16px" )
+                                            , ( "border-radius", "6px" )
                                             ]
-                                            [ text answer ]
-                                )
-                                problem.answers
+                                        ]
+                                        [ text answer ]
                             )
-                        ]
+                            problem.answers
+                        )
                     ]
+                ]
         )
     , isGuessCorrect = (\problem guess -> (guess == problem.correct))
     , problemGenerator =

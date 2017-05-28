@@ -3,7 +3,6 @@ port module Main exposing (..)
 import Html exposing (Html, div)
 import Window
 import Color
-import Dict
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
 import Math.Vector3 as Vector3 exposing (Vec3, vec3)
@@ -100,17 +99,17 @@ main =
             , instructions = "Which car is the winner?"
             }
         , view =
-            (\windowSize ticks status problem ->
+            (\context problem ->
                 let
-                    ownGuess =
-                        Dict.get status.playerId status.guesses
+                    ticks =
+                        context.animationTicksSinceNewRound
 
                     perspective_ =
                         perspective ticks
                 in
                     div []
-                        [ viewNav ownGuess
-                        , viewWebglContainer windowSize <|
+                        [ viewNav context.ownGuess
+                        , viewWebglContainer context.windowSize <|
                             [ WebGL.entity
                                 vertexShader
                                 fragmentShader

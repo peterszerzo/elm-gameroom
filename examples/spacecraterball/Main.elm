@@ -3,7 +3,6 @@ port module Main exposing (..)
 import Html exposing (Html, div)
 import Window
 import Color
-import Dict
 import Random
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
@@ -84,32 +83,28 @@ main =
             , instructions = "Will the rock land inside the crater or bounce off?"
             }
         , view =
-            (\windowSize ticks status problem ->
-                let
-                    ownGuess =
-                        Dict.get status.playerId status.guesses
-                in
-                    div []
-                        [ viewNav ownGuess
-                        , viewWebglContainer windowSize
-                            [ WebGL.entityWith
-                                [ Blend.add Blend.srcAlpha Blend.oneMinusSrcAlpha ]
-                                terrainVertexShader
-                                fragmentShader
-                                terrain
-                                { perspective = perspective ticks
-                                , transform = Matrix4.identity
-                                }
-                            , WebGL.entityWith
-                                [ Blend.add Blend.srcAlpha Blend.oneMinusSrcAlpha ]
-                                ballVertexShader
-                                fragmentShader
-                                ballMesh
-                                { perspective = perspective ticks
-                                , transform = ballTransform problem ticks
-                                }
-                            ]
+            (\context problem ->
+                div []
+                    [ viewNav context.ownGuess
+                    , viewWebglContainer context.windowSize
+                        [ WebGL.entityWith
+                            [ Blend.add Blend.srcAlpha Blend.oneMinusSrcAlpha ]
+                            terrainVertexShader
+                            fragmentShader
+                            terrain
+                            { perspective = perspective context.animationTicksSinceNewRound
+                            , transform = Matrix4.identity
+                            }
+                        , WebGL.entityWith
+                            [ Blend.add Blend.srcAlpha Blend.oneMinusSrcAlpha ]
+                            ballVertexShader
+                            fragmentShader
+                            ballMesh
+                            { perspective = perspective context.animationTicksSinceNewRound
+                            , transform = ballTransform problem context.animationTicksSinceNewRound
+                            }
                         ]
+                    ]
             )
         , isGuessCorrect =
             (\problem guess ->
