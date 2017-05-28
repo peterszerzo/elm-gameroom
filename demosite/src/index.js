@@ -12,7 +12,8 @@
     'lettero',
     'counterclockwooze',
     'spacecraterball',
-    'the-capitalist'
+    'the-capitalist',
+    'fast-and-moebius'
   ]
   var path = window.location.pathname
   var game = games.filter(function (url) {

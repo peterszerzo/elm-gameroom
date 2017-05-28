@@ -1,7 +1,7 @@
 #!/bin/sh
 
 DIST=demosite/dist
-EXAMPLES=(spacecraterball counterclockwooze lettero the-capitalist)
+EXAMPLES=(spacecraterball counterclockwooze lettero the-capitalist fast-and-moebius)
 
 rm -rf $DIST
 mkdir $DIST
