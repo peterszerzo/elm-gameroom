@@ -43,8 +43,8 @@ type alias Model problem guess =
 
 Defining them goes like so:
 
-    port incoming = (String -> msg) -> Sub msg
-    port outgoing = String -> Cmd msg
+    port incoming = (JE.Value -> msg) -> Sub msg
+    port outgoing = JE.Value -> Cmd msg
 
     ports = { incoming = incoming, outgoing = outgoing }
 

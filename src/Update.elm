@@ -11,7 +11,6 @@ import Gameroom.Spec exposing (Spec)
 import Models.Ports exposing (Ports)
 import Router
 import Models.IncomingMessage as InMsg
-import Json.Encode as JE
 import Update.NewRoom
 import Update.Game
 import Update.Tutorial
@@ -28,14 +27,12 @@ cmdOnRouteChange spec ports route prevRoute =
         ( Router.Game game, _ ) ->
             OutgoingMessage.SubscribeToRoom game.roomId
                 |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
-                |> JE.encode 0
                 |> ports.outgoing
 
         ( _, Just (Router.Game prevGame) ) ->
             -- Unsubscribe from a previous room
             OutgoingMessage.UnsubscribeFromRoom prevGame.roomId
                 |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
-                |> JE.encode 0
                 |> ports.outgoing
 
         ( Router.Tutorial _, _ ) ->
@@ -102,7 +99,6 @@ update baseSlug spec ports msg model =
                     Room.create newRoom.roomId newRoom.playerIds
                         |> OutgoingMessage.CreateRoom
                         |> OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder
-                        |> JE.encode 0
                         |> ports.outgoing
                   else
                     Cmd.none

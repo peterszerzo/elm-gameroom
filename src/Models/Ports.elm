@@ -1,7 +1,9 @@
 module Models.Ports exposing (..)
 
+import Json.Encode as JE
+
 
 type alias Ports msg =
-    { incoming : (String -> msg) -> Sub msg
-    , outgoing : String -> Cmd msg
+    { incoming : (JE.Value -> msg) -> Sub msg
+    , outgoing : JE.Value -> Cmd msg
     }

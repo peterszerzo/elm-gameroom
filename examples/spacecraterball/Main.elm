@@ -54,10 +54,10 @@ type alias Guess =
     Bool
 
 
-port outgoing : String -> Cmd msg
+port outgoing : JE.Value -> Cmd msg
 
 
-port incoming : (String -> msg) -> Sub msg
+port incoming : (JE.Value -> msg) -> Sub msg
 
 
 ports : Ports (Msg Problem Guess)

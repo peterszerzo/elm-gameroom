@@ -11,7 +11,6 @@ import Models.Player as Player
 import Gameroom.Spec exposing (Spec)
 import Models.Ports exposing (Ports)
 import Models.Game as Game
-import Json.Encode as JE
 
 
 updateRoomCmd :
@@ -21,7 +20,7 @@ updateRoomCmd :
     -> Cmd (Messages.Msg problem guess)
 updateRoomCmd spec ports model =
     model.room
-        |> Maybe.map (OutgoingMessage.UpdateRoom >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
+        |> Maybe.map (OutgoingMessage.UpdateRoom >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder) >> ports.outgoing)
         |> Maybe.withDefault Cmd.none
 
 
@@ -32,7 +31,7 @@ updatePlayerCmd :
     -> Cmd (Messages.Msg problem guess)
 updatePlayerCmd spec ports player =
     player
-        |> Maybe.map (OutgoingMessage.UpdatePlayer >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder) >> JE.encode 0 >> ports.outgoing)
+        |> Maybe.map (OutgoingMessage.UpdatePlayer >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder) >> ports.outgoing)
         |> Maybe.withDefault Cmd.none
 
 

@@ -5,18 +5,17 @@
  * @return {object} ports
  */
 var talkToPorts = function (db, ports) {
-  ports.outgoing.subscribe(function (msg) {
-    var data = JSON.parse(msg)
+  ports.outgoing.subscribe(function (data) {
     var type = data.type
     var payload = data.payload
     switch (type) {
       // Subscribe to room, sending room:updated messages
       case 'subscribeto:room':
         return db.subscribeToRoom(payload, function (room) {
-          ports.incoming.send(JSON.stringify({
+          ports.incoming.send({
             type: 'room:updated',
             payload: room
-          }))
+          })
         })
       // Unsubscribe from room, making sure room:updated messages are no longer sent
       case 'unsubscribefrom:room':
@@ -24,10 +23,10 @@ var talkToPorts = function (db, ports) {
       // Create new game room in storage, sending back a room:created message.
       case 'create:room':
         return db.createRoom(payload).then(function () {
-          ports.incoming.send(JSON.stringify({
+          ports.incoming.send({
             type: 'room:created',
             payload: payload
-          }))
+          })
         })
       // Update room. If subscribed, this should signal back to the roomUpdated port.
       // Hence, no feedback is necessary in this method.
