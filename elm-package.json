@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0",
+    "version": "2.0.0",
     "summary": "Multiplayer guessing game framework",
     "repository": "https://github.com/peterszerzo/elm-gameroom.git",
     "license": "BSD3",
