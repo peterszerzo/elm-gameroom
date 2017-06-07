@@ -12,7 +12,7 @@ You can try some games made with the framework by playing in two tabs of the sam
 
 To do that, install elm-live: `npm i -g elm-live`.
 
-Then run the following command: `bin/run-example.sh $NAME`, where `$NAME` is a folder name within `./examples`, either `spinning-shapes`, `lettero` or `capitals`.
+Then run the following command: `bin/run-example.sh $NAME`, where `$NAME` is a folder name within `./examples`, either `counterclockwooze`, `lettero`, `spacecraterball` or `the-capitalist`.
 
 ## How does it work?
 
