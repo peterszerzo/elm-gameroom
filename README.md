@@ -2,7 +2,7 @@
 
 This is a framework for creating multiplayer guessing games by the boatloads, all within the comfort of Elm. Specify only what is unique to a game, write no logic on the back-end, and have it all wired up and ready to play.
 
-`elm-gameroom` takes care of calling game rounds, generating problems and reconciling scores, all the while talking to either a generic real-time database such as Firebase (adapter provided), with have clients sort things out amongst themselves via WebRTC (JavaScript glue code provided).
+`elm-gameroom` takes care of calling game rounds, generating problems and reconciling scores, all the while talking to either a generic real-time database such as Firebase (adapter provided), or have clients sort things out amongst themselves via WebRTC (JavaScript glue code provided).
 
 See [this talk](http://elmeu.peterszerzo.com) for some context.
 
