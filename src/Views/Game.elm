@@ -120,11 +120,7 @@ viewRoom baseSlug spec windowSize model room =
         (case room.round of
             Just round ->
                 div
-                    [ localClassList
-                        [ ( GamePlay, True )
-                        , ( GamePlayInCooldown, RoundTime.timeSinceNewRound model.time > Constants.roundDuration )
-                        ]
-                    ]
+                    [ localClass [ GamePlay ] ]
                     [ Html.map Guess
                         (spec.view
                             { windowSize = windowSize
