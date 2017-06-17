@@ -1,6 +1,7 @@
 module Subscriptions exposing (..)
 
 import Window
+import Time
 import Json.Decode as JD
 import Messages
 import Messages.Tutorial
@@ -30,7 +31,8 @@ subscriptions spec ports model =
         , case model.route of
             Router.Game _ ->
                 Sub.batch
-                    [ AnimationFrame.times (Messages.GameMsg << Messages.Game.Tick)
+                    [ Time.every (100 * Time.millisecond) (Messages.GameMsg << Messages.Game.Tick)
+                    , AnimationFrame.times (Messages.GameMsg << Messages.Game.Tick)
                     , Window.resizes Messages.Resize
                     ]
 

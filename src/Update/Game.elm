@@ -126,9 +126,6 @@ update spec ports msg model =
 
         ( Guess guess, Just room ) ->
             let
-                didAlreadyGuess =
-                    Game.getOwnGuess model /= Nothing
-
                 isRoundOver =
                     RoundTime.timeSinceNewRound model.time > Constants.roundDuration
 
@@ -141,7 +138,7 @@ update spec ports msg model =
                 cmd =
                     updatePlayerCmd spec ports newPlayer
             in
-                if didAlreadyGuess || isRoundOver then
+                if isRoundOver then
                     ( model, Cmd.none )
                 else
                     ( newModel, cmd )
@@ -180,9 +177,6 @@ update spec ports msg model =
             let
                 potentialRoundWinner =
                     Room.getRoundWinner spec room
-
-                newProblemCmd =
-                    (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
 
                 allPlayersReady =
                     Room.allPlayersReady room
@@ -237,6 +231,9 @@ update spec ports msg model =
                             else
                                 model.time
                     }
+
+                newProblemCmd =
+                    (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
             in
                 ( newModel
                 , Cmd.batch
