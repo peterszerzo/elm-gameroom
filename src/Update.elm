@@ -5,6 +5,8 @@ import Random
 import Models.OutgoingMessage as OutgoingMessage
 import Messages exposing (..)
 import Messages.Tutorial
+import Messages.Game
+import Messages.NewRoom
 import Models.Room as Room
 import Models exposing (Model)
 import Gameroom.Spec exposing (Spec)
@@ -104,10 +106,10 @@ update baseSlug spec ports msg model =
                     Cmd.none
                 )
 
-        ( Router.NewRoom newRoom, IncomingSubscription (InMsg.RoomCreated room) ) ->
+        ( Router.NewRoom newRoom, IncomingMessage (InMsg.RoomCreated room) ) ->
             let
                 ( newModel, _, newUrl ) =
-                    Update.NewRoom.update (CreateResponse "") newRoom
+                    Update.NewRoom.update (Messages.NewRoom.CreateResponse "") newRoom
             in
                 ( { model
                     | route =
@@ -118,10 +120,10 @@ update baseSlug spec ports msg model =
                     |> Maybe.withDefault Cmd.none
                 )
 
-        ( Router.Game game, IncomingSubscription (InMsg.RoomUpdated room) ) ->
+        ( Router.Game game, IncomingMessage (InMsg.RoomUpdated room) ) ->
             let
                 ( newGame, cmd ) =
-                    Update.Game.update spec ports (ReceiveUpdate room) game
+                    Update.Game.update spec ports (Messages.Game.ReceiveUpdate room) game
             in
                 ( { model | route = Router.Game newGame }, cmd )
 

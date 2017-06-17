@@ -4,7 +4,7 @@ import Html exposing (Html, div, text, button, form, h1, h2, label, input, field
 import Html.Attributes exposing (class, style, type_, value, id, for, href, placeholder, disabled)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Models.NewRoom as NewRoom
-import Messages exposing (NewRoomMsg(..))
+import Messages.NewRoom exposing (NewRoomMsg(..))
 import Views.NewRoom.Styles exposing (CssClasses(..), localClass, localClassList)
 import Views.Loader
 import Views.Notification

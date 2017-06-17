@@ -15,7 +15,7 @@ view :
     Spec problem guess
     -> Window.Size
     -> Models.Tutorial.Tutorial problem guess
-    -> Html (Messages.Tutorial.Msg problem guess)
+    -> Html (Messages.Tutorial.TutorialMsg problem guess)
 view spec windowSize model =
     div
         [ localClass [ Root ]

@@ -3,7 +3,7 @@ module Messages.Tutorial exposing (..)
 import Time
 
 
-type Msg problem guess
+type TutorialMsg problem guess
     = RequestNewProblem
     | ReceiveProblem problem
     | Guess guess

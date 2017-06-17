@@ -4,7 +4,8 @@ import Random
 import Dict
 import Models.OutgoingMessage as OutgoingMessage
 import Constants
-import Messages exposing (..)
+import Messages
+import Messages.Game exposing (..)
 import Models.Game
 import Models.Room as Room
 import Models.Player as Player

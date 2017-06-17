@@ -1,8 +1,8 @@
 module Update.NewRoom exposing (..)
 
-import Messages exposing (..)
 import Models.NewRoom as NewRoom
 import Utilities exposing (urlize)
+import Messages.NewRoom exposing (..)
 
 
 update : NewRoomMsg -> NewRoom.NewRoom -> ( NewRoom.NewRoom, Bool, Maybe String )

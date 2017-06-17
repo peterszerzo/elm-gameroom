@@ -11,7 +11,7 @@ import Constants
 import Models.Game as Game
 import Models.Room as Room
 import Models.RoundTime as RoundTime
-import Messages exposing (GameMsg(..))
+import Messages.Game exposing (GameMsg(..))
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer
