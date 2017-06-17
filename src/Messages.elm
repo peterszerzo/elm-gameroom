@@ -5,12 +5,12 @@ import Models.IncomingMessage as InMsg
 import Models.Room as Room
 import Messages.Tutorial
 import Window
+import Time
 
 
 type GameMsg problem guess
     = Guess guess
-    | Tick Float
-    | AnimationTick Float
+    | Tick Time.Time
     | ReceiveUpdate (Room.Room problem guess)
     | MarkReady
     | ReceiveNewProblem problem

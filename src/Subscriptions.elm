@@ -1,11 +1,9 @@
 module Subscriptions exposing (..)
 
-import Time
 import Window
 import Json.Decode as JD
 import Messages
 import Messages.Tutorial
-import Constants
 import Router as Router
 import Models.Ports as Ports
 import Gameroom.Spec as Spec
@@ -31,14 +29,13 @@ subscriptions spec ports model =
         , case model.route of
             Router.Game _ ->
                 Sub.batch
-                    [ Time.every Constants.tickDuration (Messages.GameMsg << Messages.Tick)
-                    , AnimationFrame.times (Messages.GameMsg << Messages.AnimationTick)
+                    [ AnimationFrame.times (Messages.GameMsg << Messages.Tick)
                     , Window.resizes Messages.Resize
                     ]
 
             Router.Tutorial _ ->
                 Sub.batch
-                    [ AnimationFrame.times (Messages.TutorialMsg << Messages.Tutorial.AnimationTick)
+                    [ AnimationFrame.times (Messages.TutorialMsg << Messages.Tutorial.Tick)
                     , Window.resizes Messages.Resize
                     ]
 

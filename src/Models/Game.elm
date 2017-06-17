@@ -5,6 +5,7 @@ import Constants
 import Gameroom.Spec as Spec
 import Models.Guess exposing (Guess)
 import Models.Room as Room
+import Models.RoundTime as RoundTime
 import Models.RoomId exposing (RoomId)
 import Models.Player exposing (Player, PlayerId)
 
@@ -13,8 +14,7 @@ type alias Game problem guess =
     { roomId : String
     , playerId : String
     , room : Maybe (Room.Room problem guess)
-    , ticksSinceNewRound : Int
-    , animationTicksSinceNewRound : Int
+    , time : RoundTime.RoundTime
     }
 
 
@@ -27,8 +27,7 @@ init roomId playerId =
     { roomId = roomId
     , playerId = playerId
     , room = Nothing
-    , ticksSinceNewRound = 0
-    , animationTicksSinceNewRound = 0
+    , time = RoundTime.init
     }
 
 
@@ -45,7 +44,7 @@ setOwnGuess guess model =
         Just room ->
             let
                 newGuess =
-                    Just { value = guess, madeAt = model.ticksSinceNewRound }
+                    Just { value = guess, madeAt = RoundTime.timeSinceNewRound model.time }
 
                 players =
                     room.players
@@ -83,7 +82,7 @@ getNotificationContent : Spec.Spec problem guess -> Game problem guess -> Maybe 
 getNotificationContent spec model =
     case model.room of
         Just room ->
-            if (model.ticksSinceNewRound < Constants.ticksInRound) then
+            if (RoundTime.timeSinceNewRound model.time < Constants.roundDuration) then
                 Maybe.map2
                     (\guess round ->
                         if spec.isGuessCorrect round.problem guess.value then

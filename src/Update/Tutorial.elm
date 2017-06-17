@@ -2,6 +2,7 @@ module Update.Tutorial exposing (..)
 
 import Random
 import Messages
+import Models.RoundTime as RoundTime
 import Messages.Tutorial exposing (Msg(..))
 import Models.Tutorial exposing (Tutorial)
 import Gameroom.Spec exposing (Spec)
@@ -23,7 +24,7 @@ update spec msg model =
             ( { model
                 | problem = Just problem
                 , guess = Nothing
-                , animationTicksSinceNewRound = 0
+                , time = RoundTime.init
               }
             , Cmd.none
             )
@@ -31,5 +32,5 @@ update spec msg model =
         Guess guess ->
             ( { model | guess = Just guess }, Cmd.none )
 
-        AnimationTick _ ->
-            ( { model | animationTicksSinceNewRound = model.animationTicksSinceNewRound + 1 }, Cmd.none )
+        Tick time ->
+            ( { model | time = RoundTime.update time model.time }, Cmd.none )

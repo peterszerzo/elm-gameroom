@@ -1,6 +1,7 @@
 module Views.Game exposing (..)
 
 import Dict
+import Time
 import Window
 import Html exposing (Html, div, text, p, h2, ul, li, span, a)
 import Html.Attributes exposing (class, style, href)
@@ -9,6 +10,7 @@ import Gameroom.Spec exposing (Spec, RoundResult(..))
 import Constants
 import Models.Game as Game
 import Models.Room as Room
+import Models.RoundTime as RoundTime
 import Messages exposing (GameMsg(..))
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
@@ -120,13 +122,13 @@ viewRoom baseSlug spec windowSize model room =
                 div
                     [ localClassList
                         [ ( GamePlay, True )
-                        , ( GamePlayInCooldown, model.ticksSinceNewRound > Constants.ticksInRound )
+                        , ( GamePlayInCooldown, RoundTime.timeSinceNewRound model.time > Constants.roundDuration )
                         ]
                     ]
                     [ Html.map Guess
                         (spec.view
                             { windowSize = windowSize
-                            , animationTicksSinceNewRound = model.animationTicksSinceNewRound
+                            , animationTicksSinceNewRound = RoundTime.timeSinceNewRound model.time / (16 * Time.millisecond) |> floor
                             , ownGuess = room.players |> Dict.get model.playerId |> Maybe.andThen .guess |> Maybe.map .value
                             , opponentGuesses =
                                 room.players
@@ -140,7 +142,7 @@ viewRoom baseSlug spec windowSize model room =
                                             else
                                                 Nothing
                                         )
-                            , isRoundOver = model.ticksSinceNewRound > Constants.ticksInRound
+                            , isRoundOver = RoundTime.timeSinceNewRound model.time > Constants.roundDuration
                             }
                             round.problem
                         )
@@ -153,7 +155,7 @@ viewRoom baseSlug spec windowSize model room =
         viewReadyPrompt baseSlug spec model room
     , Notification.view (Game.getNotificationContent spec model) Nothing
     , if (Room.allPlayersReady room) then
-        Timer.view ((model.ticksSinceNewRound |> toFloat) / (Constants.ticksInRound |> toFloat))
+        Timer.view ((RoundTime.timeSinceNewRound model.time) / Constants.roundDuration)
       else
         div [] []
     , Footer.view

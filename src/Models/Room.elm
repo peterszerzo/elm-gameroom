@@ -94,7 +94,7 @@ allPlayersGuessed room =
         |> List.all ((/=) Nothing)
 
 
-bigNumber : Int
+bigNumber : Float
 bigNumber =
     100000
 

@@ -8,6 +8,7 @@ import Messages exposing (..)
 import Models.Game
 import Models.Room as Room
 import Models.Player as Player
+import Models.RoundTime as RoundTime
 import Gameroom.Spec exposing (Spec)
 import Models.Ports exposing (Ports)
 import Models.Game as Game
@@ -57,7 +58,7 @@ update spec ports msg model =
                 prevAllPlayersReady =
                     Room.allPlayersReady prevRoom
 
-                resetTicks =
+                resetTime =
                     isNewRound || (allPlayersReady && (not prevAllPlayersReady))
 
                 newProblemCmd =
@@ -68,16 +69,11 @@ update spec ports msg model =
             in
                 ( { model
                     | room = Just room
-                    , ticksSinceNewRound =
-                        if resetTicks then
-                            0
+                    , time =
+                        if resetTime then
+                            RoundTime.init
                         else
-                            model.ticksSinceNewRound
-                    , animationTicksSinceNewRound =
-                        if resetTicks then
-                            0
-                        else
-                            model.animationTicksSinceNewRound
+                            model.time
                   }
                 , if initiateNewRound then
                     newProblemCmd
@@ -113,8 +109,7 @@ update spec ports msg model =
                 newModel =
                     { model
                         | room = Just newRoom
-                        , ticksSinceNewRound = 0
-                        , animationTicksSinceNewRound = 0
+                        , time = RoundTime.init
                     }
 
                 cmd =
@@ -134,7 +129,7 @@ update spec ports msg model =
                     Game.getOwnGuess model /= Nothing
 
                 isRoundOver =
-                    model.ticksSinceNewRound > Constants.ticksInRound
+                    RoundTime.timeSinceNewRound model.time > Constants.roundDuration
 
                 newModel =
                     Models.Game.setOwnGuess guess model
@@ -166,8 +161,7 @@ update spec ports msg model =
                 newModel =
                     { model
                         | room = Just newRoom
-                        , ticksSinceNewRound = 0
-                        , animationTicksSinceNewRound = 0
+                        , time = RoundTime.init
                     }
 
                 cmd =
@@ -180,14 +174,6 @@ update spec ports msg model =
         ( MarkReady, Nothing ) ->
             -- Impossible state
             ( model, Cmd.none )
-
-        ( AnimationTick time, _ ) ->
-            ( { model
-                | animationTicksSinceNewRound =
-                    model.animationTicksSinceNewRound + 1
-              }
-            , Cmd.none
-            )
 
         ( Tick time, Just room ) ->
             let
@@ -203,11 +189,16 @@ update spec ports msg model =
                 isHost =
                     room.host == model.playerId
 
-                isRoundJustOver =
-                    (model.ticksSinceNewRound == Constants.ticksInRound)
+                newTime =
+                    RoundTime.update time model.time
 
+                -- Not working right now
+                isRoundJustOver =
+                    RoundTime.isRoundJustOver model.time newTime
+
+                -- Not working right now
                 isCooldownJustOver =
-                    (model.ticksSinceNewRound == (Constants.ticksInRound + Constants.ticksInCooldown))
+                    RoundTime.isCooldownJustOver model.time newTime
 
                 initiateNewRound =
                     isHost
@@ -239,13 +230,11 @@ update spec ports msg model =
                     { model
                         | room =
                             Just newRoom
-                        , ticksSinceNewRound =
-                            model.ticksSinceNewRound
-                                + (if allPlayersReady then
-                                    1
-                                   else
-                                    0
-                                  )
+                        , time =
+                            if allPlayersReady then
+                                RoundTime.update time model.time
+                            else
+                                model.time
                     }
             in
                 ( newModel

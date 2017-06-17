@@ -1,6 +1,6 @@
 module Constants exposing (..)
 
-import Time exposing (Time, millisecond)
+import Time exposing (Time, millisecond, second)
 
 
 -- Null string value used in storage
@@ -15,16 +15,11 @@ nullString =
 -- Game round time parameters, all in milliseconds
 
 
-ticksInRound : Int
-ticksInRound =
-    40
+roundDuration : Time
+roundDuration =
+    4 * second
 
 
-ticksInCooldown : Int
-ticksInCooldown =
-    20
-
-
-tickDuration : Time
-tickDuration =
-    100 * millisecond
+cooldownDuration : Time
+cooldownDuration =
+    2 * second

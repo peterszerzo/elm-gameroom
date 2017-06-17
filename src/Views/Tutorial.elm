@@ -1,9 +1,9 @@
 module Views.Tutorial exposing (..)
 
-import Dict
 import Window
 import Html exposing (Html, map, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
 import Html.Events exposing (onClick)
+import Models.RoundTime as RoundTime
 import Gameroom.Spec exposing (Spec, RoundResult(..))
 import Models.Tutorial
 import Messages.Tutorial
@@ -43,7 +43,7 @@ view spec windowSize model =
             |> Maybe.map
                 (spec.view
                     { windowSize = windowSize
-                    , animationTicksSinceNewRound = model.animationTicksSinceNewRound
+                    , animationTicksSinceNewRound = (RoundTime.ticksSinceNewRound model.time)
                     , ownGuess = model.guess
                     , opponentGuesses = []
                     , isRoundOver = False
