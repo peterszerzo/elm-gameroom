@@ -11,7 +11,7 @@ import WebGL
 import Json.Encode as JE
 import Json.Decode as JD
 import Math.Matrix4 as Matrix4
-import Gameroom exposing (programAt, Ports, Model, Msg)
+import Gameroom exposing (..)
 import Gameroom.Utilities exposing (generatorFromList)
 
 
@@ -91,14 +91,14 @@ cars =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    programAt "fast-and-moebius"
-        { copy =
-            { icon = "🏎️"
-            , name = "Fast and Moebius"
-            , subheading = "Engines and linear algebra! (dev in progress, not yet playable)"
-            , instructions = "Which car is the winner?"
-            }
-        , view =
+    programWith
+        [ baseUrl "fast-and-moebius"
+        , icon "🏎️"
+        , name "Fast and Moebius"
+        , subheading "Engines and linear algebra! (dev in progress, not yet playable)"
+        , instructions "Which car is the winner?"
+        ]
+        { view =
             (\context problem ->
                 let
                     ticks =

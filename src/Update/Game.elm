@@ -10,13 +10,13 @@ import Models.Game
 import Models.Room as Room
 import Models.Player as Player
 import Models.RoundTime as RoundTime
-import Gameroom.Spec exposing (Spec)
+import Models.Spec as Spec
 import Models.Ports exposing (Ports)
 import Models.Game as Game
 
 
 updateRoomCmd :
-    Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Ports (Messages.Msg problem guess)
     -> Game.Game problem guess
     -> Cmd (Messages.Msg problem guess)
@@ -27,7 +27,7 @@ updateRoomCmd spec ports model =
 
 
 updatePlayerCmd :
-    Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Ports (Messages.Msg problem guess)
     -> Maybe (Player.Player guess)
     -> Cmd (Messages.Msg problem guess)
@@ -38,7 +38,7 @@ updatePlayerCmd spec ports player =
 
 
 update :
-    Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Ports (Messages.Msg problem guess)
     -> GameMsg problem guess
     -> Game.Game problem guess

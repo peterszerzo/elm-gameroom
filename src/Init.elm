@@ -6,21 +6,20 @@ import Navigation
 import Task
 import Models exposing (Model)
 import Models.Ports exposing (Ports)
-import Gameroom.Spec exposing (Spec)
+import Models.Spec as Spec
 import Messages exposing (Msg)
 import Update exposing (cmdOnRouteChange)
 
 
 init :
-    Maybe String
-    -> Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Ports (Msg problem guess)
     -> Navigation.Location
     -> ( Model problem guess, Cmd (Messages.Msg problem guess) )
-init baseSlug spec ports loc =
+init spec ports loc =
     let
         route =
-            Router.parse baseSlug loc
+            Router.parse spec.baseUrl loc
 
         cmd =
             Cmd.batch
@@ -28,7 +27,7 @@ init baseSlug spec ports loc =
                 , Window.size |> Task.perform Messages.Resize
                 , if route == Router.NotOnBaseRoute then
                     (Navigation.newUrl
-                        ("/" ++ (baseSlug |> Maybe.withDefault ""))
+                        ("/" ++ (spec.baseUrl |> Maybe.withDefault ""))
                     )
                   else
                     Cmd.none

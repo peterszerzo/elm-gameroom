@@ -4,7 +4,8 @@ import Window
 import Html exposing (Html, map, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
 import Html.Events exposing (onClick)
 import Models.RoundTime as RoundTime
-import Gameroom.Spec exposing (Spec, RoundResult(..))
+import Models.Spec as Spec
+import Models.RoundResult exposing (RoundResult(..))
 import Models.Tutorial
 import Messages.Tutorial
 import Views.Tutorial.Styles exposing (CssClasses(..), localClass)
@@ -12,7 +13,7 @@ import Views.Notification
 
 
 view :
-    Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Window.Size
     -> Models.Tutorial.Tutorial problem guess
     -> Html (Messages.Tutorial.TutorialMsg problem guess)
@@ -26,7 +27,7 @@ view spec windowSize model =
                     (\problem ->
                         case model.guess of
                             Nothing ->
-                                spec.copy.instructions ++ " " ++ "Take your time now, just bear in mind it'll be against the clock in the real game!"
+                                spec.instructions ++ " " ++ "Take your time now, just bear in mind it'll be against the clock in the real game!"
 
                             Just guess ->
                                 if spec.isGuessCorrect problem guess then

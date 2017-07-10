@@ -15,7 +15,7 @@ import WebGL.Settings.Blend as Blend
 import Json.Encode as JE
 import Json.Decode as JD
 import Math.Matrix4 as Matrix4
-import Gameroom exposing (programAt, Ports, Model, Msg)
+import Gameroom exposing (..)
 
 
 type alias Problem =
@@ -75,14 +75,14 @@ type alias Vertex =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    programAt "spacecraterball"
-        { copy =
-            { icon = "🚀"
-            , name = "Spacecraterball"
-            , subheading = "A futuristic physics game"
-            , instructions = "Will the rock land inside the crater or bounce off?"
-            }
-        , view =
+    programWith
+        [ baseUrl "spacecraterball"
+        , icon "🚀"
+        , name "Spacecraterball"
+        , subheading "A futuristic physics game"
+        , instructions "Will the rock land inside the crater or bounce off?"
+        ]
+        { view =
             (\context problem ->
                 div []
                     [ viewNav context.ownGuess

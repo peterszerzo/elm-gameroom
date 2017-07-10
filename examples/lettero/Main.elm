@@ -5,8 +5,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Json.Encode as JE
 import Json.Decode as JD
-import Gameroom exposing (program, Model, Msg, Ports)
-import Gameroom.Spec exposing (Spec)
+import Gameroom exposing (..)
 import Gameroom.Utilities exposing (generatorFromList)
 
 
@@ -27,13 +26,7 @@ type alias Guess =
 
 spec : Spec Problem Guess
 spec =
-    { copy =
-        { icon = "✏️"
-        , name = "Lettero"
-        , subheading = "A mildly frustrating wordgame!"
-        , instructions = "There is a word in there somewhere - tap its first letter!"
-        }
-    , view =
+    { view =
         (\context problem ->
             div
                 [ style
@@ -142,4 +135,12 @@ ports =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    Gameroom.programAt "lettero" spec ports
+    Gameroom.programWith
+        [ baseUrl "lettero"
+        , icon "✏️"
+        , name "Lettero"
+        , subheading "A mildly frustrating wordgame!"
+        , instructions "There is a word in there somewhere - tap its first letter!"
+        ]
+        spec
+        ports

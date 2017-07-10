@@ -5,7 +5,7 @@ import Css exposing (Stylesheet, stylesheet, position, fixed, top, px, bottom, l
 import Css.Namespace exposing (namespace)
 import Html.CssHelpers
 import Css.File exposing (compile)
-import Gameroom.Spec exposing (Spec)
+import Models.Spec as Spec
 import Models exposing (Model)
 import Messages exposing (Msg(..))
 import Router as Router
@@ -81,8 +81,8 @@ class =
     Html.CssHelpers.withNamespace cssNamespace |> .class
 
 
-view : Maybe String -> Spec problem guess -> Model problem guess -> Html (Msg problem guess)
-view baseSlug spec model =
+view : Spec.DetailedSpec problem guess -> Model problem guess -> Html (Msg problem guess)
+view spec model =
     let
         isHome =
             model.route == Router.Home
@@ -93,7 +93,7 @@ view baseSlug spec model =
                     Views.Home.view spec
 
                 Router.Game game ->
-                    Views.Game.view baseSlug spec model.windowSize game
+                    Views.Game.view spec model.windowSize game
                         |> Html.map GameMsg
 
                 Router.NewRoom newRoom ->
@@ -118,7 +118,7 @@ view baseSlug spec model =
                 ++ (if isHome then
                         [ Views.Attribution.view ]
                     else
-                        [ Views.Header.view spec.copy.icon
+                        [ Views.Header.view spec.icon
                         ]
                    )
                 ++ [ content ]

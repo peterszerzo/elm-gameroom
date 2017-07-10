@@ -7,9 +7,9 @@ import Messages exposing (..)
 import Messages.Tutorial
 import Messages.Game
 import Messages.NewRoom
-import Models.Room as Room
 import Models exposing (Model)
-import Gameroom.Spec exposing (Spec)
+import Models.Room as Room
+import Models.Spec as Spec
 import Models.Ports exposing (Ports)
 import Router
 import Models.IncomingMessage as InMsg
@@ -19,7 +19,7 @@ import Update.Tutorial
 
 
 cmdOnRouteChange :
-    Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Ports (Msg problem guess)
     -> Router.Route problem guess
     -> Maybe (Router.Route problem guess)
@@ -53,17 +53,16 @@ navigationNewUrl baseSlug newUrl =
 
 
 update :
-    Maybe String
-    -> Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Ports (Msg problem guess)
     -> Msg problem guess
     -> Model problem guess
     -> ( Model problem guess, Cmd (Msg problem guess) )
-update baseSlug spec ports msg model =
+update spec ports msg model =
     case ( model.route, msg ) of
         ( _, Navigate newUrl ) ->
             ( model
-            , navigationNewUrl baseSlug newUrl
+            , navigationNewUrl spec.baseUrl newUrl
             )
 
         ( oldRoute, ChangeRoute route ) ->
@@ -72,7 +71,7 @@ update baseSlug spec ports msg model =
                 [ cmdOnRouteChange spec ports route (Just oldRoute)
                 , if route == Router.NotOnBaseRoute then
                     (Navigation.newUrl
-                        ("/" ++ (baseSlug |> Maybe.withDefault ""))
+                        ("/" ++ (spec.baseUrl |> Maybe.withDefault ""))
                     )
                   else
                     Cmd.none
@@ -116,7 +115,7 @@ update baseSlug spec ports msg model =
                         Router.NewRoom newRoom
                   }
                 , newUrl
-                    |> Maybe.map (navigationNewUrl baseSlug)
+                    |> Maybe.map (navigationNewUrl spec.baseUrl)
                     |> Maybe.withDefault Cmd.none
                 )
 

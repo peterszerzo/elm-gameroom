@@ -3,7 +3,7 @@ module Models.Room exposing (..)
 import Dict
 import Json.Decode as JD
 import Json.Encode as JE
-import Gameroom.Spec as Spec
+import Models.Spec as Spec
 import Models.Player as Player
 import Models.Round as Round
 import Models.RoomId exposing (RoomId)
@@ -99,7 +99,7 @@ bigNumber =
     100000
 
 
-getRoundWinner : Spec.Spec problem guess -> Room problem guess -> Maybe Player.PlayerId
+getRoundWinner : Spec.DetailedSpec problem guess -> Room problem guess -> Maybe Player.PlayerId
 getRoundWinner spec room =
     room.players
         |> Dict.toList

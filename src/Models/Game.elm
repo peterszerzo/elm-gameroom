@@ -1,9 +1,8 @@
 module Models.Game exposing (..)
 
 import Dict
-import Time
 import Constants
-import Gameroom.Spec as Spec
+import Models.Spec as Spec
 import Models.Guess exposing (Guess)
 import Models.Room as Room
 import Models.RoundTime as RoundTime
@@ -79,7 +78,7 @@ getOwnGuess model =
         |> Maybe.andThen .guess
 
 
-getNotificationContent : Spec.Spec problem guess -> Game problem guess -> Maybe String
+getNotificationContent : Spec.DetailedSpec problem guess -> Game problem guess -> Maybe String
 getNotificationContent spec model =
     case model.room of
         Just room ->

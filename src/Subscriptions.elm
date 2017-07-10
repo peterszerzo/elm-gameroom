@@ -7,15 +7,15 @@ import Messages
 import Messages.Tutorial
 import Messages.Game
 import Router as Router
-import Models.Ports as Ports
-import Gameroom.Spec as Spec
 import Models exposing (Model)
+import Models.Ports as Ports
+import Models.Spec as Spec
 import Models.IncomingMessage as InMsg
 import AnimationFrame
 
 
 subscriptions :
-    Spec.Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Ports.Ports (Messages.Msg problem guess)
     -> Model problem guess
     -> Sub (Messages.Msg problem guess)

@@ -5,11 +5,11 @@ import Messages exposing (Msg)
 import Models.RoundTime as RoundTime
 import Messages.Tutorial exposing (TutorialMsg(..))
 import Models.Tutorial exposing (Tutorial)
-import Gameroom.Spec exposing (Spec)
+import Models.Spec as Spec
 
 
 update :
-    Spec problem guess
+    Spec.DetailedSpec problem guess
     -> TutorialMsg problem guess
     -> Tutorial problem guess
     -> ( Tutorial problem guess, Cmd (Msg problem guess) )

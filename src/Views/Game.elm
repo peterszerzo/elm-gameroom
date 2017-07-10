@@ -6,7 +6,7 @@ import Window
 import Html exposing (Html, div, text, p, h2, ul, li, span, a)
 import Html.Attributes exposing (class, style, href)
 import Html.Events exposing (onClick)
-import Gameroom.Spec exposing (Spec, RoundResult(..))
+import Models.Spec as Spec
 import Constants
 import Models.Game as Game
 import Models.Room as Room
@@ -21,12 +21,11 @@ import Views.Game.Styles exposing (CssClasses(..), localClass, localClassList)
 
 
 viewReadyPrompt :
-    Maybe String
-    -> Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Game.Game problem guess
     -> Room.Room problem guess
     -> Html (GameMsg problem guess)
-viewReadyPrompt baseSlug spec model room =
+viewReadyPrompt spec model room =
     div [ localClass [ ReadyPrompt ] ] <|
         [ h2 [] [ text ("Hello, gamer " ++ model.playerId ++ "!") ]
         , p [] [ text ("And welcome to room " ++ model.roomId ++ ".") ]
@@ -44,7 +43,7 @@ viewReadyPrompt baseSlug spec model room =
                                             a
                                                 [ localClassList [ ( Link, True ), ( DisabledLink, playerId == model.playerId ) ]
                                                 , href
-                                                    ((baseSlug
+                                                    ((spec.baseUrl
                                                         |> Maybe.map (\bs -> "/" ++ bs)
                                                         |> Maybe.withDefault ""
                                                      )
@@ -109,13 +108,12 @@ viewReadyPrompt baseSlug spec model room =
 
 
 viewRoom :
-    Maybe String
-    -> Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Window.Size
     -> Game.Game problem guess
     -> Room.Room problem guess
     -> List (Html (GameMsg problem guess))
-viewRoom baseSlug spec windowSize model room =
+viewRoom spec windowSize model room =
     [ if Room.allPlayersReady room then
         (case room.round of
             Just round ->
@@ -148,7 +146,7 @@ viewRoom baseSlug spec windowSize model room =
                 div [] [ text "Awaiting game" ]
         )
       else
-        viewReadyPrompt baseSlug spec model room
+        viewReadyPrompt spec model room
     , Notification.view (Game.getNotificationContent spec model) Nothing
     , if (Room.allPlayersReady room) then
         Timer.view ((RoundTime.timeSinceNewRound model.time) / Constants.roundDuration)
@@ -167,16 +165,15 @@ viewRoom baseSlug spec windowSize model room =
 
 
 view :
-    Maybe String
-    -> Spec problem guess
+    Spec.DetailedSpec problem guess
     -> Window.Size
     -> Game.Game problem guess
     -> Html (GameMsg problem guess)
-view baseSlug spec windowSize model =
+view spec windowSize model =
     div [ localClass [ Root ] ]
         (case model.room of
             Just room ->
-                viewRoom baseSlug spec windowSize model room
+                viewRoom spec windowSize model room
 
             Nothing ->
                 [ div [ localClass [ LoaderContainer ] ] [ Loader.view ] ]

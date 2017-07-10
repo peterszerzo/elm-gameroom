@@ -8,8 +8,7 @@ import Svg exposing (polygon, svg, g, circle)
 import Svg.Attributes exposing (width, height, viewBox, points, transform, r, cx, cy, fill, stroke, strokeWidth)
 import Json.Encode as JE
 import Json.Decode as JD
-import Gameroom exposing (program, Model, Msg, Ports)
-import Gameroom.Spec exposing (Spec)
+import Gameroom exposing (..)
 
 
 -- Types
@@ -179,4 +178,12 @@ ports =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    Gameroom.programAt "counterclockwooze" spec ports
+    Gameroom.programWith
+        [ baseUrl "counterclockwooze"
+        , icon "🕒"
+        , name "Counterclockwooze"
+        , subheading "A dizzying geometric game for the family"
+        , instructions "One of the shapes spins the other way - care to find it?"
+        ]
+        spec
+        ports
