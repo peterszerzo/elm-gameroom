@@ -1,5 +1,6 @@
 port module Main exposing (..)
 
+import Random
 import Json.Encode as JE
 import Json.Decode as JD
 import Html exposing (Html, div, text, span)
@@ -13,7 +14,9 @@ import Gameroom.Utils exposing (generatorFromList)
 
 
 type alias Problem =
-    String
+    { word : String
+    , startAngle : Float
+    }
 
 
 type alias Guess =
@@ -38,18 +41,20 @@ spec =
                     , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0) rotate(" ++ (context.roundTime / 80 |> toString) ++ "deg)" )
                     ]
                 ]
-                (problem
+                (problem.word
                     |> String.toList
                     |> List.indexedMap
                         (\index character ->
                             let
                                 angle =
                                     (index |> toFloat)
-                                        / (problem
+                                        / (problem.word
                                             |> String.length
                                             |> toFloat
                                           )
-                                        |> (*) (2 * pi)
+                                        * 2
+                                        * pi
+                                        + problem.startAngle
 
                                 isGuessedBySelf =
                                     context.ownGuess == (Just index)
@@ -102,17 +107,29 @@ spec =
         )
     , isGuessCorrect = (\problem guess -> (guess == 0))
     , problemGenerator =
-        generatorFromList "perrywinkle" <|
-            [ "gingerberry", "apples", "vineyard", "is", "tablespoon", "cutlery", "laborer" ]
-                ++ [ "grenade", "coaster", "mahogany", "burrito", "cilantro", "kettle" ]
-                ++ [ "revenue", "stool", "ginger", "electricity", "purple", "backpack" ]
-                ++ [ "phone", "bill", "family", "cucumber", "terrific", "towel", "tower" ]
-                ++ [ "lightbulb", "leaf", "loaf", "parrot", "rack", "rope", "poor", "strap" ]
-                ++ [ "faucet", "lipstick", "grapefruit", "pickle", "woodpecker" ]
+        Random.map2 Problem
+            (generatorFromList "perrywinkle" <|
+                [ "gingerberry", "apples", "vineyard", "is", "tablespoon", "cutlery", "laborer" ]
+                    ++ [ "grenade", "coaster", "mahogany", "burrito", "cilantro", "kettle" ]
+                    ++ [ "revenue", "stool", "ginger", "electricity", "purple", "backpack" ]
+                    ++ [ "phone", "bill", "family", "cucumber", "terrific", "towel", "tower" ]
+                    ++ [ "lightbulb", "leaf", "loaf", "parrot", "rack", "rope", "poor", "strap" ]
+                    ++ [ "faucet", "lipstick", "grapefruit", "pickle", "woodpecker" ]
+            )
+            (Random.float 0 (2 * pi))
     , guessEncoder = JE.int
     , guessDecoder = JD.int
-    , problemEncoder = JE.string
-    , problemDecoder = JD.string
+    , problemEncoder =
+        (\problem ->
+            JE.object
+                [ ( "word", JE.string problem.word )
+                , ( "startAngle", JE.float problem.startAngle )
+                ]
+        )
+    , problemDecoder =
+        JD.map2 Problem
+            (JD.field "word" JD.string)
+            (JD.field "startAngle" JD.float)
     }
 
 
