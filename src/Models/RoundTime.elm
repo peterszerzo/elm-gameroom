@@ -3,19 +3,17 @@ module Models.RoundTime
         ( RoundTime
         , init
         , update
-        , isRoundJustOver
-        , isCooldownJustOver
+        , justPassed
         , timeSinceNewRound
         )
 
 import Time
-import Constants
 
 
 type RoundTime
     = RoundTime
         { current : Maybe Time.Time
-        , atRoundStart : Maybe Time.Time
+        , atStart : Maybe Time.Time
         }
 
 
@@ -23,16 +21,16 @@ init : RoundTime
 init =
     RoundTime
         { current = Nothing
-        , atRoundStart = Nothing
+        , atStart = Nothing
         }
 
 
 timeSinceNewRound : RoundTime -> Time.Time
 timeSinceNewRound (RoundTime roundTime) =
     Maybe.map2
-        (\current atRoundStart -> current - atRoundStart)
+        (\current atStart -> current - atStart)
         roundTime.current
-        roundTime.atRoundStart
+        roundTime.atStart
         |> Maybe.withDefault 0
 
 
@@ -41,12 +39,12 @@ update time (RoundTime roundTime) =
     RoundTime
         { roundTime
             | current = Just time
-            , atRoundStart = roundTime.atRoundStart |> Maybe.withDefault time |> Just
+            , atStart = roundTime.atStart |> Maybe.withDefault time |> Just
         }
 
 
-isJustOverHelper : Time.Time -> RoundTime -> RoundTime -> Bool
-isJustOverHelper duration prev current =
+justPassed : Time.Time -> RoundTime -> RoundTime -> Bool
+justPassed duration prev current =
     let
         prevSinceRoundStart =
             timeSinceNewRound prev
@@ -55,13 +53,3 @@ isJustOverHelper duration prev current =
             timeSinceNewRound current
     in
         prevSinceRoundStart <= duration && currentSinceRoundStart > duration
-
-
-isRoundJustOver : RoundTime -> RoundTime -> Bool
-isRoundJustOver =
-    isJustOverHelper Constants.roundDuration
-
-
-isCooldownJustOver : RoundTime -> RoundTime -> Bool
-isCooldownJustOver =
-    isJustOverHelper (Constants.roundDuration + Constants.cooldownDuration)

@@ -16,6 +16,7 @@ module Models.Spec exposing (..)
 -}
 
 import Html
+import Time
 import Random
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -28,6 +29,8 @@ type Setting
     | Subheading String
     | Instructions String
     | Icon String
+    | RoundDuration Time.Time
+    | CooldownDuration Time.Time
 
 
 {-| Define the basic mechanics of a multiplayer game, all generalized over a type variable representing a `problem`, and one representing a `guess`. Each field in the record is documented separately in this module.
@@ -51,6 +54,8 @@ type alias DetailedSpec problem guess =
     , name : String
     , subheading : String
     , instructions : String
+    , roundDuration : Time.Time
+    , cooldownDuration : Time.Time
     , view : Context guess -> problem -> Html.Html guess
     , isGuessCorrect : problem -> guess -> Bool
     , problemGenerator : Random.Generator problem
@@ -98,12 +103,20 @@ buildDetailedSpec options spec =
 
                 Icon icon ->
                     { spec | icon = icon }
+
+                RoundDuration duration ->
+                    { spec | roundDuration = duration }
+
+                CooldownDuration duration ->
+                    { spec | cooldownDuration = duration }
         )
         { basePath = "/"
         , icon = "\x1F3D3"
         , name = "Game"
         , subheading = "A great game to play with your friends"
         , instructions = "Win the game!"
+        , roundDuration = 4 * Time.second
+        , cooldownDuration = 2 * Time.second
         , view = spec.view
         , isGuessCorrect = spec.isGuessCorrect
         , problemGenerator = spec.problemGenerator

@@ -1,7 +1,6 @@
 module Models.Game exposing (..)
 
 import Dict
-import Constants
 import Models.Spec as Spec
 import Models.Guess exposing (Guess)
 import Models.Room as Room
@@ -82,7 +81,7 @@ getNotificationContent : Spec.DetailedSpec problem guess -> Game problem guess -
 getNotificationContent spec model =
     case model.room of
         Just room ->
-            if (RoundTime.timeSinceNewRound model.time < Constants.roundDuration) then
+            if (RoundTime.timeSinceNewRound model.time < spec.roundDuration) then
                 Maybe.map2
                     (\guess round ->
                         if spec.isGuessCorrect round.problem guess.value then

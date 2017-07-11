@@ -3,7 +3,6 @@ module Update.Game exposing (..)
 import Random
 import Dict
 import Models.OutgoingMessage as OutgoingMessage
-import Constants
 import Messages
 import Messages.Game exposing (..)
 import Models.Game
@@ -127,7 +126,7 @@ update spec ports msg model =
         ( Guess guess, Just room ) ->
             let
                 isRoundOver =
-                    RoundTime.timeSinceNewRound model.time > Constants.roundDuration
+                    RoundTime.timeSinceNewRound model.time > spec.roundDuration
 
                 newModel =
                     Models.Game.setOwnGuess guess model
@@ -187,13 +186,17 @@ update spec ports msg model =
                 newTime =
                     RoundTime.update time model.time
 
-                -- Not working right now
                 isRoundJustOver =
-                    RoundTime.isRoundJustOver model.time newTime
+                    RoundTime.justPassed
+                        spec.roundDuration
+                        model.time
+                        newTime
 
-                -- Not working right now
                 isCooldownJustOver =
-                    RoundTime.isCooldownJustOver model.time newTime
+                    RoundTime.justPassed
+                        (spec.roundDuration + spec.cooldownDuration)
+                        model.time
+                        newTime
 
                 initiateNewRound =
                     isHost

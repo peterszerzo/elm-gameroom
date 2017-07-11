@@ -8,6 +8,8 @@ module Gameroom
         , name
         , subheading
         , instructions
+        , roundDuration
+        , cooldownDuration
         , icon
         , program
         , programWith
@@ -24,12 +26,13 @@ module Gameroom
 @docs Ports
 
 # Options
-@docs basePath, name, subheading, instructions, icon
+@docs basePath, name, subheading, instructions, icon, roundDuration, cooldownDuration
 
 # Program types
 @docs Model, Msg
 -}
 
+import Time
 import Navigation
 import Models
 import Models.Ports as Ports
@@ -99,6 +102,20 @@ basePath url =
     BasePath url
 
 
+{-| Set the duration of the game round (how long players have to make their guesses).
+-}
+roundDuration : Time.Time -> Setting
+roundDuration duration =
+    RoundDuration duration
+
+
+{-| Set the duration of the cooldown phase after a game round is over.
+-}
+cooldownDuration : Time.Time -> Setting
+cooldownDuration duration =
+    CooldownDuration duration
+
+
 {-| The name of your game, e.g. `name "YouWillSurelyLose"`.
 -}
 name : String -> Setting
@@ -139,17 +156,25 @@ program =
     programWith []
 
 
-{-| Program with options. will run on "/coolgame", "/coolgame/new", "/coolgame/tutorial" etc. Useful if you wish to host several games on one page.
+{-| Program with settings. For example, this program:
+
+    programWith
+        [ name "MyCoolGame"
+        , basePath "/mycoolgame"
+        , roundDuration (10 * Time.second)
+        ] spec ports
+
+produces a game that is now named, runs on a base path instead of on the root route, has a custom round duration of 10 seconds. Have a look around the docs for other options.
 -}
 programWith :
     List Setting
     -> Spec problem guess
     -> Ports.Ports (Msg problem guess)
     -> Program Never (Model problem guess) (Msg problem guess)
-programWith options spec ports =
+programWith settings spec ports =
     let
         detailedSpec =
-            buildDetailedSpec options spec
+            buildDetailedSpec settings spec
     in
         Navigation.program (Messages.ChangeRoute << (Router.parse detailedSpec.basePath))
             { init = init detailedSpec ports

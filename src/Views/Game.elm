@@ -6,7 +6,6 @@ import Html exposing (Html, div, text, p, h2, ul, li, span, a)
 import Html.Attributes exposing (class, style, href)
 import Html.Events exposing (onClick)
 import Models.Spec as Spec
-import Constants
 import Models.Game as Game
 import Models.Room as Room
 import Models.RoundTime as RoundTime
@@ -136,7 +135,7 @@ viewRoom spec windowSize model room =
                                             else
                                                 Nothing
                                         )
-                            , isRoundOver = RoundTime.timeSinceNewRound model.time > Constants.roundDuration
+                            , isRoundOver = RoundTime.timeSinceNewRound model.time > spec.roundDuration
                             }
                             round.problem
                         )
@@ -149,7 +148,7 @@ viewRoom spec windowSize model room =
         viewReadyPrompt spec model room
     , Notification.view (Game.getNotificationContent spec model) Nothing
     , if (Room.allPlayersReady room) then
-        Timer.view ((RoundTime.timeSinceNewRound model.time) / Constants.roundDuration)
+        Timer.view ((RoundTime.timeSinceNewRound model.time) / spec.roundDuration)
       else
         div [] []
     , Footer.view
