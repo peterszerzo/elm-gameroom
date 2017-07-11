@@ -79,29 +79,30 @@ getOwnGuess model =
 
 getNotificationContent : Spec.DetailedSpec problem guess -> Game problem guess -> Maybe String
 getNotificationContent spec model =
-    case model.room of
-        Just room ->
-            if (RoundTime.timeSinceNewRound model.time < spec.roundDuration) then
-                Maybe.map2
-                    (\guess round ->
-                        if spec.isGuessCorrect round.problem guess.value then
-                            "Good job. Now let's see if you were the fastest.."
-                        else
-                            "Not quite correct that one.."
-                    )
-                    (getOwnGuess model)
-                    room.round
-            else
-                Room.getRoundWinner spec room
-                    |> Maybe.map
-                        (\winnerId ->
-                            if winnerId == model.playerId then
-                                "Nice job, you win!"
-                            else
-                                "This one goes to " ++ winnerId ++ ". Go get them in the next round!"
+    let
+        roundTime =
+            RoundTime.timeSinceNewRound model.time
+    in
+        case model.room of
+            Just room ->
+                if (roundTime < spec.roundDuration) then
+                    Maybe.map2
+                        (\guess round ->
+                            "This is scoring you a " ++ (spec.evaluate round.problem guess.value roundTime |> toString)
                         )
-                    |> Maybe.withDefault "It's a tie, folks, it's a tie.."
-                    |> Just
+                        (getOwnGuess model)
+                        room.round
+                else
+                    Room.getRoundWinner spec room
+                        |> Maybe.map
+                            (\winnerId ->
+                                if winnerId == model.playerId then
+                                    "Nice job, you win!"
+                                else
+                                    "This one goes to " ++ winnerId ++ ". Go get them in the next round!"
+                            )
+                        |> Maybe.withDefault "It's a tie, folks, it's a tie.."
+                        |> Just
 
-        Nothing ->
-            Nothing
+            Nothing ->
+                Nothing

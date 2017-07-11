@@ -105,7 +105,13 @@ spec =
                         )
                 )
         )
-    , isGuessCorrect = (\problem guess -> (guess == 0))
+    , evaluate =
+        (\problem guess madeAt ->
+            if (guess == 0) then
+                100
+            else
+                0
+        )
     , problemGenerator =
         Random.map2 Problem
             (generatorFromList "perrywinkle" <|

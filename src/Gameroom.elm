@@ -10,6 +10,7 @@ module Gameroom
         , instructions
         , roundDuration
         , cooldownDuration
+        , clearWinner
         , icon
         , game
         , gameWith
@@ -32,7 +33,7 @@ module Gameroom
 @docs Ports
 
 # Settings
-@docs basePath, name, subheading, instructions, icon, roundDuration, cooldownDuration
+@docs basePath, name, subheading, instructions, icon, clearWinner, roundDuration, cooldownDuration
 
 -}
 
@@ -54,7 +55,7 @@ import Views exposing (view)
 
     type alias Spec problem guess =
         { view : Context guess -> problem -> Html.Html guess
-        , isGuessCorrect : problem -> guess -> Bool
+        , evaluate : problem -> guess -> Time.Time -> Bool
         , problemGenerator : Random.Generator problem
         , problemEncoder : problem -> Encode.Value
         , problemDecoder : Decode.Decoder problem
@@ -63,7 +64,7 @@ import Views exposing (view)
         }
 
 * view: The core of the user interface corresponding to the current game round, excluding all navigation, notifications and the score boards. Emits guesses. The first argument is a view context containing peripheral information such as window size, round time, already recorded guesses etc., and it's [documented on its own](/Gameroom-Context). The second, main argument is the current game problem.
-* isGuessCorrect: given a problem and a guess, returns whether the guess is correct.
+* evaluate: given a problem, a guess and a timestamp, returns a numerical evaluation of the guess. The player with the highest evaluation wins a given round. Note that this is affected by the [clearWinner](/Gameroom#clearWinner) setting.
 * problemGenerator: a random generator churning out new problems. If your problems are a simple list, we have a [convenient helper](/Gameroom-Utils#generatorFromList).
 -}
 type alias Spec problem guess =
@@ -146,6 +147,15 @@ instructions instructions_ =
 icon : String -> Setting
 icon icon_ =
     Icon icon_
+
+
+{-| In the most general case, players compete in getting as close as possible to a given goal. However, sometimes you might want to simplify the game and designate winners only if they attained a specific evaluation value specified by `Spec.evaluate`.
+
+If you use the clearWinner setting, make sure `evaluate` does not depend on the timestamp.
+-}
+clearWinner : Float -> Setting
+clearWinner maxEvaluation =
+    ClearWinner maxEvaluation
 
 
 {-| Create a fully functional game program from a game spec and a ports record. The [Spec](/Gameroom#Spec) is the declarative definition of the data structures, logic and view behind your game. [Ports](/Gameroom#Ports) is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.

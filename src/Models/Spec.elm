@@ -31,13 +31,14 @@ type Setting
     | Icon String
     | RoundDuration Time.Time
     | CooldownDuration Time.Time
+    | ClearWinner Float
 
 
 {-| Define the basic mechanics of a multiplayer game, all generalized over a type variable representing a `problem`, and one representing a `guess`. Each field in the record is documented separately in this module.
 -}
 type alias Spec problem guess =
     { view : Context guess -> problem -> Html.Html guess
-    , isGuessCorrect : problem -> guess -> Bool
+    , evaluate : problem -> guess -> Time.Time -> Float
     , problemGenerator : Random.Generator problem
     , problemEncoder : problem -> Encode.Value
     , problemDecoder : Decode.Decoder problem
@@ -56,8 +57,9 @@ type alias DetailedSpec problem guess =
     , instructions : String
     , roundDuration : Time.Time
     , cooldownDuration : Time.Time
+    , clearWinnerEvaluation : Maybe Float
     , view : Context guess -> problem -> Html.Html guess
-    , isGuessCorrect : problem -> guess -> Bool
+    , evaluate : problem -> guess -> Time.Time -> Float
     , problemGenerator : Random.Generator problem
     , problemEncoder : problem -> Encode.Value
     , problemDecoder : Decode.Decoder problem
@@ -109,6 +111,9 @@ buildDetailedSpec options spec =
 
                 CooldownDuration duration ->
                     { spec | cooldownDuration = duration }
+
+                ClearWinner maxEvaluation ->
+                    { spec | clearWinnerEvaluation = Just maxEvaluation }
         )
         { basePath = "/"
         , icon = "\x1F3D3"
@@ -117,8 +122,9 @@ buildDetailedSpec options spec =
         , instructions = "Win the game!"
         , roundDuration = 4 * Time.second
         , cooldownDuration = 2 * Time.second
+        , clearWinnerEvaluation = Nothing
         , view = spec.view
-        , isGuessCorrect = spec.isGuessCorrect
+        , evaluate = spec.evaluate
         , problemGenerator = spec.problemGenerator
         , problemEncoder = spec.problemEncoder
         , problemDecoder = spec.problemDecoder
