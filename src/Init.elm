@@ -19,16 +19,14 @@ init :
 init spec ports loc =
     let
         route =
-            Router.parse spec.baseUrl loc
+            Router.parse spec.basePath loc
 
         cmd =
             Cmd.batch
                 [ cmdOnRouteChange spec ports route Nothing
                 , Window.size |> Task.perform Messages.Resize
                 , if route == Router.NotOnBaseRoute then
-                    (Navigation.newUrl
-                        ("/" ++ (spec.baseUrl |> Maybe.withDefault ""))
-                    )
+                    Navigation.newUrl spec.basePath
                   else
                     Cmd.none
                 ]

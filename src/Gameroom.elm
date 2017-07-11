@@ -4,7 +4,7 @@ module Gameroom
         , Ports
         , Msg
         , Model
-        , baseUrl
+        , basePath
         , name
         , subheading
         , instructions
@@ -24,7 +24,7 @@ module Gameroom
 @docs Ports
 
 # Options
-@docs baseUrl, name, subheading, instructions, icon
+@docs basePath, name, subheading, instructions, icon
 
 # Program types
 @docs Model, Msg
@@ -90,42 +90,44 @@ type alias Ports msg =
     Ports.Ports msg
 
 
-{-|
+{-| If your game doesn't start at the root route, you need to tell the package so the routing is done correctly, e.g. `basePath "/game1"`. This is useful if you want to host multiple games on the same domain, and have them share data stores. This is how the demo site is set up :).
+
+You can omit the leading slash or have an extra trailing slash. However, base paths with inner slashes such as `/games/game1` are currently not supported.
 -}
-baseUrl : String -> Setting
-baseUrl url =
-    BaseUrl url
+basePath : String -> Setting
+basePath url =
+    BasePath url
 
 
-{-|
+{-| The name of your game, e.g. `name "YouWillSurelyLose"`.
 -}
 name : String -> Setting
 name name_ =
     Name name_
 
 
-{-|
+{-| A subheading to go under the name on the home page.
 -}
 subheading : String -> Setting
 subheading subheading_ =
     Subheading subheading_
 
 
-{-|
+{-| Instructions displayed in the tutorial section.
 -}
 instructions : String -> Setting
 instructions instructions_ =
     Instructions instructions_
 
 
-{-|
+{-| A unicode icon for your game.
 -}
 icon : String -> Setting
 icon icon_ =
     Icon icon_
 
 
-{-| Create a fully functional game program from a gamespec and a ports record. The [Spec](/Gameroom-Spec) is the declarative definition of the data structures, logic and view behind your game. [Ports](/Gameroom#Ports) is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.
+{-| Create a fully functional game program from a game spec and a ports record. The [Spec](/Gameroom#Spec) is the declarative definition of the data structures, logic and view behind your game. [Ports](/Gameroom#Ports) is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.
 
 Notice you don't have to supply any `init`, `update` or `subscriptions` field yourself. All that is taken care of, and you wind up with a working interface that allows you to create game rooms, invite others, and play. Timers, scoreboards etc. all come straight out of the box.
 -}
@@ -149,7 +151,7 @@ programWith options spec ports =
         detailedSpec =
             buildDetailedSpec options spec
     in
-        Navigation.program (Messages.ChangeRoute << (Router.parse detailedSpec.baseUrl))
+        Navigation.program (Messages.ChangeRoute << (Router.parse detailedSpec.basePath))
             { init = init detailedSpec ports
             , view = view detailedSpec
             , update = update detailedSpec ports

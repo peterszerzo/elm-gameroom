@@ -42,11 +42,12 @@ viewReadyPrompt spec model room =
                                             a
                                                 [ localClassList [ ( Link, True ), ( DisabledLink, playerId == model.playerId ) ]
                                                 , href
-                                                    ((spec.baseUrl
-                                                        |> Maybe.map (\bs -> "/" ++ bs)
-                                                        |> Maybe.withDefault ""
-                                                     )
-                                                        ++ "/rooms/"
+                                                    (spec.basePath
+                                                        ++ (if spec.basePath == "/" then
+                                                                "rooms/"
+                                                            else
+                                                                "/rooms/"
+                                                           )
                                                         ++ model.roomId
                                                         ++ "/"
                                                         ++ playerId

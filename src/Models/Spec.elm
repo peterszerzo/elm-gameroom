@@ -23,7 +23,7 @@ import Gameroom.Context exposing (Context)
 
 
 type Setting
-    = BaseUrl String
+    = BasePath String
     | Name String
     | Subheading String
     | Instructions String
@@ -46,7 +46,7 @@ type alias Spec problem guess =
 {-| Augments the spec with data from options.
 -}
 type alias DetailedSpec problem guess =
-    { baseUrl : Maybe String
+    { basePath : String
     , icon : String
     , name : String
     , subheading : String
@@ -66,8 +66,26 @@ buildDetailedSpec options spec =
     List.foldl
         (\option spec ->
             case option of
-                BaseUrl baseUrl ->
-                    { spec | baseUrl = Just baseUrl }
+                BasePath basePath ->
+                    let
+                        baseSlug =
+                            basePath
+                                |> (\path_ ->
+                                        -- Remove leading slash
+                                        if String.left 1 path_ == "/" then
+                                            String.dropLeft 1 path_
+                                        else
+                                            path_
+                                   )
+                                |> (\path_ ->
+                                        -- Remove trailing slash
+                                        if String.right 1 path_ == "/" then
+                                            String.dropRight 1 path_
+                                        else
+                                            path_
+                                   )
+                    in
+                        { spec | basePath = "/" ++ baseSlug }
 
                 Name name ->
                     { spec | name = name }
@@ -81,7 +99,7 @@ buildDetailedSpec options spec =
                 Icon icon ->
                     { spec | icon = icon }
         )
-        { baseUrl = Nothing
+        { basePath = "/"
         , icon = "\x1F3D3"
         , name = "Game"
         , subheading = "A great game to play with your friends"

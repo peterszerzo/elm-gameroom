@@ -173,7 +173,7 @@ ports =
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     Gameroom.programWith
-        [ baseUrl "counterclockwooze"
+        [ basePath "/counterclockwooze"
         , icon "🕒"
         , name "Counterclockwooze"
         , subheading "A dizzying geometric game for the family"

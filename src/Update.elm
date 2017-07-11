@@ -44,11 +44,10 @@ cmdOnRouteChange spec ports route prevRoute =
             Cmd.none
 
 
-navigationNewUrl : Maybe String -> String -> Cmd (Msg problem guess)
-navigationNewUrl baseSlug newUrl =
-    baseSlug
-        |> Maybe.map (\baseSlug -> "/" ++ baseSlug ++ newUrl)
-        |> Maybe.withDefault newUrl
+navigationNewUrl : String -> String -> Cmd (Msg problem guess)
+navigationNewUrl basePath newUrl =
+    basePath
+        ++ newUrl
         |> Navigation.newUrl
 
 
@@ -62,7 +61,7 @@ update spec ports msg model =
     case ( model.route, msg ) of
         ( _, Navigate newUrl ) ->
             ( model
-            , navigationNewUrl spec.baseUrl newUrl
+            , navigationNewUrl spec.basePath newUrl
             )
 
         ( oldRoute, ChangeRoute route ) ->
@@ -70,9 +69,7 @@ update spec ports msg model =
             , Cmd.batch
                 [ cmdOnRouteChange spec ports route (Just oldRoute)
                 , if route == Router.NotOnBaseRoute then
-                    (Navigation.newUrl
-                        ("/" ++ (spec.baseUrl |> Maybe.withDefault ""))
-                    )
+                    (Navigation.newUrl spec.basePath)
                   else
                     Cmd.none
                 ]
@@ -115,7 +112,7 @@ update spec ports msg model =
                         Router.NewRoom newRoom
                   }
                 , newUrl
-                    |> Maybe.map (navigationNewUrl spec.baseUrl)
+                    |> Maybe.map (navigationNewUrl spec.basePath)
                     |> Maybe.withDefault Cmd.none
                 )
 

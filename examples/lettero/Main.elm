@@ -136,7 +136,7 @@ ports =
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     Gameroom.programWith
-        [ baseUrl "lettero"
+        [ basePath "/lettero"
         , icon "✏️"
         , name "Lettero"
         , subheading "A mildly frustrating wordgame!"

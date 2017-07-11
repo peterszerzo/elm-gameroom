@@ -16,34 +16,32 @@ type Route problem guess
     | NotFound
 
 
-startsWithBase : Maybe String -> String -> Bool
-startsWithBase baseSlug path_ =
-    case baseSlug of
-        Nothing ->
-            True
-
-        Just baseSlug ->
-            (String.left ((String.length baseSlug) + 1) path_) == ("/" ++ baseSlug)
+startsWithBase : String -> String -> Bool
+startsWithBase basePath path_ =
+    String.left (String.length basePath) path_ == basePath
 
 
-sWithBaseSlug : Maybe String -> String -> Parser a a
-sWithBaseSlug baseSlug slug =
-    case baseSlug of
-        Just baseSlug ->
-            if slug == "" then
-                s baseSlug
-            else
-                s baseSlug </> s slug
-
-        Nothing ->
+sWithBaseSlug : String -> String -> Parser a a
+sWithBaseSlug basePath slug =
+    let
+        baseSlug =
+            String.dropLeft 1 basePath
+    in
+        if baseSlug == "" then
             s slug
+        else
+            (if slug == "" then
+                s baseSlug
+             else
+                s baseSlug </> s slug
+            )
 
 
-matchers : Maybe String -> UrlParser.Parser (Route problem guess -> a) a
-matchers baseSlug =
+matchers : String -> UrlParser.Parser (Route problem guess -> a) a
+matchers basePath =
     let
         s_ =
-            sWithBaseSlug baseSlug
+            sWithBaseSlug basePath
     in
         UrlParser.oneOf
             [ s_ "" |> map Home
@@ -56,11 +54,11 @@ matchers baseSlug =
             ]
 
 
-parse : Maybe String -> Navigation.Location -> Route problem guess
-parse baseSlug location =
-    if startsWithBase baseSlug location.pathname then
+parse : String -> Navigation.Location -> Route problem guess
+parse basePath location =
+    if startsWithBase basePath location.pathname then
         location
-            |> UrlParser.parsePath (matchers baseSlug)
+            |> UrlParser.parsePath (matchers basePath)
             |> Maybe.withDefault NotFound
     else
         NotOnBaseRoute
