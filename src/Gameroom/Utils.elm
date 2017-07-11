@@ -1,4 +1,4 @@
-module Gameroom.Utilities exposing (..)
+module Gameroom.Utils exposing (..)
 
 {-| This module contains generic utility methods useful when defining games.
 

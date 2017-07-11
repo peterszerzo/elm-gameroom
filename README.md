@@ -31,8 +31,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (onClick)
-import Gameroom exposing (program, Model, Msg, Ports)
-import Gameroom.Spec exposing (Spec)
+import Gameroom exposing (..)
 
 
 type alias Problem = String

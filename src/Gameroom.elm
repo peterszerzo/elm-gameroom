@@ -38,12 +38,26 @@ import Messages
 import Update exposing (update, cmdOnRouteChange)
 import Router as Router
 import Models.Ports as Ports
-import Models.Spec exposing (Spec, Option(..), buildDetailedSpec)
+import Models.Spec exposing (Spec, Setting(..), buildDetailedSpec)
 import Init exposing (init)
 import Views exposing (view)
 
 
-{-|
+{-| Define the unique bits and pieces to your game, all generalized over a type variable representing a `problem`, and one representing a `guess`. It's going to look a little heavy, but it'll make sense very quickly, I promise. Here it goes:
+
+    type alias Spec problem guess =
+        { view : Context guess -> problem -> Html.Html guess
+        , isGuessCorrect : problem -> guess -> Bool
+        , problemGenerator : Random.Generator problem
+        , problemEncoder : problem -> Encode.Value
+        , problemDecoder : Decode.Decoder problem
+        , guessEncoder : guess -> Encode.Value
+        , guessDecoder : Decode.Decoder guess
+        }
+
+* view: The core of the user interface corresponding to the current game round, excluding all navigation, notifications and the score boards. Emits guesses. The first argument is a view context containing peripheral information such as window size, round time, already recorded guesses etc., and it's [documented on its own](/Gameroom-Context). The second, main argument is the current game problem.
+* isGuessCorrect: given a problem and a guess, returns whether the guess is correct.
+* problemGenerator: a random generator churning out new problems. If your problems are a simple list, we have a [convenient helper](/Gameroom-Utils#generatorFromList).
 -}
 type alias Spec problem guess =
     Models.Spec.Spec problem guess
@@ -78,35 +92,35 @@ type alias Ports msg =
 
 {-|
 -}
-baseUrl : String -> Option
+baseUrl : String -> Setting
 baseUrl url =
     BaseUrl url
 
 
 {-|
 -}
-name : String -> Option
+name : String -> Setting
 name name_ =
     Name name_
 
 
 {-|
 -}
-subheading : String -> Option
+subheading : String -> Setting
 subheading subheading_ =
     Subheading subheading_
 
 
 {-|
 -}
-instructions : String -> Option
+instructions : String -> Setting
 instructions instructions_ =
     Instructions instructions_
 
 
 {-|
 -}
-icon : String -> Option
+icon : String -> Setting
 icon icon_ =
     Icon icon_
 
@@ -126,7 +140,7 @@ program =
 {-| Program with options. will run on "/coolgame", "/coolgame/new", "/coolgame/tutorial" etc. Useful if you wish to host several games on one page.
 -}
 programWith :
-    List Option
+    List Setting
     -> Spec problem guess
     -> Ports.Ports (Msg problem guess)
     -> Program Never (Model problem guess) (Msg problem guess)

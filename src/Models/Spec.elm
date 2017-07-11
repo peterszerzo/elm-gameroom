@@ -22,7 +22,7 @@ import Json.Encode as Encode
 import Gameroom.Context exposing (Context)
 
 
-type Option
+type Setting
     = BaseUrl String
     | Name String
     | Subheading String
@@ -33,13 +33,13 @@ type Option
 {-| Define the basic mechanics of a multiplayer game, all generalized over a type variable representing a `problem`, and one representing a `guess`. Each field in the record is documented separately in this module.
 -}
 type alias Spec problem guess =
-    { view : View problem guess
+    { view : Context guess -> problem -> Html.Html guess
     , isGuessCorrect : problem -> guess -> Bool
-    , problemGenerator : ProblemGenerator problem
-    , problemEncoder : ProblemEncoder problem
-    , problemDecoder : ProblemDecoder problem
-    , guessEncoder : GuessEncoder guess
-    , guessDecoder : GuessDecoder guess
+    , problemGenerator : Random.Generator problem
+    , problemEncoder : problem -> Encode.Value
+    , problemDecoder : Decode.Decoder problem
+    , guessEncoder : guess -> Encode.Value
+    , guessDecoder : Decode.Decoder guess
     }
 
 
@@ -51,17 +51,17 @@ type alias DetailedSpec problem guess =
     , name : String
     , subheading : String
     , instructions : String
-    , view : View problem guess
+    , view : Context guess -> problem -> Html.Html guess
     , isGuessCorrect : problem -> guess -> Bool
-    , problemGenerator : ProblemGenerator problem
-    , problemEncoder : ProblemEncoder problem
-    , problemDecoder : ProblemDecoder problem
-    , guessEncoder : GuessEncoder guess
-    , guessDecoder : GuessDecoder guess
+    , problemGenerator : Random.Generator problem
+    , problemEncoder : problem -> Encode.Value
+    , problemDecoder : Decode.Decoder problem
+    , guessEncoder : guess -> Encode.Value
+    , guessDecoder : Decode.Decoder guess
     }
 
 
-buildDetailedSpec : List Option -> Spec problem guess -> DetailedSpec problem guess
+buildDetailedSpec : List Setting -> Spec problem guess -> DetailedSpec problem guess
 buildDetailedSpec options spec =
     List.foldl
         (\option spec ->
@@ -95,49 +95,3 @@ buildDetailedSpec options spec =
         , guessDecoder = spec.guessDecoder
         }
         options
-
-
-{-| Counts the number of repaints using `AnimationFrame`.
--}
-type alias Ticks =
-    Int
-
-
-{-| The core of the View of the current game round, excluding all navigation, notifications and the score boards. Emits guesses.
-
-The arguments in order, are the following:
-* context: see [Context](/Gameroom-Context) docs.
-* problem: the current game problem.
--}
-type alias View problem guess =
-    Context guess -> problem -> Html.Html guess
-
-
-{-| Generate game problems.
--}
-type alias ProblemGenerator problem =
-    Random.Generator problem
-
-
-{-| Encode a problem to be stored in the backend.
--}
-type alias ProblemEncoder problem =
-    problem -> Encode.Value
-
-
-{-| Decode a problem as it arrives from the backend.
--}
-type alias ProblemDecoder problem =
-    Decode.Decoder problem
-
-
-{-| Encode a guess to be stored in the backend.
--}
-type alias GuessEncoder guess =
-    guess -> Encode.Value
-
-
-{-| Decode a guess as it arrives from the backend.
--}
-type alias GuessDecoder guess =
-    Decode.Decoder guess

@@ -12,7 +12,7 @@ import Json.Encode as JE
 import Json.Decode as JD
 import Math.Matrix4 as Matrix4
 import Gameroom exposing (..)
-import Gameroom.Utilities exposing (generatorFromList)
+import Gameroom.Utils exposing (generatorFromList)
 
 
 type alias Problem =

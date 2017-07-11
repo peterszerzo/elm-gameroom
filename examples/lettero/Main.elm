@@ -6,7 +6,7 @@ import Html.Events exposing (onClick)
 import Json.Encode as JE
 import Json.Decode as JD
 import Gameroom exposing (..)
-import Gameroom.Utilities exposing (generatorFromList)
+import Gameroom.Utils exposing (generatorFromList)
 
 
 -- Types
