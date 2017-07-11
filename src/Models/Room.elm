@@ -105,16 +105,42 @@ getRoundWinner spec room =
         |> Dict.toList
         |> List.filterMap
             (\( playerId, player ) ->
-                let
-                    evaluation =
-                        player.guess
-                            |> Maybe.map2 (\round guess -> spec.evaluate round.problem guess.value guess.madeAt) room.round
-                in
-                    evaluation |> Maybe.map (\eval -> ( playerId, eval ))
+                player.guess
+                    |> Maybe.map2
+                        (\round guess ->
+                            ( playerId
+                            , spec.evaluate round.problem guess.value
+                            , guess.madeAt
+                            )
+                        )
+                        room.round
             )
-        |> List.sortBy (\( playerId, evaluation ) -> evaluation)
+        |> List.sortWith
+            (\( playerId1, eval1, madeAt1 ) ( playerId2, eval2, madeAt2 ) ->
+                if eval1 > eval2 then
+                    LT
+                else if eval1 < eval2 then
+                    GT
+                else
+                    (if madeAt1 > madeAt2 then
+                        GT
+                     else
+                        LT
+                    )
+            )
         |> List.head
-        |> Maybe.map (\( playerId, _ ) -> Just playerId)
+        |> Maybe.map
+            (\( playerId, eval, _ ) ->
+                case spec.clearWinnerEvaluation of
+                    Just clearWinnerEval ->
+                        if eval == clearWinnerEval then
+                            Just playerId
+                        else
+                            Nothing
+
+                    Nothing ->
+                        Just playerId
+            )
         |> Maybe.withDefault Nothing
 
 

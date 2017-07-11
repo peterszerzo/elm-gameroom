@@ -106,7 +106,7 @@ spec =
                 )
         )
     , evaluate =
-        (\problem guess madeAt ->
+        (\problem guess ->
             if (guess == 0) then
                 100
             else
@@ -164,6 +164,7 @@ main =
         , name "Lettero"
         , subheading "A mildly frustrating wordgame!"
         , instructions "There is a word in there somewhere - tap its first letter!"
+        , clearWinner 100
         ]
         spec
         ports

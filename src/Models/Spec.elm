@@ -38,7 +38,7 @@ type Setting
 -}
 type alias Spec problem guess =
     { view : Context guess -> problem -> Html.Html guess
-    , evaluate : problem -> guess -> Time.Time -> Float
+    , evaluate : problem -> guess -> Float
     , problemGenerator : Random.Generator problem
     , problemEncoder : problem -> Encode.Value
     , problemDecoder : Decode.Decoder problem
@@ -59,7 +59,7 @@ type alias DetailedSpec problem guess =
     , cooldownDuration : Time.Time
     , clearWinnerEvaluation : Maybe Float
     , view : Context guess -> problem -> Html.Html guess
-    , evaluate : problem -> guess -> Time.Time -> Float
+    , evaluate : problem -> guess -> Float
     , problemGenerator : Random.Generator problem
     , problemEncoder : problem -> Encode.Value
     , problemDecoder : Decode.Decoder problem

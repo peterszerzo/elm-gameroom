@@ -101,7 +101,13 @@ spec =
                     ]
                 ]
         )
-    , isGuessCorrect = (\problem guess -> (guess == problem.correct))
+    , evaluate =
+        (\problem guess ->
+            if (guess == problem.correct) then
+                100
+            else
+                0
+        )
     , problemGenerator =
         generatorFromList
             { question = "🇱🇻 Latvia"
@@ -180,6 +186,7 @@ main =
         , name "The Capitalist"
         , subheading "Oh, not that kind, though, more like a person who knows the capital of a lot of countries.."
         , instructions "Find the capital of the country!"
+        , clearWinner 100
         ]
         spec
         ports

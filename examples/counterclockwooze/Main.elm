@@ -126,7 +126,13 @@ spec =
                     )
                 ]
         )
-    , isGuessCorrect = (\problem guess -> (guess == 0))
+    , evaluate =
+        (\problem guess ->
+            if guess == 0 then
+                100
+            else
+                0
+        )
     , problemGenerator =
         Random.list 10 (Random.map2 Point (Random.float 0 1) (Random.float 0 1))
     , guessEncoder = JE.int
@@ -178,6 +184,7 @@ main =
         , name "Counterclockwooze"
         , subheading "A dizzying geometric game for the family"
         , instructions "One of the shapes spins the other way - care to find it?"
+        , clearWinner 100
         ]
         spec
         ports

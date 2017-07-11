@@ -82,6 +82,7 @@ main =
         , name "Spacecraterball"
         , subheading "A futuristic physics game"
         , instructions "Will the rock land inside the crater or bounce off?"
+        , clearWinner 100
         ]
         { view =
             (\context problem ->
@@ -107,12 +108,20 @@ main =
                         ]
                     ]
             )
-        , isGuessCorrect =
+        , evaluate =
             (\problem guess ->
                 if willStayInCrater problem then
-                    guess
+                    (if guess then
+                        100
+                     else
+                        0
+                    )
                 else
-                    not guess
+                    (if guess then
+                        0
+                     else
+                        100
+                    )
             )
         , problemDecoder = problemDecoder
         , problemEncoder = problemEncoder

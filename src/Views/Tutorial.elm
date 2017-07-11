@@ -33,7 +33,7 @@ view spec windowSize model =
                                     spec.instructions
 
                                 Just guess ->
-                                    "This one will score you a " ++ (spec.evaluate problem guess roundTime |> toString) ++ ". Can you do better?"
+                                    "This one will score you a " ++ (spec.evaluate problem guess |> toString) ++ ". Can you do better?"
                         )
                     |> Maybe.withDefault "Hey, let's practice. Click the button to get a game problem you can solve."
                     |> Just

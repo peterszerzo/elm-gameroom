@@ -151,12 +151,20 @@ main =
                                    )
                         ]
             )
-        , isGuessCorrect =
+        , evaluate =
             (\problem guess ->
                 if (problem == 0) then
-                    guess
+                    (if guess then
+                        100
+                     else
+                        0
+                    )
                 else
-                    not guess
+                    (if guess then
+                        0
+                     else
+                        100
+                    )
             )
         , problemDecoder = JD.int
         , problemEncoder = JE.int

@@ -88,7 +88,19 @@ getNotificationContent spec model =
                 if (roundTime < spec.roundDuration) then
                     Maybe.map2
                         (\guess round ->
-                            "This is scoring you a " ++ (spec.evaluate round.problem guess.value roundTime |> toString)
+                            let
+                                eval =
+                                    spec.evaluate round.problem guess.value
+                            in
+                                case spec.clearWinnerEvaluation of
+                                    Just clearWinnerEval ->
+                                        if eval == clearWinnerEval then
+                                            "Correct - let's see if you made it the fastest.."
+                                        else
+                                            "Not quite, not quite unfortunately.."
+
+                                    Nothing ->
+                                        "This is scoring you a " ++ (toString eval) ++ ". Let's see how the others are doing.."
                         )
                         (getOwnGuess model)
                         room.round
