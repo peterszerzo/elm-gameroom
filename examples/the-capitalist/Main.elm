@@ -174,7 +174,7 @@ ports =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    Gameroom.programWith
+    gameWith
         [ basePath "/thecapitalist"
         , icon "💰"
         , name "The Capitalist"

@@ -76,7 +76,7 @@ type alias Vertex =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    programWith
+    gameWith
         [ basePath "/spacecraterball"
         , icon "🚀"
         , name "Spacecraterball"

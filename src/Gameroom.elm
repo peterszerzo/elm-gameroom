@@ -11,25 +11,29 @@ module Gameroom
         , roundDuration
         , cooldownDuration
         , icon
-        , program
-        , programWith
+        , game
+        , gameWith
         )
 
 {-| This is a framework for creating multiplayer guessing games by the boatloads, all within the comfort of Elm. Specify only what is unique to a game, write no logic on the back-end, and have it all wired up and ready to play.
 
 `elm-gameroom` takes care of calling game rounds, generating problems and reconciling scores, as well as talking to either a generic real-time database such as Firebase (JS adapter provided), with have clients sort things out amongst themselves via WebRTC (JavaScript glue code provided).
 
-# The program
-@docs Spec, program, programWith
+# The main game program
+@docs game, gameWith
+
+# Program annotation types
+@docs Model, Msg
+
+# Game Spec
+@docs Spec
 
 # Ports
 @docs Ports
 
-# Options
+# Settings
 @docs basePath, name, subheading, instructions, icon, roundDuration, cooldownDuration
 
-# Program types
-@docs Model, Msg
 -}
 
 import Time
@@ -148,17 +152,17 @@ icon icon_ =
 
 Notice you don't have to supply any `init`, `update` or `subscriptions` field yourself. All that is taken care of, and you wind up with a working interface that allows you to create game rooms, invite others, and play. Timers, scoreboards etc. all come straight out of the box.
 -}
-program :
+game :
     Spec problem guess
     -> Ports.Ports (Msg problem guess)
     -> Program Never (Model problem guess) (Msg problem guess)
-program =
-    programWith []
+game =
+    gameWith []
 
 
 {-| Program with settings. For example, this program:
 
-    programWith
+    gameWith
         [ name "MyCoolGame"
         , basePath "/mycoolgame"
         , roundDuration (10 * Time.second)
@@ -166,12 +170,12 @@ program =
 
 produces a game that is now named, runs on a base path instead of on the root route, has a custom round duration of 10 seconds. Have a look around the docs for other options.
 -}
-programWith :
+gameWith :
     List Setting
     -> Spec problem guess
     -> Ports.Ports (Msg problem guess)
     -> Program Never (Model problem guess) (Msg problem guess)
-programWith settings spec ports =
+gameWith settings spec ports =
     let
         detailedSpec =
             buildDetailedSpec settings spec

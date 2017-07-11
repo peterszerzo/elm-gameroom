@@ -91,7 +91,7 @@ cars =
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    programWith
+    gameWith
         [ basePath "/fast-and-moebius"
         , icon "🏎️"
         , name "Fast and Moebius"
