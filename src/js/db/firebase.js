@@ -2,7 +2,7 @@
  * Firebase data store
  * @returns {Object} db - Datastore instance, following elm-gameroom API.
  */
- (function (root, factory) {
+ ;(function (root, factory) {
    if (typeof module === 'object' && module.exports) {
      module.exports = factory(root)
    } else {

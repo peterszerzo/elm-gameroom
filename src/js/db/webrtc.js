@@ -1,5 +1,5 @@
 // Stores room state, peer clients and connections by room id
-(function (root, factory) {
+;(function (root, factory) {
   if (typeof module === 'object' && module.exports) {
     module.exports = factory()
   } else {
