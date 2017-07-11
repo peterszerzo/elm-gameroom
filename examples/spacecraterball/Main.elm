@@ -1,6 +1,7 @@
 port module Main exposing (..)
 
 import Html exposing (Html, div)
+import Time
 import Window
 import Color
 import Random
@@ -92,7 +93,7 @@ main =
                             terrainVertexShader
                             fragmentShader
                             terrain
-                            { perspective = perspective context.animationTicksSinceNewRound
+                            { perspective = perspective context.roundTime
                             , transform = Matrix4.identity
                             }
                         , WebGL.entityWith
@@ -100,8 +101,8 @@ main =
                             ballVertexShader
                             fragmentShader
                             ballMesh
-                            { perspective = perspective context.animationTicksSinceNewRound
-                            , transform = ballTransform problem context.animationTicksSinceNewRound
+                            { perspective = perspective context.roundTime
+                            , transform = ballTransform problem context.roundTime
                             }
                         ]
                     ]
@@ -126,11 +127,11 @@ main =
 -- Views
 
 
-perspective : Int -> Matrix4.Mat4
-perspective ticks =
+perspective : Time.Time -> Matrix4.Mat4
+perspective time =
     let
         theta =
-            (ticks |> toFloat) / 400
+            time / 6400
 
         phi =
             pi / 6
@@ -346,14 +347,14 @@ ballMesh =
         |> WebGL.triangles
 
 
-ballTransform : Problem -> Int -> Matrix4.Mat4
-ballTransform problem ticks =
+ballTransform : Problem -> Time.Time -> Matrix4.Mat4
+ballTransform problem time =
     let
         ratio =
             if willStayInCrater problem then
-                min ((ticks |> toFloat) / 200) 1
+                min (time / 3200) 1
             else
-                (ticks |> toFloat) / 200
+                time / 3200
 
         isOver =
             ratio > 1
@@ -374,7 +375,7 @@ ballTransform problem ticks =
 
         rotate =
             Matrix4.makeRotate
-                ((ticks |> toFloat) / 20)
+                (time / 320)
                 (vec3 0.2 0.4 0.8)
     in
         List.foldr (\current accumulator -> Matrix4.mul current accumulator)

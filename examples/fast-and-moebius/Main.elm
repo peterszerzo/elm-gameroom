@@ -102,7 +102,7 @@ main =
             (\context problem ->
                 let
                     ticks =
-                        context.animationTicksSinceNewRound
+                        context.roundTime / 16
 
                     perspective_ =
                         perspective ticks
@@ -122,7 +122,7 @@ main =
                                         (\car ->
                                             let
                                                 t =
-                                                    (toFloat ticks) / 100
+                                                    ticks / 100
 
                                                 vMax =
                                                     car.specs.maxSpeed
@@ -171,11 +171,11 @@ main =
 -- Views
 
 
-perspective : Int -> Matrix4.Mat4
-perspective ticks =
+perspective : Float -> Matrix4.Mat4
+perspective time =
     let
         theta =
-            0 + (sin ((toFloat ticks) / 800)) * pi / 6
+            (sin (time / 800)) * pi / 6
 
         phi =
             pi / 6
@@ -185,7 +185,10 @@ perspective ticks =
                 (sin theta * cos phi)
                 (cos theta * cos phi)
                 (sin phi)
-                |> Vector3.scale (2.5 - (toFloat ticks) / 1200 |> clamp 1.8 2.5)
+                |> Vector3.scale
+                    (2.5
+                        - ((time / 1200) |> clamp 0 0.8)
+                    )
     in
         Matrix4.mul (Matrix4.makePerspective 45 1 0.01 100)
             (Matrix4.makeLookAt eye (vec3 0 0 0) (vec3 0 0 1))

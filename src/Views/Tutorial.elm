@@ -5,7 +5,6 @@ import Html exposing (Html, map, div, text, button, h1, h2, label, input, fields
 import Html.Events exposing (onClick)
 import Models.RoundTime as RoundTime
 import Models.Spec as Spec
-import Models.RoundResult exposing (RoundResult(..))
 import Models.Tutorial
 import Messages.Tutorial
 import Views.Tutorial.Styles exposing (CssClasses(..), localClass)
@@ -44,7 +43,7 @@ view spec windowSize model =
             |> Maybe.map
                 (spec.view
                     { windowSize = windowSize
-                    , animationTicksSinceNewRound = (RoundTime.ticksSinceNewRound model.time)
+                    , roundTime = RoundTime.timeSinceNewRound model.time
                     , ownGuess = model.guess
                     , opponentGuesses = []
                     , isRoundOver = False

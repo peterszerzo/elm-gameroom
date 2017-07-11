@@ -1,7 +1,6 @@
 module Views.Game exposing (..)
 
 import Dict
-import Time
 import Window
 import Html exposing (Html, div, text, p, h2, ul, li, span, a)
 import Html.Attributes exposing (class, style, href)
@@ -122,7 +121,7 @@ viewRoom spec windowSize model room =
                     [ Html.map Guess
                         (spec.view
                             { windowSize = windowSize
-                            , animationTicksSinceNewRound = RoundTime.timeSinceNewRound model.time / (16 * Time.millisecond) |> floor
+                            , roundTime = RoundTime.timeSinceNewRound model.time
                             , ownGuess = room.players |> Dict.get model.playerId |> Maybe.andThen .guess |> Maybe.map .value
                             , opponentGuesses =
                                 room.players

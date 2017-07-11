@@ -35,7 +35,7 @@ spec =
                     , ( "height", "75vmin" )
                     , ( "top", "50%" )
                     , ( "left", "50%" )
-                    , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0) rotate(" ++ ((context.animationTicksSinceNewRound |> toFloat) / 5 |> toString) ++ "deg)" )
+                    , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0) rotate(" ++ (context.roundTime / 80 |> toString) ++ "deg)" )
                     ]
                 ]
                 (problem

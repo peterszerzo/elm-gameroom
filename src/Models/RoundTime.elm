@@ -6,7 +6,6 @@ module Models.RoundTime
         , isRoundJustOver
         , isCooldownJustOver
         , timeSinceNewRound
-        , ticksSinceNewRound
         )
 
 import Time
@@ -35,11 +34,6 @@ timeSinceNewRound (RoundTime roundTime) =
         roundTime.current
         roundTime.atRoundStart
         |> Maybe.withDefault 0
-
-
-ticksSinceNewRound : RoundTime -> Int
-ticksSinceNewRound =
-    timeSinceNewRound >> (\time -> (time / (16 * Time.millisecond)) |> floor)
 
 
 update : Time.Time -> RoundTime -> RoundTime

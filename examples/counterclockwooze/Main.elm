@@ -39,13 +39,7 @@ grey =
 
 spec : Spec Problem Guess
 spec =
-    { copy =
-        { icon = "🕒"
-        , name = "Counterclockwooze"
-        , subheading = "A dizzying geometric game for the family"
-        , instructions = "One of the shapes spins the other way - care to find it?"
-        }
-    , view =
+    { view =
         (\context problem ->
             div
                 [ class "spinning-shapes-container"
@@ -111,7 +105,7 @@ spec =
                                             )
                                         , attribute "transform"
                                             ("rotate("
-                                                ++ ((context.animationTicksSinceNewRound |> toFloat)
+                                                ++ ((context.roundTime / 16)
                                                         |> (*) 0.5
                                                         |> (*)
                                                             (if index == 0 then
