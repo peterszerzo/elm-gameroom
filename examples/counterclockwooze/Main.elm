@@ -1,13 +1,13 @@
 port module Main exposing (..)
 
 import Random
+import Json.Encode as JE
+import Json.Decode as JD
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style, attribute)
 import Html.Events exposing (onClick)
 import Svg exposing (polygon, svg, g, circle)
 import Svg.Attributes exposing (width, height, viewBox, points, transform, r, cx, cy, fill, stroke, strokeWidth)
-import Json.Encode as JE
-import Json.Decode as JD
 import Gameroom exposing (..)
 
 

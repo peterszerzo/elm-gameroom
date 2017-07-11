@@ -1,20 +1,20 @@
 port module Main exposing (..)
 
-import Html exposing (Html, div)
+import Json.Encode as JE
+import Json.Decode as JD
 import Time
 import Window
 import Color
 import Random
+import Html exposing (Html, div)
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
 import Svg exposing (svg, use)
 import Svg.Attributes exposing (xlinkHref, viewBox)
-import Math.Vector3 as Vector3 exposing (Vec3, vec3)
-import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import WebGL
 import WebGL.Settings.Blend as Blend
-import Json.Encode as JE
-import Json.Decode as JD
+import Math.Vector3 as Vector3 exposing (Vec3, vec3)
+import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import Math.Matrix4 as Matrix4
 import Gameroom exposing (..)
 

@@ -1,16 +1,16 @@
 port module Main exposing (..)
 
-import Html exposing (Html, div)
-import Window
+import Json.Encode as JE
+import Json.Decode as JD
 import Color
+import Window
+import Html exposing (Html, div)
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
 import Math.Vector3 as Vector3 exposing (Vec3, vec3)
 import Math.Vector4 as Vector4 exposing (Vec4, vec4)
-import WebGL
-import Json.Encode as JE
-import Json.Decode as JD
 import Math.Matrix4 as Matrix4
+import WebGL
 import Gameroom exposing (..)
 import Gameroom.Utils exposing (generatorFromList)
 

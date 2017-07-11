@@ -1,10 +1,10 @@
 port module Main exposing (..)
 
+import Json.Encode as JE
+import Json.Decode as JD
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Json.Encode as JE
-import Json.Decode as JD
 import Gameroom exposing (..)
 import Gameroom.Utils exposing (generatorFromList)
 
