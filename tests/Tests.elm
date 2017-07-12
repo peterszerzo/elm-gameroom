@@ -1,15 +1,17 @@
 module Tests exposing (..)
 
 import Test exposing (..)
-import ModelTests.Room
-import ModelTests.Player
-import ModelTests.OutgoingMessage
+import Tests.Utils
+import Tests.Data.Room
+import Tests.Data.Player
+import Tests.Data.OutgoingMessage
 
 
 all : Test
 all =
     describe "elm-gameroom"
-        [ ModelTests.Room.tests
-        , ModelTests.Player.tests
-        , ModelTests.OutgoingMessage.tests
+        [ Tests.Utils.tests
+        , Tests.Data.Room.tests
+        , Tests.Data.Player.tests
+        , Tests.Data.OutgoingMessage.tests
         ]

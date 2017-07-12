@@ -101,8 +101,7 @@ getNotificationContent spec model =
                                             Constants.incorrectGuessCopy
 
                                     Nothing ->
-                                        Constants.evaluatedGuessCopy
-                                            |> Utils.template (toString eval)
+                                        Utils.template Constants.evaluatedGuessCopy (toString eval)
                         )
                         (getOwnGuess model)
                         room.round
@@ -113,7 +112,7 @@ getNotificationContent spec model =
                                 if winnerId == model.playerId then
                                     Constants.winCopy
                                 else
-                                    Constants.loseCopy |> Utils.template winnerId
+                                    Utils.template Constants.loseCopy winnerId
                             )
                         |> Maybe.withDefault Constants.tieCopy
                         |> Just

@@ -1,9 +1,9 @@
-module ModelTests.Room exposing (..)
+module Tests.Data.Room exposing (..)
 
 import Test exposing (..)
 import Dict
 import Expect
-import Models.Room as Room
+import Data.Room as Room
 
 
 tests : Test

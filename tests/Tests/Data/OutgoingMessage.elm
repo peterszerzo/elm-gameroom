@@ -1,11 +1,11 @@
-module ModelTests.OutgoingMessage exposing (..)
+module Tests.Data.OutgoingMessage exposing (..)
 
 import Test exposing (..)
 import Expect
-import Models.Room as Room
+import Data.Room as Room
 import Json.Decode as JD
 import Json.Encode as JE
-import Models.OutgoingMessage exposing (OutgoingMessage(..), encoder)
+import Data.OutgoingMessage exposing (OutgoingMessage(..), encoder)
 
 
 type alias Problem =

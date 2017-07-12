@@ -35,7 +35,7 @@ view spec windowSize model =
                                     spec.instructions
 
                                 Just guess ->
-                                    Constants.tutorialEvaluatedGuessCopy |> Utils.template (spec.evaluate problem guess |> toString)
+                                    Utils.template Constants.tutorialEvaluatedGuessCopy (spec.evaluate problem guess |> toString)
                         )
                     |> Maybe.withDefault Constants.tutorialStartupCopy
                     |> Just

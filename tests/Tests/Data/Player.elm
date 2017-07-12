@@ -1,9 +1,9 @@
-module ModelTests.Player exposing (..)
+module Tests.Data.Player exposing (..)
 
 import Test exposing (..)
 import Expect
 import Json.Decode as JD
-import Models.Player as Player
+import Data.Player as Player
 
 
 tests : Test
