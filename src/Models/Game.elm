@@ -7,6 +7,8 @@ import Models.Room as Room
 import Models.RoundTime as RoundTime
 import Models.RoomId exposing (RoomId)
 import Models.Player exposing (Player, PlayerId)
+import Constants
+import Utils
 
 
 type alias Game problem guess =
@@ -95,12 +97,13 @@ getNotificationContent spec model =
                                 case spec.clearWinnerEvaluation of
                                     Just clearWinnerEval ->
                                         if eval == clearWinnerEval then
-                                            "Correct - let's see if you made it the fastest.."
+                                            Constants.correctGuessCopy
                                         else
-                                            "Not quite, not quite unfortunately.."
+                                            Constants.incorrectGuessCopy
 
                                     Nothing ->
-                                        "This is scoring you a " ++ (toString eval) ++ ". Let's see how the others are doing.."
+                                        Constants.evaluatedGuessCopy
+                                            |> Utils.template (toString eval)
                         )
                         (getOwnGuess model)
                         room.round
@@ -109,11 +112,11 @@ getNotificationContent spec model =
                         |> Maybe.map
                             (\winnerId ->
                                 if winnerId == model.playerId then
-                                    "Nice job, you win!"
+                                    Constants.winCopy
                                 else
-                                    "This one goes to " ++ winnerId ++ ". Go get them in the next round!"
+                                    Constants.loseCopy |> Utils.template winnerId
                             )
-                        |> Maybe.withDefault "It's a tie, folks, it's a tie.."
+                        |> Maybe.withDefault Constants.tieCopy
                         |> Just
 
             Nothing ->

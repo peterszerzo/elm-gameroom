@@ -9,6 +9,8 @@ import Models.Tutorial
 import Messages.Tutorial
 import Views.Tutorial.Styles exposing (CssClasses(..), localClass)
 import Views.Notification
+import Utils
+import Constants
 
 
 view :
@@ -33,9 +35,9 @@ view spec windowSize model =
                                     spec.instructions
 
                                 Just guess ->
-                                    "This one will score you a " ++ (spec.evaluate problem guess |> toString) ++ ". Can you do better?"
+                                    Constants.tutorialEvaluatedGuessCopy |> Utils.template (spec.evaluate problem guess |> toString)
                         )
-                    |> Maybe.withDefault "Hey, let's practice. Click the button to get a game problem you can solve."
+                    |> Maybe.withDefault Constants.tutorialStartupCopy
                     |> Just
                 )
                 Nothing

@@ -8,6 +8,7 @@ import Messages.NewRoom exposing (NewRoomMsg(..))
 import Views.NewRoom.Styles exposing (CssClasses(..), localClass, localClassList)
 import Views.Loader
 import Views.Notification
+import Constants
 
 
 viewForm : NewRoom.NewRoom -> List (Html NewRoomMsg)
@@ -17,8 +18,8 @@ viewForm model =
             (String.length model.roomId > 0)
                 && (model.playerIds |> List.map (\playerId -> String.length playerId > 0) |> List.all identity)
     in
-        [ h2 [ localClass [ Title ] ] [ text "Game on!" ]
-        , p [] [ text "But first, some forms.. In order to play with your friends, use this form to create your very own room. You’ll then be able to share links unique to each player, control when you feel ready, and be on your way!" ]
+        [ h2 [ localClass [ Title ] ] [ text Constants.newRoomPageTitle ]
+        , p [] [ text Constants.newRoomFormIntroCopy ]
         , form
             [ onSubmit CreateRequest
             ]
@@ -85,7 +86,7 @@ viewForm model =
             (if not model.entriesUrlized || model.isUrlizedNotificationDismissed then
                 Nothing
              else
-                Just "We took the liberty to make your names casual and URL-friendly for your convenience :)."
+                Just Constants.casualNamesWarningCopy
             )
             (Just DismissUrlizeNotification)
         ]

@@ -1,7 +1,7 @@
 module Update.NewRoom exposing (..)
 
 import Models.NewRoom as NewRoom
-import Utilities exposing (urlize)
+import Utils exposing (urlize)
 import Messages.NewRoom exposing (..)
 
 
