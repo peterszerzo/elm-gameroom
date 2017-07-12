@@ -1,14 +1,15 @@
 module Views exposing (view)
 
-import Html exposing (Html, div, node, text)
+import Html exposing (Html, div, node, p, a, text)
+import Html.Attributes exposing (href)
+import Html.CssHelpers
 import Css exposing (Stylesheet, stylesheet, position, fixed, top, px, bottom, left, right, backgroundColor, hex)
 import Css.Namespace exposing (namespace)
-import Html.CssHelpers
 import Css.File exposing (compile)
+import Router
 import Data.Spec as Spec
 import Models exposing (Model)
 import Messages exposing (Msg(..))
-import Router as Router
 import Views.Attribution
 import Views.Attribution.Styles
 import Views.Footer.Styles
@@ -18,15 +19,15 @@ import Views.Notification.Styles
 import Views.Scoreboard.Styles
 import Views.Timer.Styles
 import Page.Game.Views
-import Page.Game.Styles
+import Page.Game.Views.Styles
 import Page.Home.Views
-import Page.Home.Styles
+import Page.Home.Views.Styles
 import Page.NewRoom.Views
-import Page.NewRoom.Styles
+import Page.NewRoom.Views.Styles
 import Page.NotFound.Views
-import Page.NotFound.Styles
+import Page.NotFound.Views.Styles
 import Page.Tutorial.Views
-import Page.Tutorial.Styles
+import Page.Tutorial.Views.Styles
 import Styles.Shared
 import Styles.Constants exposing (white)
 
@@ -68,11 +69,11 @@ css =
             ++ Views.Notification.Styles.styles
             ++ Views.Scoreboard.Styles.styles
             ++ Views.Timer.Styles.styles
-            ++ Page.Game.Styles.styles
-            ++ Page.Home.Styles.styles
-            ++ Page.NewRoom.Styles.styles
-            ++ Page.NotFound.Styles.styles
-            ++ Page.Tutorial.Styles.styles
+            ++ Page.Game.Views.Styles.styles
+            ++ Page.Home.Views.Styles.styles
+            ++ Page.NewRoom.Views.Styles.styles
+            ++ Page.NotFound.Views.Styles.styles
+            ++ Page.Tutorial.Views.Styles.styles
         )
 
 
@@ -104,7 +105,14 @@ view spec model =
                     Page.NotFound.Views.view
 
                 Router.NotOnBaseRoute ->
-                    div [] []
+                    div []
+                        [ p [] [ text "Not on configured base path. Redirecting.." ]
+                        , p []
+                            [ text "If not redirected in a couple of seconds, "
+                            , a [ href spec.basePath ] [ text "click here" ]
+                            , text "."
+                            ]
+                        ]
 
                 Router.Tutorial tutorial ->
                     Page.Tutorial.Views.view spec model.windowSize tutorial

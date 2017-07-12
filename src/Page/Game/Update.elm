@@ -1,9 +1,9 @@
 module Page.Game.Update exposing (..)
 
-import Random
 import Dict
-import Data.OutgoingMessage as OutgoingMessage
+import Random
 import Messages
+import Data.OutgoingMessage as OutgoingMessage
 import Page.Game.Messages exposing (Msg(..))
 import Page.Game.Models exposing (Model, setOwnGuess, getOwnPlayer)
 import Data.Room as Room

@@ -1,4 +1,4 @@
-module Page.NewRoom.Styles exposing (..)
+module Page.NewRoom.Views.Styles exposing (..)
 
 import Html
 import Html.CssHelpers

@@ -1,4 +1,4 @@
-module Gameroom.Context exposing (..)
+module Gameroom.Context exposing (Context, allGuesses)
 
 {-| When developing elm-gameroom games, the [Spec](/Gameroom-Spec) object requires a view function that controls how the problem should be represented. This function takes a context as a first parameter, which you can use to display additional clues in your game, such as feedback when a guess is made or when the correct guess may be revealed. It also gives you access the current round's timer so you can get all animated and even WebGL-y, if that strikes your fancy.
 

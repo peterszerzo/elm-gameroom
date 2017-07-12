@@ -1,4 +1,4 @@
-module Page.NotFound.Styles exposing (..)
+module Page.NotFound.Views.Styles exposing (..)
 
 import Html
 import Html.CssHelpers

@@ -37,6 +37,8 @@ module Gameroom
 
 -}
 
+import Window
+import Task
 import Time
 import Navigation
 import Models
@@ -47,7 +49,6 @@ import Update exposing (update, cmdOnRouteChange)
 import Router as Router
 import Data.Ports as Ports
 import Data.Spec as Spec exposing (Setting(..), buildDetailedSpec)
-import Init exposing (init)
 import Views exposing (view)
 
 
@@ -147,6 +148,33 @@ instructions instructions_ =
 icon : String -> Setting
 icon icon_ =
     Icon icon_
+
+
+init :
+    Spec.DetailedSpec problem guess
+    -> Ports (Msg problem guess)
+    -> Navigation.Location
+    -> ( Model problem guess, Cmd (Messages.Msg problem guess) )
+init spec ports loc =
+    let
+        route =
+            Router.parse spec.basePath loc
+
+        cmd =
+            Cmd.batch
+                [ cmdOnRouteChange spec ports route Nothing
+                , Window.size |> Task.perform Messages.Resize
+                , if route == Router.NotOnBaseRoute then
+                    Navigation.newUrl spec.basePath
+                  else
+                    Cmd.none
+                ]
+    in
+        ( { route = route
+          , windowSize = Window.Size 0 0
+          }
+        , cmd
+        )
 
 
 {-| In the most general case, players compete in getting as close as possible to a given goal. However, sometimes you might want to simplify the game and designate winners only if they attained a specific evaluation value specified by `Spec.evaluate`.

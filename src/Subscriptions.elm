@@ -4,10 +4,10 @@ import Window
 import Time
 import Json.Decode as JD
 import Messages
+import Router
+import Models exposing (Model)
 import Page.Tutorial.Messages
 import Page.Game.Messages
-import Router as Router
-import Models exposing (Model)
 import Data.Ports as Ports
 import Data.Spec as Spec
 import Data.IncomingMessage as InMsg
@@ -31,7 +31,8 @@ subscriptions spec ports model =
         , case model.route of
             Router.Game _ ->
                 Sub.batch
-                    [ Time.every (100 * Time.millisecond) (Messages.GameMsg << Page.Game.Messages.Tick)
+                    [ -- This extra timer is necessary for when the game is tested in two different browser windows (animationframe doesn't fire when the tab is not active).
+                      Time.every (100 * Time.millisecond) (Messages.GameMsg << Page.Game.Messages.Tick)
                     , AnimationFrame.times (Messages.GameMsg << Page.Game.Messages.Tick)
                     , Window.resizes Messages.Resize
                     ]

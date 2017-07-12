@@ -1,4 +1,4 @@
-module Utils exposing (..)
+module Utils exposing (trimspaces, urlize, template)
 
 import Regex exposing (..)
 

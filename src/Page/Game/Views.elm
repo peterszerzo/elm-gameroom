@@ -1,4 +1,4 @@
-module Page.Game.Views exposing (..)
+module Page.Game.Views exposing (view)
 
 import Dict
 import Window
@@ -15,7 +15,7 @@ import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer
 import Views.Notification as Notification
 import Views.Loader as Loader
-import Page.Game.Styles exposing (CssClasses(..), localClass, localClassList)
+import Page.Game.Views.Styles exposing (CssClasses(..), localClass, localClassList)
 
 
 viewReadyPrompt :

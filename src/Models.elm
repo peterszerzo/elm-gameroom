@@ -1,6 +1,6 @@
 module Models exposing (..)
 
-import Router as Router
+import Router
 import Window
 
 

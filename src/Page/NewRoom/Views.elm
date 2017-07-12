@@ -1,11 +1,11 @@
-module Page.NewRoom.Views exposing (..)
+module Page.NewRoom.Views exposing (view)
 
 import Html exposing (Html, div, text, button, form, h1, h2, label, input, fieldset, span, ul, li, a, p)
 import Html.Attributes exposing (class, style, type_, value, id, for, href, placeholder, disabled)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Page.NewRoom.Models exposing (Model, Status(..))
 import Page.NewRoom.Messages exposing (Msg(..))
-import Page.NewRoom.Styles exposing (CssClasses(..), localClass, localClassList)
+import Page.NewRoom.Views.Styles exposing (CssClasses(..), localClass, localClassList)
 import Views.Loader
 import Views.Notification
 import Constants

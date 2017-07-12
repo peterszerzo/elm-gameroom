@@ -2,19 +2,19 @@ module Update exposing (..)
 
 import Navigation
 import Random
+import Router
 import Messages exposing (..)
-import Page.Tutorial.Messages
-import Page.Game.Messages
-import Page.NewRoom.Messages
 import Models exposing (Model)
 import Data.Room as Room
 import Data.Spec as Spec
 import Data.Ports exposing (Ports)
-import Router
 import Data.IncomingMessage as InMsg
 import Data.OutgoingMessage as OutgoingMessage
-import Page.NewRoom.Update
+import Page.Game.Messages
 import Page.Game.Update
+import Page.NewRoom.Messages
+import Page.NewRoom.Update
+import Page.Tutorial.Messages
 import Page.Tutorial.Update
 
 

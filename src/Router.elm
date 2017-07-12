@@ -21,8 +21,9 @@ startsWithBase basePath path_ =
     String.left (String.length basePath) path_ == basePath
 
 
-sWithBaseSlug : String -> String -> Parser a a
-sWithBaseSlug basePath slug =
+sWithBasePath : String -> String -> Parser a a
+sWithBasePath basePath slug =
+    -- Redefines UrlParser's 's' function to take into account a base path.
     let
         baseSlug =
             String.dropLeft 1 basePath
@@ -41,7 +42,7 @@ matchers : String -> UrlParser.Parser (Route problem guess -> a) a
 matchers basePath =
     let
         s_ =
-            sWithBaseSlug basePath
+            sWithBasePath basePath
     in
         UrlParser.oneOf
             [ s_ "" |> map Home
@@ -49,7 +50,11 @@ matchers basePath =
             , s_ "rooms"
                 </> string
                 </> string
-                |> map (\roomId playerId -> Page.Game.Models.init roomId playerId |> Game)
+                |> map
+                    (\roomId playerId ->
+                        Page.Game.Models.init roomId playerId
+                            |> Game
+                    )
             , s_ "new" |> map (NewRoom Page.NewRoom.Models.init)
             ]
 

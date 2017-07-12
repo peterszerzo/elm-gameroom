@@ -1,4 +1,4 @@
-module Views.Header exposing (..)
+module Views.Header exposing (view)
 
 import Html exposing (Html, header, text)
 import Messages exposing (Msg(..))

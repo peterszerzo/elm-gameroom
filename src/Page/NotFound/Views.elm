@@ -1,9 +1,9 @@
-module Page.NotFound.Views exposing (..)
+module Page.NotFound.Views exposing (view)
 
 import Html exposing (Html, div, h2, p, a, text)
 import Messages exposing (Msg(..))
 import Views.Link
-import Page.NotFound.Styles exposing (CssClasses(..), localClass)
+import Page.NotFound.Views.Styles exposing (CssClasses(..), localClass)
 
 
 view : Html (Msg problem guess)

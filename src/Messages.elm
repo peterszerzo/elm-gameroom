@@ -1,11 +1,11 @@
 module Messages exposing (..)
 
-import Router as Router
+import Window
+import Router
 import Data.IncomingMessage as InMsg
 import Page.Tutorial.Messages
 import Page.Game.Messages
 import Page.NewRoom.Messages
-import Window
 
 
 type Msg problem guess

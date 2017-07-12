@@ -1,4 +1,4 @@
-module Page.Tutorial.Views exposing (..)
+module Page.Tutorial.Views exposing (view)
 
 import Window
 import Html exposing (Html, map, div, text, button, h1, h2, label, input, fieldset, span, ul, li, a, p)
@@ -7,7 +7,7 @@ import Data.RoundTime as RoundTime
 import Data.Spec as Spec
 import Page.Tutorial.Models exposing (Model)
 import Page.Tutorial.Messages exposing (Msg(..))
-import Page.Tutorial.Styles exposing (CssClasses(..), localClass)
+import Page.Tutorial.Views.Styles exposing (CssClasses(..), localClass)
 import Views.Notification
 import Utils
 import Constants

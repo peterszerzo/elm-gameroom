@@ -1,4 +1,4 @@
-module Views.Footer exposing (..)
+module Views.Footer exposing (view)
 
 import Html exposing (Html, div, footer)
 import Views.Footer.Styles exposing (CssClasses(..), localClass)

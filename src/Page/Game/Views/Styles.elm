@@ -1,4 +1,4 @@
-module Page.Game.Styles exposing (..)
+module Page.Game.Views.Styles exposing (..)
 
 import Html
 import Html.CssHelpers

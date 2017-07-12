@@ -1,4 +1,4 @@
-module Views.Notification exposing (..)
+module Views.Notification exposing (view)
 
 import Html exposing (Html, div, p, text)
 import Html.Events exposing (onClick)

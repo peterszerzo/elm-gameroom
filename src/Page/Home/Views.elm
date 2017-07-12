@@ -1,10 +1,10 @@
-module Page.Home.Views exposing (..)
+module Page.Home.Views exposing (view)
 
 import Html exposing (Html, div, text, h1, p)
 import Messages exposing (Msg(..))
 import Data.Spec as Spec
 import Views.Link as Link
-import Page.Home.Styles exposing (CssClasses(..), localClass)
+import Page.Home.Views.Styles exposing (CssClasses(..), localClass)
 
 
 view : Spec.DetailedSpec problem guess -> Html (Msg problem guess)

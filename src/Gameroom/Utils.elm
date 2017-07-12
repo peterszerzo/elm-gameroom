@@ -1,4 +1,4 @@
-module Gameroom.Utils exposing (..)
+module Gameroom.Utils exposing (generatorFromList)
 
 {-| This module contains generic utility methods useful when defining games.
 
