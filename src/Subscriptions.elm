@@ -4,13 +4,13 @@ import Window
 import Time
 import Json.Decode as JD
 import Messages
-import Messages.Tutorial
-import Messages.Game
+import Page.Tutorial.Messages
+import Page.Game.Messages
 import Router as Router
 import Models exposing (Model)
-import Models.Ports as Ports
-import Models.Spec as Spec
-import Models.IncomingMessage as InMsg
+import Data.Ports as Ports
+import Data.Spec as Spec
+import Data.IncomingMessage as InMsg
 import AnimationFrame
 
 
@@ -31,14 +31,14 @@ subscriptions spec ports model =
         , case model.route of
             Router.Game _ ->
                 Sub.batch
-                    [ Time.every (100 * Time.millisecond) (Messages.GameMsg << Messages.Game.Tick)
-                    , AnimationFrame.times (Messages.GameMsg << Messages.Game.Tick)
+                    [ Time.every (100 * Time.millisecond) (Messages.GameMsg << Page.Game.Messages.Tick)
+                    , AnimationFrame.times (Messages.GameMsg << Page.Game.Messages.Tick)
                     , Window.resizes Messages.Resize
                     ]
 
             Router.Tutorial _ ->
                 Sub.batch
-                    [ AnimationFrame.times (Messages.TutorialMsg << Messages.Tutorial.Tick)
+                    [ AnimationFrame.times (Messages.TutorialMsg << Page.Tutorial.Messages.Tick)
                     , Window.resizes Messages.Resize
                     ]
 

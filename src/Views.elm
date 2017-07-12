@@ -5,28 +5,28 @@ import Css exposing (Stylesheet, stylesheet, position, fixed, top, px, bottom, l
 import Css.Namespace exposing (namespace)
 import Html.CssHelpers
 import Css.File exposing (compile)
-import Models.Spec as Spec
+import Data.Spec as Spec
 import Models exposing (Model)
 import Messages exposing (Msg(..))
 import Router as Router
 import Views.Attribution
 import Views.Attribution.Styles
 import Views.Footer.Styles
-import Views.Game
-import Views.Game.Styles
 import Views.Header
 import Views.Header.Styles
-import Views.Home
-import Views.Home.Styles
-import Views.NewRoom
-import Views.NewRoom.Styles
-import Views.NotFound
-import Views.NotFound.Styles
 import Views.Notification.Styles
 import Views.Scoreboard.Styles
 import Views.Timer.Styles
-import Views.Tutorial
-import Views.Tutorial.Styles
+import Page.Game.Views
+import Page.Game.Styles
+import Page.Home.Views
+import Page.Home.Styles
+import Page.NewRoom.Views
+import Page.NewRoom.Styles
+import Page.NotFound.Views
+import Page.NotFound.Styles
+import Page.Tutorial.Views
+import Page.Tutorial.Styles
 import Styles.Shared
 import Styles.Constants exposing (white)
 
@@ -64,15 +64,15 @@ css =
             ++ styles
             ++ Views.Attribution.Styles.styles
             ++ Views.Footer.Styles.styles
-            ++ Views.Game.Styles.styles
             ++ Views.Header.Styles.styles
-            ++ Views.Home.Styles.styles
-            ++ Views.NewRoom.Styles.styles
-            ++ Views.NotFound.Styles.styles
             ++ Views.Notification.Styles.styles
             ++ Views.Scoreboard.Styles.styles
             ++ Views.Timer.Styles.styles
-            ++ Views.Tutorial.Styles.styles
+            ++ Page.Game.Styles.styles
+            ++ Page.Home.Styles.styles
+            ++ Page.NewRoom.Styles.styles
+            ++ Page.NotFound.Styles.styles
+            ++ Page.Tutorial.Styles.styles
         )
 
 
@@ -90,24 +90,24 @@ view spec model =
         content =
             case model.route of
                 Router.Home ->
-                    Views.Home.view spec
+                    Page.Home.Views.view spec
 
                 Router.Game game ->
-                    Views.Game.view spec model.windowSize game
+                    Page.Game.Views.view spec model.windowSize game
                         |> Html.map GameMsg
 
                 Router.NewRoom newRoom ->
-                    Views.NewRoom.view newRoom
+                    Page.NewRoom.Views.view newRoom
                         |> Html.map NewRoomMsg
 
                 Router.NotFound ->
-                    Views.NotFound.view
+                    Page.NotFound.Views.view
 
                 Router.NotOnBaseRoute ->
                     div [] []
 
                 Router.Tutorial tutorial ->
-                    Views.Tutorial.view spec model.windowSize tutorial
+                    Page.Tutorial.Views.view spec model.windowSize tutorial
                         |> Html.map TutorialMsg
     in
         div

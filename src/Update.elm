@@ -2,20 +2,20 @@ module Update exposing (..)
 
 import Navigation
 import Random
-import Models.OutgoingMessage as OutgoingMessage
 import Messages exposing (..)
-import Messages.Tutorial
-import Messages.Game
-import Messages.NewRoom
+import Page.Tutorial.Messages
+import Page.Game.Messages
+import Page.NewRoom.Messages
 import Models exposing (Model)
-import Models.Room as Room
-import Models.Spec as Spec
-import Models.Ports exposing (Ports)
+import Data.Room as Room
+import Data.Spec as Spec
+import Data.Ports exposing (Ports)
 import Router
-import Models.IncomingMessage as InMsg
-import Update.NewRoom
-import Update.Game
-import Update.Tutorial
+import Data.IncomingMessage as InMsg
+import Data.OutgoingMessage as OutgoingMessage
+import Page.NewRoom.Update
+import Page.Game.Update
+import Page.Tutorial.Update
 
 
 cmdOnRouteChange :
@@ -38,7 +38,7 @@ cmdOnRouteChange spec ports route prevRoute =
                 |> ports.outgoing
 
         ( Router.Tutorial _, _ ) ->
-            Random.generate (Messages.TutorialMsg << Messages.Tutorial.ReceiveProblem) spec.problemGenerator
+            Random.generate (Messages.TutorialMsg << Page.Tutorial.Messages.ReceiveProblem) spec.problemGenerator
 
         ( _, _ ) ->
             Cmd.none
@@ -81,7 +81,7 @@ update spec ports msg model =
         ( Router.Game game, GameMsg gameMsg ) ->
             let
                 ( newGame, cmd ) =
-                    Update.Game.update spec ports gameMsg game
+                    Page.Game.Update.update spec ports gameMsg game
             in
                 ( { model | route = Router.Game newGame }
                 , cmd
@@ -90,7 +90,7 @@ update spec ports msg model =
         ( Router.NewRoom newRoom, NewRoomMsg newRoomMsg ) ->
             let
                 ( newNewRoom, sendSaveCommand, newUrl ) =
-                    (Update.NewRoom.update newRoomMsg newRoom)
+                    (Page.NewRoom.Update.update newRoomMsg newRoom)
             in
                 ( { model | route = Router.NewRoom newNewRoom }
                 , if sendSaveCommand then
@@ -105,7 +105,7 @@ update spec ports msg model =
         ( Router.NewRoom newRoom, IncomingMessage (InMsg.RoomCreated room) ) ->
             let
                 ( newModel, _, newUrl ) =
-                    Update.NewRoom.update (Messages.NewRoom.CreateResponse "") newRoom
+                    Page.NewRoom.Update.update (Page.NewRoom.Messages.CreateResponse "") newRoom
             in
                 ( { model
                     | route =
@@ -119,14 +119,14 @@ update spec ports msg model =
         ( Router.Game game, IncomingMessage (InMsg.RoomUpdated room) ) ->
             let
                 ( newGame, cmd ) =
-                    Update.Game.update spec ports (Messages.Game.ReceiveUpdate room) game
+                    Page.Game.Update.update spec ports (Page.Game.Messages.ReceiveUpdate room) game
             in
                 ( { model | route = Router.Game newGame }, cmd )
 
         ( Router.Tutorial tutorial, TutorialMsg msg ) ->
             let
                 ( newTutorial, cmd ) =
-                    Update.Tutorial.update spec msg tutorial
+                    Page.Tutorial.Update.update spec msg tutorial
             in
                 ( { model | route = Router.Tutorial newTutorial }, cmd )
 

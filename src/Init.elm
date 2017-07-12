@@ -5,8 +5,8 @@ import Window
 import Navigation
 import Task
 import Models exposing (Model)
-import Models.Ports exposing (Ports)
-import Models.Spec as Spec
+import Data.Ports exposing (Ports)
+import Data.Spec as Spec
 import Messages exposing (Msg)
 import Update exposing (cmdOnRouteChange)
 

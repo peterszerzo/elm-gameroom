@@ -2,16 +2,16 @@ module Router exposing (..)
 
 import Navigation
 import UrlParser exposing (..)
-import Models.NewRoom
-import Models.Game
-import Models.Tutorial
+import Page.NewRoom.Models
+import Page.Game.Models
+import Page.Tutorial.Models
 
 
 type Route problem guess
     = Home
-    | NewRoom Models.NewRoom.NewRoom
-    | Tutorial (Models.Tutorial.Tutorial problem guess)
-    | Game (Models.Game.Game problem guess)
+    | NewRoom Page.NewRoom.Models.Model
+    | Tutorial (Page.Tutorial.Models.Model problem guess)
+    | Game (Page.Game.Models.Model problem guess)
     | NotOnBaseRoute
     | NotFound
 
@@ -45,12 +45,12 @@ matchers basePath =
     in
         UrlParser.oneOf
             [ s_ "" |> map Home
-            , s_ "tutorial" |> map (Tutorial Models.Tutorial.init)
+            , s_ "tutorial" |> map (Tutorial Page.Tutorial.Models.init)
             , s_ "rooms"
                 </> string
                 </> string
-                |> map (\roomId playerId -> Models.Game.init roomId playerId |> Game)
-            , s_ "new" |> map (NewRoom Models.NewRoom.init)
+                |> map (\roomId playerId -> Page.Game.Models.init roomId playerId |> Game)
+            , s_ "new" |> map (NewRoom Page.NewRoom.Models.init)
             ]
 
 

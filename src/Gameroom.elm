@@ -40,13 +40,13 @@ module Gameroom
 import Time
 import Navigation
 import Models
-import Models.Ports as Ports
+import Data.Ports as Ports
 import Subscriptions exposing (subscriptions)
 import Messages
 import Update exposing (update, cmdOnRouteChange)
 import Router as Router
-import Models.Ports as Ports
-import Models.Spec exposing (Spec, Setting(..), buildDetailedSpec)
+import Data.Ports as Ports
+import Data.Spec as Spec exposing (Setting(..), buildDetailedSpec)
 import Init exposing (init)
 import Views exposing (view)
 
@@ -68,7 +68,7 @@ import Views exposing (view)
 * problemGenerator: a random generator churning out new problems. If your problems are a simple list, we have a [convenient helper](/Gameroom-Utils#generatorFromList).
 -}
 type alias Spec problem guess =
-    Models.Spec.Spec problem guess
+    Spec.Spec problem guess
 
 
 {-| Use this Msg type to annotate your program.
