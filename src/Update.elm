@@ -125,10 +125,15 @@ update spec ports msg model =
 
         ( Router.Tutorial tutorial, TutorialMsg msg ) ->
             let
-                ( newTutorial, cmd ) =
+                ( newTutorial, generateNewRound ) =
                     Page.Tutorial.Update.update spec msg tutorial
             in
-                ( { model | route = Router.Tutorial newTutorial }, cmd )
+                ( { model | route = Router.Tutorial newTutorial }
+                , if generateNewRound then
+                    Random.generate (Messages.TutorialMsg << Page.Tutorial.Messages.ReceiveProblem) spec.problemGenerator
+                  else
+                    Cmd.none
+                )
 
         ( _, _ ) ->
             ( model, Cmd.none )

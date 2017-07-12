@@ -16,7 +16,7 @@ module Gameroom
         , gameWith
         )
 
-{-| This is a framework for creating multiplayer guessing games by the boatloads, all within the comfort of Elm. Specify only what is unique to a game, write no logic on the back-end, and have it all wired up and ready to play.
+{-| This is a framework for creating [multiplayer Guessing games by the boatloads](https://www.youtube.com/watch?v=sBCz6atTRZk), all within the comfort of Elm. Specify only what is unique to a game, write no logic on the back-end, and have it all wired up and ready to play.
 
 `elm-gameroom` takes care of calling game rounds, generating problems and reconciling scores, as well as talking to either a generic real-time database such as Firebase (JS adapter provided), with have clients sort things out amongst themselves via WebRTC (JavaScript glue code provided).
 
@@ -24,6 +24,7 @@ module Gameroom
 @docs game, gameWith
 
 # Program annotation types
+Use these `Msg` and `Model` types to annotate your program when using the [game](/Gameroom#game) or [gameWith](/Gameroom#gameWith) methods.
 @docs Model, Msg
 
 # Game Spec
@@ -55,8 +56,8 @@ import Views exposing (view)
 {-| Define the unique bits and pieces to your game, all generalized over a type variable representing a `problem`, and one representing a `guess`. It's going to look a little heavy, but it'll make sense very quickly, I promise. Here it goes:
 
     type alias Spec problem guess =
-        { view : Context guess -> problem -> Html.Html guess
-        , evaluate : problem -> guess -> Time.Time -> Bool
+        { view : Context guess -> problem -> Html guess
+        , evaluate : problem -> guess -> Float
         , problemGenerator : Random.Generator problem
         , problemEncoder : problem -> Encode.Value
         , problemDecoder : Decode.Decoder problem
@@ -65,20 +66,20 @@ import Views exposing (view)
         }
 
 * view: The core of the user interface corresponding to the current game round, excluding all navigation, notifications and the score boards. Emits guesses. The first argument is a view context containing peripheral information such as window size, round time, already recorded guesses etc., and it's [documented on its own](/Gameroom-Context). The second, main argument is the current game problem.
-* evaluate: given a problem, a guess and a timestamp, returns a numerical evaluation of the guess. The player with the highest evaluation wins a given round. Note that this is affected by the [clearWinner](/Gameroom#clearWinner) setting.
-* problemGenerator: a random generator churning out new problems. If your problems are a simple list, we have a [convenient helper](/Gameroom-Utils#generatorFromList).
+* evaluate: given a problem and a guess, returns a numerical evaluation of the guess. The player with the highest evaluation wins a given round. Note that this is affected by the [clearWinner](/Gameroom#clearWinner) setting, which specifies that only by attaining a certain highest evaluation can a player win.
+* problemGenerator: a random generator churning out new problems. If your problems are a simple list, there is a [convenient helper](/Gameroom-Utils#generatorFromList).
 -}
 type alias Spec problem guess =
     Spec.Spec problem guess
 
 
-{-| Use this Msg type to annotate your program.
+{-| Msg type alias for the game program.
 -}
 type alias Msg problem guess =
     Messages.Msg problem guess
 
 
-{-| Use this Model type to annotate your program.
+{-| Model type alias for the game program.
 -}
 type alias Model problem guess =
     Models.Model problem guess

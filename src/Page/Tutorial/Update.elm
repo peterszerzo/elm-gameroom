@@ -1,7 +1,5 @@
 module Page.Tutorial.Update exposing (..)
 
-import Random
-import Messages
 import Data.RoundTime as RoundTime
 import Page.Tutorial.Messages exposing (Msg(..))
 import Page.Tutorial.Models exposing (Model)
@@ -12,13 +10,12 @@ update :
     Spec.DetailedSpec problem guess
     -> Msg problem guess
     -> Model problem guess
-    -> ( Model problem guess, Cmd (Messages.Msg problem guess) )
+       -- Returns the new model and a boolean value; if it's true, the higher-level update function should generate a new game round.
+    -> ( Model problem guess, Bool )
 update spec msg model =
     case msg of
         RequestNewProblem ->
-            ( model
-            , Random.generate (Messages.TutorialMsg << ReceiveProblem) spec.problemGenerator
-            )
+            ( model, True )
 
         ReceiveProblem problem ->
             ( { model
@@ -26,11 +23,11 @@ update spec msg model =
                 , guess = Nothing
                 , time = RoundTime.init
               }
-            , Cmd.none
+            , False
             )
 
         Guess guess ->
-            ( { model | guess = Just guess }, Cmd.none )
+            ( { model | guess = Just guess }, False )
 
         Tick time ->
-            ( { model | time = RoundTime.update time model.time }, Cmd.none )
+            ( { model | time = RoundTime.update time model.time }, False )

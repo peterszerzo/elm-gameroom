@@ -23,7 +23,7 @@ localClass =
 
 styles : List Css.Snippet
 styles =
-    [ Css.class Root <|
+    [ class Root <|
         [ position fixed
         , right (px 0)
         , bottom (px 0)
