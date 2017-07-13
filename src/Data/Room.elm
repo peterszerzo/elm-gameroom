@@ -3,7 +3,6 @@ module Data.Room exposing (..)
 import Dict
 import Json.Decode as JD
 import Json.Encode as JE
-import Data.Spec as Spec
 import Data.Player as Player
 import Data.Round as Round
 import Constants exposing (nullString)
@@ -102,8 +101,8 @@ bigNumber =
     100000
 
 
-getRoundWinner : Spec.DetailedSpec problem guess -> Room problem guess -> Maybe Player.PlayerId
-getRoundWinner spec room =
+getRoundWinner : (problem -> guess -> Float) -> Maybe Float -> Room problem guess -> Maybe Player.PlayerId
+getRoundWinner evaluate clearWinnerEvaluation room =
     room.players
         |> Dict.toList
         |> List.filterMap
@@ -112,7 +111,7 @@ getRoundWinner spec room =
                     |> Maybe.map2
                         (\round guess ->
                             ( playerId
-                            , spec.evaluate round.problem guess.value
+                            , evaluate round.problem guess.value
                             , guess.madeAt
                             )
                         )
@@ -134,7 +133,7 @@ getRoundWinner spec room =
         |> List.head
         |> Maybe.map
             (\( playerId, eval, _ ) ->
-                case spec.clearWinnerEvaluation of
+                case clearWinnerEvaluation of
                     Just clearWinnerEval ->
                         if eval == clearWinnerEval then
                             Just playerId

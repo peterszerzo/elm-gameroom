@@ -155,7 +155,7 @@ update spec msg model =
         ( Tick time, Just room ) ->
             let
                 potentialRoundWinner =
-                    Room.getRoundWinner spec room
+                    Room.getRoundWinner spec.evaluate spec.clearWinnerEvaluation room
 
                 allPlayersReady =
                     Room.allPlayersReady room

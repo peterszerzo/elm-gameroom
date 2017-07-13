@@ -106,7 +106,7 @@ getNotificationContent spec model =
                         (getOwnGuess model)
                         room.round
                 else
-                    Room.getRoundWinner spec room
+                    Room.getRoundWinner spec.evaluate spec.clearWinnerEvaluation room
                         |> Maybe.map
                             (\winnerId ->
                                 if winnerId == model.playerId then
