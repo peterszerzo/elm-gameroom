@@ -1,8 +1,7 @@
 module Page.Game.Update exposing (..)
 
 import Dict
-import Random
-import Messages
+import Json.Encode as JE
 import Data.OutgoingMessage as OutgoingMessage
 import Page.Game.Messages exposing (Msg(..))
 import Page.Game.Models exposing (Model, setOwnGuess, getOwnPlayer)
@@ -10,38 +9,32 @@ import Data.Room as Room
 import Data.Player as Player
 import Data.RoundTime as RoundTime
 import Data.Spec as Spec
-import Data.Ports exposing (Ports)
 
 
 updateRoomCmd :
     Spec.DetailedSpec problem guess
-    -> Ports (Messages.Msg problem guess)
     -> Model problem guess
-    -> Cmd (Messages.Msg problem guess)
-updateRoomCmd spec ports model =
+    -> Maybe JE.Value
+updateRoomCmd spec model =
     model.room
-        |> Maybe.map (OutgoingMessage.UpdateRoom >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder) >> ports.outgoing)
-        |> Maybe.withDefault Cmd.none
+        |> Maybe.map (OutgoingMessage.UpdateRoom >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder))
 
 
 updatePlayerCmd :
     Spec.DetailedSpec problem guess
-    -> Ports (Messages.Msg problem guess)
     -> Maybe (Player.Player guess)
-    -> Cmd (Messages.Msg problem guess)
-updatePlayerCmd spec ports player =
+    -> Maybe JE.Value
+updatePlayerCmd spec player =
     player
-        |> Maybe.map (OutgoingMessage.UpdatePlayer >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder) >> ports.outgoing)
-        |> Maybe.withDefault Cmd.none
+        |> Maybe.map (OutgoingMessage.UpdatePlayer >> (OutgoingMessage.encoder spec.problemEncoder spec.guessEncoder))
 
 
 update :
     Spec.DetailedSpec problem guess
-    -> Ports (Messages.Msg problem guess)
     -> Msg problem guess
     -> Model problem guess
-    -> ( Model problem guess, Cmd (Messages.Msg problem guess) )
-update spec ports msg model =
+    -> ( Model problem guess, List JE.Value, Bool )
+update spec msg model =
     case ( msg, model.room ) of
         ( ReceiveUpdate room, Just prevRoom ) ->
             let
@@ -60,9 +53,6 @@ update spec ports msg model =
                 resetTime =
                     isNewRound || (allPlayersReady && (not prevAllPlayersReady))
 
-                newProblemCmd =
-                    (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
-
                 initiateNewRound =
                     isHost && allPlayersReady && (room.round == Nothing)
             in
@@ -74,14 +64,12 @@ update spec ports msg model =
                         else
                             model.time
                   }
-                , if initiateNewRound then
-                    newProblemCmd
-                  else
-                    Cmd.none
+                , []
+                , initiateNewRound
                 )
 
         ( ReceiveUpdate room, Nothing ) ->
-            ( { model | room = Just room }, Cmd.none )
+            ( { model | room = Just room }, [], False )
 
         ( ReceiveNewProblem problem, Just room ) ->
             let
@@ -110,17 +98,15 @@ update spec ports msg model =
                         | room = Just newRoom
                         , time = RoundTime.init
                     }
-
-                cmd =
-                    updateRoomCmd spec ports newModel
             in
                 ( newModel
-                , cmd
+                , [ updateRoomCmd spec newModel ] |> List.filterMap identity
+                , False
                 )
 
         ( ReceiveNewProblem problem, Nothing ) ->
             -- Impossible state
-            ( model, Cmd.none )
+            ( model, [], False )
 
         ( Guess guess, Just room ) ->
             let
@@ -132,18 +118,15 @@ update spec ports msg model =
 
                 newPlayer =
                     getOwnPlayer newModel
-
-                cmd =
-                    updatePlayerCmd spec ports newPlayer
             in
                 if isRoundOver then
-                    ( model, Cmd.none )
+                    ( model, [], False )
                 else
-                    ( newModel, cmd )
+                    ( newModel, [ updatePlayerCmd spec newPlayer ] |> List.filterMap identity, False )
 
         ( Guess guess, Nothing ) ->
             -- Impossible state
-            ( model, Cmd.none )
+            ( model, [], False )
 
         ( MarkReady, Just room ) ->
             let
@@ -159,17 +142,15 @@ update spec ports msg model =
                         | room = Just newRoom
                         , time = RoundTime.init
                     }
-
-                cmd =
-                    updateRoomCmd spec ports newModel
             in
                 ( newModel
-                , cmd
+                , [ updateRoomCmd spec newModel ] |> List.filterMap identity
+                , False
                 )
 
         ( MarkReady, Nothing ) ->
             -- Impossible state
-            ( model, Cmd.none )
+            ( model, [], False )
 
         ( Tick time, Just room ) ->
             let
@@ -233,24 +214,19 @@ update spec ports msg model =
                             else
                                 model.time
                     }
-
-                newProblemCmd =
-                    (Random.generate (\pb -> Messages.GameMsg (ReceiveNewProblem pb)) spec.problemGenerator)
             in
                 ( newModel
-                , Cmd.batch
-                    [ if initiateNewRound then
-                        newProblemCmd
-                      else
-                        Cmd.none
-                    , if isScoreSet then
-                        updateRoomCmd spec ports newModel
-                      else
-                        Cmd.none
-                    ]
+                , [ if isScoreSet then
+                        updateRoomCmd spec newModel
+                    else
+                        Nothing
+                  ]
+                    |> List.filterMap identity
+                , initiateNewRound
                 )
 
         ( Tick time, Nothing ) ->
             ( model
-            , Cmd.none
+            , []
+            , False
             )

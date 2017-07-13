@@ -80,11 +80,32 @@ update spec ports msg model =
 
         ( Router.Game game, GameMsg gameMsg ) ->
             let
-                ( newGame, cmd ) =
-                    Page.Game.Update.update spec ports gameMsg game
+                ( newGame, commandValues, generateNewRound ) =
+                    Page.Game.Update.update spec gameMsg game
             in
                 ( { model | route = Router.Game newGame }
-                , cmd
+                , Cmd.batch <|
+                    (List.map ports.outgoing commandValues)
+                        ++ (if generateNewRound then
+                                [ (Random.generate (\pb -> Messages.GameMsg (Page.Game.Messages.ReceiveNewProblem pb)) spec.problemGenerator) ]
+                            else
+                                []
+                           )
+                )
+
+        ( Router.Game game, IncomingMessage (InMsg.RoomUpdated room) ) ->
+            let
+                ( newGame, commandValues, generateNewRound ) =
+                    Page.Game.Update.update spec (Page.Game.Messages.ReceiveUpdate room) game
+            in
+                ( { model | route = Router.Game newGame }
+                , Cmd.batch <|
+                    (List.map ports.outgoing commandValues)
+                        ++ (if generateNewRound then
+                                [ (Random.generate (\pb -> Messages.GameMsg (Page.Game.Messages.ReceiveNewProblem pb)) spec.problemGenerator) ]
+                            else
+                                []
+                           )
                 )
 
         ( Router.NewRoom newRoom, NewRoomMsg newRoomMsg ) ->
@@ -115,13 +136,6 @@ update spec ports msg model =
                     |> Maybe.map (navigationNewUrl spec.basePath)
                     |> Maybe.withDefault Cmd.none
                 )
-
-        ( Router.Game game, IncomingMessage (InMsg.RoomUpdated room) ) ->
-            let
-                ( newGame, cmd ) =
-                    Page.Game.Update.update spec ports (Page.Game.Messages.ReceiveUpdate room) game
-            in
-                ( { model | route = Router.Game newGame }, cmd )
 
         ( Router.Tutorial tutorial, TutorialMsg msg ) ->
             let
