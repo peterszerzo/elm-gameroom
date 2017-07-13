@@ -1,10 +1,10 @@
 module Models exposing (..)
 
-import Router
+import Data.Route exposing (Route)
 import Window
 
 
 type alias Model problem guess =
-    { route : Router.Route problem guess
+    { route : Route problem guess
     , windowSize : Window.Size
     }

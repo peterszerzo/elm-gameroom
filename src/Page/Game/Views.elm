@@ -9,7 +9,8 @@ import Data.Spec as Spec
 import Data.Room as Room
 import Data.RoundTime as RoundTime
 import Page.Game.Messages exposing (Msg(..))
-import Page.Game.Models exposing (Model, isHost, getNotificationContent)
+import Page.Game.Models exposing (Model, isHost)
+import Page.Game.Helpers exposing (getNotificationContent)
 import Views.Footer as Footer
 import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer

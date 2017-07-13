@@ -1,13 +1,10 @@
 module Page.Game.Models exposing (..)
 
 import Dict
-import Data.Spec as Spec
 import Data.Guess exposing (Guess)
 import Data.Room as Room
 import Data.RoundTime as RoundTime
 import Data.Player as Player
-import Constants
-import Utils
 
 
 type alias Model problem guess =
@@ -76,46 +73,3 @@ getOwnGuess : Model problem guess -> Maybe (Guess guess)
 getOwnGuess model =
     getOwnPlayer model
         |> Maybe.andThen .guess
-
-
-getNotificationContent : Spec.DetailedSpec problem guess -> Model problem guess -> Maybe String
-getNotificationContent spec model =
-    let
-        roundTime =
-            RoundTime.timeSinceNewRound model.time
-    in
-        case model.room of
-            Just room ->
-                if (roundTime < spec.roundDuration) then
-                    Maybe.map2
-                        (\guess round ->
-                            let
-                                eval =
-                                    spec.evaluate round.problem guess.value
-                            in
-                                case spec.clearWinnerEvaluation of
-                                    Just clearWinnerEval ->
-                                        if eval == clearWinnerEval then
-                                            Constants.correctGuessCopy
-                                        else
-                                            Constants.incorrectGuessCopy
-
-                                    Nothing ->
-                                        Utils.template Constants.evaluatedGuessCopy (toString eval)
-                        )
-                        (getOwnGuess model)
-                        room.round
-                else
-                    Room.getRoundWinner spec.evaluate spec.clearWinnerEvaluation room
-                        |> Maybe.map
-                            (\winnerId ->
-                                if winnerId == model.playerId then
-                                    Constants.winCopy
-                                else
-                                    Utils.template Constants.loseCopy winnerId
-                            )
-                        |> Maybe.withDefault Constants.tieCopy
-                        |> Just
-
-            Nothing ->
-                Nothing

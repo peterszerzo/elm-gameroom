@@ -2,18 +2,10 @@ module Router exposing (..)
 
 import Navigation
 import UrlParser exposing (..)
+import Data.Route exposing (Route(..))
 import Page.NewRoom.Models
 import Page.Game.Models
 import Page.Tutorial.Models
-
-
-type Route problem guess
-    = Home
-    | NewRoom Page.NewRoom.Models.Model
-    | Tutorial (Page.Tutorial.Models.Model problem guess)
-    | Game (Page.Game.Models.Model problem guess)
-    | NotOnBaseRoute
-    | NotFound
 
 
 startsWithBase : String -> String -> Bool
