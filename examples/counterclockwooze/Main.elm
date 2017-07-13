@@ -185,6 +185,6 @@ main =
         , subheading "A dizzying geometric game for the family"
         , instructions "One of the shapes spins the other way - care to find it?"
         , clearWinner 100
+        , responsiblePorts ports
         ]
         spec
-        ports

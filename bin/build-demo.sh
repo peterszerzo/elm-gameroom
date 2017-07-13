@@ -7,7 +7,7 @@ rm -rf $DIST
 mkdir $DIST
 
 cp src/js/talk-to-ports.js $DIST
-cp src/js/db/firebase.js $DIST/db-firebase.js
+cp -r src/js/db $DIST
 cp demosite/src/index.html $DIST
 cp demosite/src/index.js $DIST
 

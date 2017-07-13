@@ -83,6 +83,7 @@ main =
         , subheading "A futuristic physics game"
         , instructions "Will the rock land inside the crater or bounce off?"
         , clearWinner 100
+        , responsiblePorts ports
         ]
         { view =
             (\context problem ->
@@ -129,7 +130,6 @@ main =
         , guessEncoder = JE.bool
         , problemGenerator = problemGenerator
         }
-        ports
 
 
 

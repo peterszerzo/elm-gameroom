@@ -165,6 +165,6 @@ main =
         , subheading "A mildly frustrating wordgame!"
         , instructions "There is a word in there somewhere - tap its first letter!"
         , clearWinner 100
+        , responsiblePorts ports
         ]
         spec
-        ports

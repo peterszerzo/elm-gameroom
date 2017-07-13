@@ -3,7 +3,8 @@ repl-temp-*
 .DS_Store
 .env
 examples/**/elm.js
-examples/**/app.js
+examples/**/talk-to-ports.js
+examples/**/db
 examples/**/200.html
 demosite/dist
 documentation.json

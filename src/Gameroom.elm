@@ -11,6 +11,7 @@ module Gameroom
         , roundDuration
         , cooldownDuration
         , clearWinner
+        , responsiblePorts
         , icon
         , game
         , gameWith
@@ -34,7 +35,7 @@ Use these `Msg` and `Model` types to annotate your program when using the [game]
 @docs Ports
 
 # Settings
-@docs basePath, name, subheading, instructions, icon, clearWinner, roundDuration, cooldownDuration
+@docs basePath, name, subheading, instructions, icon, clearWinner, roundDuration, cooldownDuration, responsiblePorts
 
 -}
 
@@ -47,7 +48,8 @@ import Data.Ports as Ports
 import Subscriptions exposing (subscriptions)
 import Messages
 import Update exposing (update, cmdOnRouteChange)
-import Router as Router
+import Router
+import Data.Route as Route
 import Data.Ports as Ports
 import Data.Spec as Spec exposing (Setting(..), buildDetailedSpec)
 import Views exposing (view)
@@ -104,68 +106,98 @@ type alias Ports msg =
 
 You can omit the leading slash or have an extra trailing slash. However, base paths with inner slashes such as `/games/game1` are currently not supported.
 -}
-basePath : String -> Setting
+basePath : String -> Setting problem guess
 basePath url =
     BasePath url
 
 
 {-| Set the duration of the game round (how long players have to make their guesses).
 -}
-roundDuration : Time.Time -> Setting
+roundDuration : Time.Time -> Setting problem guess
 roundDuration duration =
     RoundDuration duration
 
 
 {-| Set the duration of the cooldown phase after a game round is over.
 -}
-cooldownDuration : Time.Time -> Setting
+cooldownDuration : Time.Time -> Setting problem guess
 cooldownDuration duration =
     CooldownDuration duration
 
 
 {-| The name of your game, e.g. `name "YouWillSurelyLose"`.
 -}
-name : String -> Setting
+name : String -> Setting problem guess
 name name_ =
     Name name_
 
 
 {-| A subheading to go under the name on the home page.
 -}
-subheading : String -> Setting
+subheading : String -> Setting problem guess
 subheading subheading_ =
     Subheading subheading_
 
 
 {-| Instructions displayed in the tutorial section.
 -}
-instructions : String -> Setting
+instructions : String -> Setting problem guess
 instructions instructions_ =
     Instructions instructions_
 
 
 {-| A unicode icon for your game.
 -}
-icon : String -> Setting
+icon : String -> Setting problem guess
 icon icon_ =
     Icon icon_
 
 
+{-| In the most general case, players compete in getting as close as possible to a given goal. However, sometimes you might want to simplify the game and designate winners only if they attained a specific evaluation value specified by `Spec.evaluate`.
+
+If you use the clearWinner setting, make sure `evaluate` does not depend on the timestamp.
+-}
+clearWinner : Float -> Setting problem guess
+clearWinner maxEvaluation =
+    ClearWinner maxEvaluation
+
+
+{-| Handle communication with the outside world through ports.
+
+    port outgoing : Json.Encode.Value -> Cmd msg
+
+    port incoming : (Json.Encode.Value -> msg) -> Sub msg
+
+    main =
+      gameWith
+        [ responsiblePorts
+            { incoming = incoming
+            , outgoing = outgoing
+            }
+        ]
+        spec
+
+Why responsible? Because you need to talk to them appropriately. More docs shall follow on this, but for now, see the examples to see how this works.
+-}
+responsiblePorts : Ports (Msg problem guess) -> Setting problem guess
+responsiblePorts ports =
+    SetPorts ports
+
+
 init :
     Spec.DetailedSpec problem guess
-    -> Ports (Msg problem guess)
     -> Navigation.Location
     -> ( Model problem guess, Cmd (Messages.Msg problem guess) )
-init spec ports loc =
+init spec loc =
     let
         route =
             Router.parse spec.basePath loc
 
         cmd =
             Cmd.batch
-                [ cmdOnRouteChange spec ports route Nothing
+                [ cmdOnRouteChange spec route Nothing
                 , Window.size |> Task.perform Messages.Resize
-                , if route == Router.NotOnBaseRoute then
+                , if route == Route.NotOnBaseRoute then
                     Navigation.newUrl spec.basePath
                   else
                     Cmd.none
@@ -178,22 +210,14 @@ init spec ports loc =
         )
 
 
-{-| In the most general case, players compete in getting as close as possible to a given goal. However, sometimes you might want to simplify the game and designate winners only if they attained a specific evaluation value specified by `Spec.evaluate`.
-
-If you use the clearWinner setting, make sure `evaluate` does not depend on the timestamp.
--}
-clearWinner : Float -> Setting
-clearWinner maxEvaluation =
-    ClearWinner maxEvaluation
-
-
 {-| Create a fully functional game program from a game spec and a ports record. The [Spec](/Gameroom#Spec) is the declarative definition of the data structures, logic and view behind your game. [Ports](/Gameroom#Ports) is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.
+
+As it is, this program doesn't work multiplayer. For that, you have to set up outside communication with the back-end of your choice. See [responsiblePorts](/Gameroom#responsiblePorts) for docs on how to set this up.
 
 Notice you don't have to supply any `init`, `update` or `subscriptions` field yourself. All that is taken care of, and you wind up with a working interface that allows you to create game rooms, invite others, and play. Timers, scoreboards etc. all come straight out of the box.
 -}
 game :
     Spec problem guess
-    -> Ports.Ports (Msg problem guess)
     -> Program Never (Model problem guess) (Msg problem guess)
 game =
     gameWith []
@@ -205,23 +229,22 @@ game =
         [ name "MyCoolGame"
         , basePath "/mycoolgame"
         , roundDuration (10 * Time.second)
-        ] spec ports
+        ] spec
 
 produces a game that is now named, runs on a base path instead of on the root route, has a custom round duration of 10 seconds. Have a look around the docs for other options.
 -}
 gameWith :
-    List Setting
+    List (Setting problem guess)
     -> Spec problem guess
-    -> Ports.Ports (Msg problem guess)
     -> Program Never (Model problem guess) (Msg problem guess)
-gameWith settings spec ports =
+gameWith settings spec =
     let
         detailedSpec =
             buildDetailedSpec settings spec
     in
         Navigation.program (Messages.ChangeRoute << (Router.parse detailedSpec.basePath))
-            { init = init detailedSpec ports
+            { init = init detailedSpec
             , view = view detailedSpec
-            , update = update detailedSpec ports
-            , subscriptions = subscriptions detailedSpec ports
+            , update = update detailedSpec
+            , subscriptions = subscriptions detailedSpec
             }

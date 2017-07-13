@@ -2,7 +2,7 @@ module Views exposing (view)
 
 import Html exposing (Html, div, node, p, a, text)
 import Html.Attributes exposing (href)
-import Router
+import Data.Route as Route
 import Data.Spec as Spec
 import Models exposing (Model)
 import Messages exposing (Msg(..))
@@ -18,25 +18,25 @@ view : Spec.DetailedSpec problem guess -> Model problem guess -> Html (Msg probl
 view spec model =
     let
         isHome =
-            model.route == Router.Home
+            model.route == Route.Home
 
         content =
             case model.route of
-                Router.Home ->
+                Route.Home ->
                     Page.Home.Views.view spec
 
-                Router.Game game ->
+                Route.Game game ->
                     Page.Game.Views.view spec model.windowSize game
                         |> Html.map GameMsg
 
-                Router.NewRoom newRoom ->
+                Route.NewRoom newRoom ->
                     Page.NewRoom.Views.view newRoom
                         |> Html.map NewRoomMsg
 
-                Router.NotFound ->
+                Route.NotFound ->
                     Page.NotFound.Views.view
 
-                Router.NotOnBaseRoute ->
+                Route.NotOnBaseRoute ->
                     div []
                         [ p [] [ text "Not on configured base path. Redirecting.." ]
                         , p []
@@ -46,7 +46,7 @@ view spec model =
                             ]
                         ]
 
-                Router.Tutorial tutorial ->
+                Route.Tutorial tutorial ->
                     Page.Tutorial.Views.view spec model.windowSize tutorial
                         |> Html.map TutorialMsg
     in

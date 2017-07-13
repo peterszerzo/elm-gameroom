@@ -97,6 +97,7 @@ main =
         , name "Fast and Moebius"
         , subheading "Engines and linear algebra! (dev in progress, not yet playable)"
         , instructions "Which car is the winner?"
+        , responsiblePorts ports
         ]
         { view =
             (\context problem ->
@@ -172,7 +173,6 @@ main =
         , guessEncoder = JE.bool
         , problemGenerator = generatorFromList -3 [ -2, -1, 0, 1, 2, 3 ]
         }
-        ports
 
 
 

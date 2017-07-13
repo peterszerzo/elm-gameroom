@@ -18,12 +18,14 @@ module Data.Spec exposing (..)
 import Html
 import Time
 import Random
+import Messages exposing (Msg)
+import Data.Ports as Ports
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Gameroom.Context exposing (Context)
 
 
-type Setting
+type Setting problem guess
     = BasePath String
     | Name String
     | Subheading String
@@ -32,6 +34,7 @@ type Setting
     | RoundDuration Time.Time
     | CooldownDuration Time.Time
     | ClearWinner Float
+    | SetPorts (Ports.Ports (Msg problem guess))
 
 
 {-| Define the basic mechanics of a multiplayer game, all generalized over a type variable representing a `problem`, and one representing a `guess`. Each field in the record is documented separately in this module.
@@ -58,6 +61,7 @@ type alias DetailedSpec problem guess =
     , roundDuration : Time.Time
     , cooldownDuration : Time.Time
     , clearWinnerEvaluation : Maybe Float
+    , ports : Ports.Ports (Msg problem guess)
     , view : Context guess -> problem -> Html.Html guess
     , evaluate : problem -> guess -> Float
     , problemGenerator : Random.Generator problem
@@ -68,7 +72,7 @@ type alias DetailedSpec problem guess =
     }
 
 
-buildDetailedSpec : List Setting -> Spec problem guess -> DetailedSpec problem guess
+buildDetailedSpec : List (Setting problem guess) -> Spec problem guess -> DetailedSpec problem guess
 buildDetailedSpec options spec =
     List.foldl
         (\option spec ->
@@ -114,6 +118,9 @@ buildDetailedSpec options spec =
 
                 ClearWinner maxEvaluation ->
                     { spec | clearWinnerEvaluation = Just maxEvaluation }
+
+                SetPorts p ->
+                    { spec | ports = p }
         )
         { basePath = "/"
         , icon = "\x1F3D3"
@@ -123,6 +130,7 @@ buildDetailedSpec options spec =
         , roundDuration = 4 * Time.second
         , cooldownDuration = 2 * Time.second
         , clearWinnerEvaluation = Nothing
+        , ports = Ports.init
         , view = spec.view
         , evaluate = spec.evaluate
         , problemGenerator = spec.problemGenerator
