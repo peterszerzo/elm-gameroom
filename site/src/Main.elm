@@ -1,9 +1,21 @@
 module Main exposing (..)
 
-import Html exposing (Html, div, h1, p, a, text)
+import Time
+import AnimationFrame
+import Html exposing (Html, div, h1, p, a, text, program)
 import Html.Attributes exposing (class, href)
 import Svg exposing (svg, use)
 import Svg.Attributes exposing (xlinkHref)
+
+
+main : Program Never Model Msg
+main =
+    program
+        { view = view
+        , update = update
+        , init = init
+        , subscriptions = subscriptions
+        }
 
 
 games : List String
@@ -16,8 +28,34 @@ games =
     ]
 
 
-main : Html msg
-main =
+type alias Model =
+    { time : Float
+    }
+
+
+type Msg
+    = Tick Time.Time
+
+
+init : ( Model, Cmd Msg )
+init =
+    ( Model 0, Cmd.none )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    AnimationFrame.times Tick
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        Tick time ->
+            ( { model | time = time }, Cmd.none )
+
+
+view : Model -> Html msg
+view model =
     div [ class "elm-gameroom-home" ] <|
         [ svg [] [ use [ xlinkHref "#logo" ] [] ]
         , h1 [] [ text "Play elm-gamerooms" ]
