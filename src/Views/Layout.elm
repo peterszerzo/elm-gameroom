@@ -1,4 +1,4 @@
-module Views.Layout exposing (view)
+module Views.Layout exposing (view, css)
 
 import Html exposing (Html, div, node, p, a, text)
 import Html.CssHelpers
@@ -73,13 +73,17 @@ class =
     Html.CssHelpers.withNamespace cssNamespace |> .class
 
 
-view : Bool -> String -> List (Html (Messages.Msg problem guess)) -> Html (Messages.Msg problem guess)
-view showAttribution icon children =
+view : Bool -> Bool -> String -> List (Html (Messages.Msg problem guess)) -> Html (Messages.Msg problem guess)
+view renderInlineStyle showAttribution icon children =
     div
         [ class [ Root ]
         ]
     <|
-        [ node "style" [] [ compile [ css ] |> .css |> text ] ]
+        (if renderInlineStyle then
+            [ node "style" [] [ compile [ css ] |> .css |> text ] ]
+         else
+            []
+        )
             ++ (if showAttribution then
                     [ Views.Attribution.view ]
                 else

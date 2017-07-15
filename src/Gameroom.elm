@@ -12,6 +12,8 @@ module Gameroom
         , cooldownDuration
         , clearWinner
         , responsiblePorts
+        , noInlineStyle
+        , css
         , icon
         , game
         , gameWith
@@ -35,7 +37,10 @@ Use these `Msg` and `Model` types to annotate your program when using the [game]
 @docs Ports
 
 # Settings
-@docs basePath, name, subheading, instructions, icon, clearWinner, roundDuration, cooldownDuration, responsiblePorts
+@docs basePath, name, subheading, instructions, icon, clearWinner, roundDuration, cooldownDuration, noInlineStyle, responsiblePorts
+
+# Miscellaneous
+@docs css
 
 -}
 
@@ -43,6 +48,7 @@ import Window
 import Task
 import Time
 import Navigation
+import Css
 import Models
 import Data.Ports as Ports
 import Subscriptions exposing (subscriptions)
@@ -53,6 +59,7 @@ import Data.Route as Route
 import Data.Ports as Ports
 import Data.Spec as Spec exposing (Setting(..), buildDetailedSpec)
 import Views exposing (view)
+import Views.Layout
 
 
 {-| Define the unique bits and pieces to your game, all generalized over a type variable representing a `problem`, and one representing a `guess`. It's going to look a little heavy, but it'll make sense very quickly, I promise. Here it goes:
@@ -162,6 +169,13 @@ clearWinner maxEvaluation =
     ClearWinner maxEvaluation
 
 
+{-| By default, the game interface renders an inline <style> tag within the Elm app's view. If you want to compile and add the CSS yourself (and add intermediate steps like autoprefixing), use this setting to disable the tag. See [css](/Gameroom#css) for instructions on how to compile the CSS yourself.
+-}
+noInlineStyle : Setting problem guess
+noInlineStyle =
+    NoInlineStyle
+
+
 {-| Handle communication with the outside world through ports.
 
     port outgoing : Json.Encode.Value -> Cmd msg
@@ -208,6 +222,13 @@ init spec loc =
           }
         , cmd
         )
+
+
+{-| Gives access to the app's elm-css stylesheet, so you can compile it yourself if you like. Note that an inline stylesheet is inserted by default, so if you use the compiled css file, make sure you use the [noInlineStyle](/Gameroom#noInlineStyle) setting.
+-}
+css : Css.Stylesheet
+css =
+    Views.Layout.css
 
 
 {-| Create a fully functional game program from a game spec and a ports record. The [Spec](/Gameroom#Spec) is the declarative definition of the data structures, logic and view behind your game. [Ports](/Gameroom#Ports) is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.

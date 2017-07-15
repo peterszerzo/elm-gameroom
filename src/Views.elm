@@ -50,4 +50,4 @@ view spec model =
                     Page.Tutorial.Views.view spec model.windowSize tutorial
                         |> Html.map TutorialMsg
     in
-        Views.Layout.view isHome spec.icon [ content ]
+        Views.Layout.view spec.inlineStyle isHome spec.icon [ content ]

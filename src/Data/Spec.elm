@@ -35,6 +35,7 @@ type Setting problem guess
     | CooldownDuration Time.Time
     | ClearWinner Float
     | SetPorts (Ports.Ports (Msg problem guess))
+    | NoInlineStyle
 
 
 {-| Define the basic mechanics of a multiplayer game, all generalized over a type variable representing a `problem`, and one representing a `guess`. Each field in the record is documented separately in this module.
@@ -62,6 +63,7 @@ type alias DetailedSpec problem guess =
     , cooldownDuration : Time.Time
     , clearWinnerEvaluation : Maybe Float
     , ports : Ports.Ports (Msg problem guess)
+    , inlineStyle : Bool
     , view : Context guess -> problem -> Html.Html guess
     , evaluate : problem -> guess -> Float
     , problemGenerator : Random.Generator problem
@@ -121,6 +123,9 @@ buildDetailedSpec options spec =
 
                 SetPorts p ->
                     { spec | ports = p }
+
+                NoInlineStyle ->
+                    { spec | inlineStyle = False }
         )
         { basePath = "/"
         , icon = "\x1F3D3"
@@ -132,6 +137,7 @@ buildDetailedSpec options spec =
         , clearWinnerEvaluation = Nothing
         , ports = Ports.init
         , view = spec.view
+        , inlineStyle = True
         , evaluate = spec.evaluate
         , problemGenerator = spec.problemGenerator
         , problemEncoder = spec.problemEncoder
