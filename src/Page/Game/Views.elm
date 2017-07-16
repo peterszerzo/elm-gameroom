@@ -137,6 +137,13 @@ viewRoom spec windowSize model room =
                                                 Nothing
                                         )
                             , isRoundOver = RoundTime.timeSinceNewRound model.time > spec.roundDuration
+                            , scores =
+                                room.players
+                                    |> Dict.toList
+                                    |> List.map
+                                        (\( id, pl ) ->
+                                            ( id, pl.score )
+                                        )
                             }
                             round.problem
                         )
@@ -147,21 +154,31 @@ viewRoom spec windowSize model room =
         )
       else
         viewReadyPrompt spec model room
-    , Notification.view (getNotificationContent spec model) Nothing
-    , if (Room.allPlayersReady room) then
-        Timer.view ((RoundTime.timeSinceNewRound model.time) / spec.roundDuration)
-      else
-        div [] []
-    , Footer.view
-        [ room.players
-            |> Dict.toList
-            |> List.map
-                (\( playerId, player ) ->
-                    ( player.id, player.score )
-                )
-            |> Scoreboard.view
-        ]
     ]
+        ++ (if spec.peripheralUi then
+                [ Notification.view (getNotificationContent spec model) Nothing ]
+            else
+                []
+           )
+        ++ (if (Room.allPlayersReady room) && spec.peripheralUi then
+                [ Timer.view ((RoundTime.timeSinceNewRound model.time) / spec.roundDuration) ]
+            else
+                []
+           )
+        ++ (if spec.peripheralUi then
+                [ Footer.view
+                    [ room.players
+                        |> Dict.toList
+                        |> List.map
+                            (\( playerId, player ) ->
+                                ( player.id, player.score )
+                            )
+                        |> Scoreboard.view
+                    ]
+                ]
+            else
+                []
+           )
 
 
 view :

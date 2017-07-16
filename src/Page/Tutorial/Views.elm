@@ -50,6 +50,7 @@ view spec windowSize model =
                         , ownGuess = model.guess
                         , opponentGuesses = []
                         , isRoundOver = False
+                        , scores = []
                         }
                     )
                 |> Maybe.map (map Guess)

@@ -13,6 +13,7 @@ module Gameroom
         , clearWinner
         , responsiblePorts
         , noInlineStyle
+        , noPeripheralUi
         , css
         , icon
         , game
@@ -37,7 +38,7 @@ Use these `Msg` and `Model` types to annotate your program when using the [game]
 @docs Ports
 
 # Settings
-@docs basePath, name, subheading, instructions, icon, clearWinner, roundDuration, cooldownDuration, noInlineStyle, responsiblePorts
+@docs basePath, name, subheading, instructions, icon, clearWinner, roundDuration, cooldownDuration, noInlineStyle, noPeripheralUi, responsiblePorts
 
 # Miscellaneous
 @docs css
@@ -174,6 +175,13 @@ clearWinner maxEvaluation =
 noInlineStyle : Setting problem guess
 noInlineStyle =
     NoInlineStyle
+
+
+{-| Do not render any peripheral ui such as scoreboards and game notifications.
+-}
+noPeripheralUi : Setting problem guess
+noPeripheralUi =
+    NoPeripheralUi
 
 
 {-| Handle communication with the outside world through ports.

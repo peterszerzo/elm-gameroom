@@ -20,6 +20,7 @@ import Time
 * `ownGuess`: the guess made by the current client, if any.
 * `opponentGuesses`: a `( String, guess )` tuple listing any guesses made by opponents.
 * `isRoundOver`: states whether the current game round has been decided. At this point, you can reveal the correct answer while the round is in cooldown.
+* `scores`: a list of tuples with scores by playerId: `List ( String, Int )`. Use if the [noPeripheralUi](/Gameroom#noPeripheralUi) setting is enabled.
 -}
 type alias Context guess =
     { windowSize : Window.Size
@@ -27,6 +28,7 @@ type alias Context guess =
     , ownGuess : Maybe guess
     , opponentGuesses : List ( String, guess )
     , isRoundOver : Bool
+    , scores : List ( String, Int )
     }
 
 

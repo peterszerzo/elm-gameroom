@@ -166,5 +166,6 @@ main =
         , instructions "There is a word in there somewhere - tap its first letter!"
         , clearWinner 100
         , responsiblePorts ports
+        , noPeripheralUi
         ]
         spec
