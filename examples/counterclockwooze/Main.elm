@@ -165,13 +165,6 @@ port outgoing : JE.Value -> Cmd msg
 port incoming : (JE.Value -> msg) -> Sub msg
 
 
-ports : Ports (Msg Problem Guess)
-ports =
-    { outgoing = outgoing
-    , incoming = incoming
-    }
-
-
 
 -- Program
 
@@ -180,11 +173,11 @@ main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     gameWith
         [ basePath "/counterclockwooze"
-        , icon "🕒"
+        , unicodeIcon "🕒"
         , name "Counterclockwooze"
         , subheading "A dizzying geometric game for the family"
         , instructions "One of the shapes spins the other way - care to find it?"
         , clearWinner 100
-        , responsiblePorts ports
+        , responsiblePorts { outgoing = outgoing, incoming = incoming }
         ]
         spec

@@ -10,7 +10,7 @@ import Page.Home.Views.Styles exposing (CssClasses(..), localClass)
 view : Spec.DetailedSpec problem guess -> Html (Msg problem guess)
 view spec =
     div [ localClass [ Root ] ]
-        [ div [ localClass [ Logo ] ] [ text spec.icon ]
+        [ div [ localClass [ Logo ] ] [ text spec.unicodeIcon ]
         , h1 [] [ text spec.name ]
         , p [ localClass [ Subheading ] ] [ text spec.subheading ]
         , div [ localClass [ Nav ] ]

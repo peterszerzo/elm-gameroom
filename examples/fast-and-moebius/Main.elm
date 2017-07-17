@@ -29,13 +29,6 @@ port outgoing : JE.Value -> Cmd msg
 port incoming : (JE.Value -> msg) -> Sub msg
 
 
-ports : Ports (Msg Problem Guess)
-ports =
-    { outgoing = outgoing
-    , incoming = incoming
-    }
-
-
 type alias Vertex =
     { position : Vec3
     , normal : Vec3
@@ -93,11 +86,11 @@ main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     gameWith
         [ basePath "/fast-and-moebius"
-        , icon "🏎️"
+        , unicodeIcon "🏎️"
         , name "Fast and Moebius"
         , subheading "Engines and linear algebra! (dev in progress, not yet playable)"
         , instructions "Which car is the winner?"
-        , responsiblePorts ports
+        , responsiblePorts { outgoing = outgoing, incoming = incoming }
         ]
         { view =
             (\context problem ->

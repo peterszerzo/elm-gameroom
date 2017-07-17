@@ -8,8 +8,7 @@
     ],
     "exposed-modules": [
         "Gameroom",
-        "Gameroom.Context",
-        "Gameroom.Utils"
+        "Gameroom.Context"
     ],
     "dependencies": {
         "elm-community/linear-algebra": "3.1.0 <= v < 4.0.0",

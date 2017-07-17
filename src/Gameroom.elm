@@ -12,10 +12,11 @@ module Gameroom
         , cooldownDuration
         , clearWinner
         , responsiblePorts
+        , generatorFromList
         , noInlineStyle
         , noPeripheralUi
         , css
-        , icon
+        , unicodeIcon
         , game
         , gameWith
         )
@@ -27,28 +28,30 @@ module Gameroom
 # The main game program
 @docs game, gameWith
 
-# Program annotation types
+# Game spec
+@docs Spec
+
 Use these `Msg` and `Model` types to annotate your program when using the [game](/Gameroom#game) or [gameWith](/Gameroom#gameWith) methods.
 @docs Model, Msg
-
-# Game Spec
-@docs Spec
 
 # Ports
 @docs Ports
 
 # Settings
-@docs basePath, name, subheading, instructions, icon, clearWinner, roundDuration, cooldownDuration, noInlineStyle, noPeripheralUi, responsiblePorts
+@docs basePath, name, subheading, instructions, unicodeIcon, clearWinner, roundDuration, cooldownDuration, noInlineStyle, noPeripheralUi, responsiblePorts
 
 # Miscellaneous
 @docs css
 
+# Utils
+@docs generatorFromList
 -}
 
 import Window
 import Task
 import Time
 import Navigation
+import Random
 import Css
 import Models
 import Data.Ports as Ports
@@ -77,7 +80,7 @@ import Views.Layout
 
 * view: The core of the user interface corresponding to the current game round, excluding all navigation, notifications and the score boards. Emits guesses. The first argument is a view context containing peripheral information such as window size, round time, already recorded guesses etc., and it's [documented on its own](/Gameroom-Context). The second, main argument is the current game problem.
 * evaluate: given a problem and a guess, returns a numerical evaluation of the guess. The player with the highest evaluation wins a given round. Note that this is affected by the [clearWinner](/Gameroom#clearWinner) setting, which specifies that only by attaining a certain highest evaluation can a player win.
-* problemGenerator: a random generator churning out new problems. If your problems are a simple list, there is a [convenient helper](/Gameroom-Utils#generatorFromList).
+* problemGenerator: a random generator churning out new problems. If your problems are a simple list, there is a [convenient helper](/Gameroom#generatorFromList).
 -}
 type alias Spec problem guess =
     Spec.Spec problem guess
@@ -95,16 +98,13 @@ type alias Model problem guess =
     Models.Model problem guess
 
 
-{-| The Ports record contains incoming and outgoing ports necessary for a guessing game. The client is responsible for declaring them, passing them to the game-generator `program` method, and hooking them up with the realtime back-end. Head to the examples in the repo for some simple usage.
+{-| The Ports record contains incoming and outgoing ports necessary for a guessing game, like so:
 
-Defining them goes like so:
+    port outgoing : Json.Encode.Value -> Cmd msg
 
-    port incoming = (JE.Value -> msg) -> Sub msg
-    port outgoing = JE.Value -> Cmd msg
+    port incoming : (Json.Encode.Value -> msg) -> Sub msg
 
     ports = { incoming = incoming, outgoing = outgoing }
-
-Talking to them is best understood with [this simple example](https://github.com/peterszerzo/elm-gameroom/blob/master/src/js/talk-to-ports.js).
 -}
 type alias Ports msg =
     Ports.Ports msg
@@ -156,9 +156,9 @@ instructions instructions_ =
 
 {-| A unicode icon for your game.
 -}
-icon : String -> Setting problem guess
-icon icon_ =
-    Icon icon_
+unicodeIcon : String -> Setting problem guess
+unicodeIcon icon_ =
+    UnicodeIcon icon_
 
 
 {-| In the most general case, players compete in getting as close as possible to a given goal. However, sometimes you might want to simplify the game and designate winners only if they attained a specific evaluation value specified by `Spec.evaluate`.
@@ -199,7 +199,7 @@ noPeripheralUi =
         ]
         spec
 
-Why responsible? Because you need to talk to them appropriately. More docs shall follow on this, but for now, see the examples to see how this works.
+Why responsible? Because you need to talk to them appropriately. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.
 -}
 responsiblePorts : Ports (Msg problem guess) -> Setting problem guess
 responsiblePorts ports =
@@ -239,9 +239,31 @@ css =
     Views.Layout.css
 
 
-{-| Create a fully functional game program from a game spec and a ports record. The [Spec](/Gameroom#Spec) is the declarative definition of the data structures, logic and view behind your game. [Ports](/Gameroom#Ports) is a record containing two ports defined and wired up by the client. For more details on wiring up ports to a generic backend, see the [JS documentation](/src/js/README.md). Don't worry, it is all razorthin boilerplate.
+{-| Create a generator from a discrete list of problems, the first of which is supplied separately to make sure the list is not empty. For example,
 
-As it is, this program doesn't work multiplayer. For that, you have to set up outside communication with the back-end of your choice. See [responsiblePorts](/Gameroom#responsiblePorts) for docs on how to set this up.
+    generatorFromList "apples" [ "oranges", "lemons" ]
+
+creates a generator that yields a random problems the list ["apples", "oranges", "lemons"]. Note that one default item must present by default, in order to still be able to generate an entry when an empty list is passed.
+-}
+generatorFromList : problem -> List problem -> Random.Generator problem
+generatorFromList first rest =
+    let
+        list =
+            [ first ] ++ rest
+    in
+        Random.int 0 (List.length list - 1)
+            |> Random.map
+                (\i ->
+                    list
+                        |> List.drop i
+                        |> List.head
+                        |> Maybe.withDefault first
+                )
+
+
+{-| Create a game program from a spec object, using any data type you can dream up for `problem` and `guess`. The [spec](/Gameroom#Spec) is the declarative definition of the basic game logic and views powering your game.
+
+As it is, this program doesn't work in multiplayer. For that, you have to set up outside communication with the back-end of your choice. See [responsiblePorts](/Gameroom#responsiblePorts) for instructions.
 
 Notice you don't have to supply any `init`, `update` or `subscriptions` field yourself. All that is taken care of, and you wind up with a working interface that allows you to create game rooms, invite others, and play. Timers, scoreboards etc. all come straight out of the box.
 -}
@@ -252,15 +274,19 @@ game =
     gameWith []
 
 
-{-| Program with settings. For example, this program:
+{-| Game program with a list of settings. For example, this program:
 
     gameWith
         [ name "MyCoolGame"
-        , basePath "/mycoolgame"
         , roundDuration (10 * Time.second)
-        ] spec
+        , cooldownDuration (4 * Time.second)
+        , clearWinner 100
+        , noPeripheralUi
+        ]
+        { -- spec object from before
+        }
 
-produces a game that is now named, runs on a base path instead of on the root route, has a custom round duration of 10 seconds. Have a look around the docs for other options.
+This produces a game with a custom name, custom round duration, custom cooldown duration between rounds, a clear winner at evaluation 100 (meaning no player can win unless their guess evaluates to exactly 100), and disable the peripheral ui - the score board, timer and winner notifications - so you can build those yourself in whichever design you prefer.
 -}
 gameWith :
     List (Setting problem guess)

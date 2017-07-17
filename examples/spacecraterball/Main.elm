@@ -19,9 +19,34 @@ import Math.Matrix4 as Matrix4
 import Gameroom exposing (..)
 
 
+-- Types
+
+
 type alias Problem =
     { incomingAngle : Float
     , deviationFromCorrectPath : Float
+    }
+
+
+type alias Guess =
+    Bool
+
+
+type alias Vertex =
+    { position : Vec3
+    , normal : Vec3
+    , color : Vec4
+    }
+
+
+type alias Uniforms =
+    { perspective : Matrix4.Mat4
+    , transform : Matrix4.Mat4
+    }
+
+
+type alias Varyings =
+    { vColor : Vec4
     }
 
 
@@ -50,40 +75,22 @@ willStayInCrater problem =
     abs problem.deviationFromCorrectPath < 0.1
 
 
-type alias Guess =
-    Bool
-
-
 port outgoing : JE.Value -> Cmd msg
 
 
 port incoming : (JE.Value -> msg) -> Sub msg
 
 
-ports : Ports (Msg Problem Guess)
-ports =
-    { outgoing = outgoing
-    , incoming = incoming
-    }
-
-
-type alias Vertex =
-    { position : Vec3
-    , normal : Vec3
-    , color : Vec4
-    }
-
-
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     gameWith
         [ basePath "/spacecraterball"
-        , icon "🚀"
+        , unicodeIcon "🚀"
         , name "Spacecraterball"
         , subheading "A futuristic physics game"
         , instructions "Will the rock land inside the crater or bounce off?"
         , clearWinner 100
-        , responsiblePorts ports
+        , responsiblePorts { incoming = incoming, outgoing = outgoing }
         ]
         { view =
             (\context problem ->
@@ -498,17 +505,6 @@ terrain =
 
 
 -- Shaders
-
-
-type alias Uniforms =
-    { perspective : Matrix4.Mat4
-    , transform : Matrix4.Mat4
-    }
-
-
-type alias Varyings =
-    { vColor : Vec4
-    }
 
 
 terrainVertexShader : WebGL.Shader Vertex Uniforms Varyings

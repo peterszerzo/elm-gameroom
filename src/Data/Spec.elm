@@ -30,7 +30,7 @@ type Setting problem guess
     | Name String
     | Subheading String
     | Instructions String
-    | Icon String
+    | UnicodeIcon String
     | RoundDuration Time.Time
     | CooldownDuration Time.Time
     | ClearWinner Float
@@ -56,7 +56,7 @@ type alias Spec problem guess =
 -}
 type alias DetailedSpec problem guess =
     { basePath : String
-    , icon : String
+    , unicodeIcon : String
     , name : String
     , subheading : String
     , instructions : String
@@ -111,8 +111,8 @@ buildDetailedSpec options spec =
                 Instructions instructions ->
                     { spec | instructions = instructions }
 
-                Icon icon ->
-                    { spec | icon = icon }
+                UnicodeIcon icon ->
+                    { spec | unicodeIcon = icon }
 
                 RoundDuration duration ->
                     { spec | roundDuration = duration }
@@ -133,7 +133,7 @@ buildDetailedSpec options spec =
                     { spec | peripheralUi = False }
         )
         { basePath = "/"
-        , icon = "\x1F3D3"
+        , unicodeIcon = "\x1F3D3"
         , name = "Game"
         , subheading = "A great game to play with your friends"
         , instructions = "Win the game!"

@@ -7,7 +7,6 @@ import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Gameroom exposing (..)
-import Gameroom.Utils exposing (generatorFromList)
 
 
 -- Types
@@ -140,7 +139,7 @@ spec =
 
 
 
--- Config
+-- Ports
 
 
 port outgoing : JE.Value -> Cmd msg
@@ -149,23 +148,20 @@ port outgoing : JE.Value -> Cmd msg
 port incoming : (JE.Value -> msg) -> Sub msg
 
 
-ports : Ports (Msg Problem Guess)
-ports =
-    { outgoing = outgoing
-    , incoming = incoming
-    }
+
+-- Main
 
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     gameWith
         [ basePath "/lettero"
-        , icon "✏️"
+        , unicodeIcon "✏️"
         , name "Lettero"
         , subheading "A mildly frustrating wordgame!"
         , instructions "There is a word in there somewhere - tap its first letter!"
         , clearWinner 100
-        , responsiblePorts ports
+        , responsiblePorts { incoming = incoming, outgoing = outgoing }
         , noPeripheralUi
         ]
         spec
