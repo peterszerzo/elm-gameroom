@@ -14,7 +14,7 @@ To do that, install elm-live: `npm i -g elm-live`. Then run the following comman
 
 ## Making your own game
 
-To create a simple trivia game, all you need is yay'much:
+To create a simple trivia game, all you need is yay'much (head to the [The Capitalist](/examples/the-capitalist/Main.elm) for a version that is a bit longer and broken down):
 
 ```elm
 module Main exposing (..)
@@ -80,8 +80,8 @@ main =
     -- Some encoders and decoders,
     -- required to transfer data between machines
     -- in multiplayer mode.
-    , guessEncoder = JE.string
-    , guessDecoder = JD.string
+    , guessEncoder = Encode.string
+    , guessDecoder = Decode.string
     , problemEncoder =
         (\pb ->
             Encode.object
@@ -108,9 +108,9 @@ And there you have it - the barebones of your game are defined. There are a coup
 In order to set up communication between machines, the data needs to go from the Elm app to the outside world. In order to keep the back-end generic, this is done through ports. Compared to the example above, the following modifications are needed:
 
 ```elm
-port outgoing : Json.Encode.Value -> Cmd msg
+port outgoing : Encode.Value -> Cmd msg
 
-port incoming : (Json.Encode.Value -> msg) -> Sub msg
+port incoming : (Encode.Value -> msg) -> Sub msg
 
 main =
   gameWith
