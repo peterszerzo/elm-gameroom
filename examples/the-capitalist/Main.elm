@@ -1,11 +1,13 @@
 port module Main exposing (..)
 
+import Random
 import Html exposing (Html, div, text, span, h1, ul, li)
 import Html.Attributes exposing (class, style, attribute)
 import Html.Events exposing (onClick)
 import Json.Encode as Encode
 import Json.Decode as Decode
 import Gameroom exposing (..)
+import Gameroom.Context exposing (Context)
 
 
 -- Main
@@ -76,74 +78,82 @@ guessDecoder =
 
 spec : Spec Problem Guess
 spec =
-    { view =
-        (\context problem ->
-            div [ style containerStyle ]
-                [ div [ style contentStyle ]
-                    [ h1 [] [ text problem.question ]
-                    , ul
-                        [ style listStyle
-                        ]
-                        (List.indexedMap
-                            (\index answer ->
-                                let
-                                    isGuessedBySelf =
-                                        context.ownGuess == (Just index)
-
-                                    isMarkedCorrect =
-                                        (index == problem.correct) && (isGuessedBySelf || context.isRoundOver)
-                                in
-                                    li
-                                        [ onClick index
-                                        , style <|
-                                            listItemBaseStyle
-                                                ++ [ ( "border-color"
-                                                     , if isGuessedBySelf then
-                                                        "#333333"
-                                                       else
-                                                        "#ddd"
-                                                     )
-                                                   , ( "background-color"
-                                                     , if isMarkedCorrect then
-                                                        "#333333"
-                                                       else
-                                                        "transparent"
-                                                     )
-                                                   , ( "color"
-                                                     , if isMarkedCorrect then
-                                                        "#FFFFFF"
-                                                       else
-                                                        "#333333"
-                                                     )
-                                                   ]
-                                        ]
-                                        [ text answer ]
-                            )
-                            problem.answers
-                        )
-                    ]
-                ]
-        )
-    , evaluate =
-        (\problem guess ->
-            if (guess == problem.correct) then
-                100
-            else
-                0
-        )
-    , problemGenerator =
-        generatorFromList
-            { question = "🇱🇻 Latvia"
-            , answers = [ "Tallin", "Riga", "Vilnius", "Moscow" ]
-            , correct = 1
-            }
-            -- A list of problems
-            problems
+    { view = view
+    , evaluate = evaluate
+    , problemGenerator = problemGenerator
     , guessEncoder = guessEncoder
     , guessDecoder = guessDecoder
     , problemEncoder = problemEncoder
     , problemDecoder = problemDecoder
     }
+
+
+view : Context Guess -> Problem -> Html Guess
+view context problem =
+    -- not used, only here to show a more concise version of the game view
+    div []
+        [ div []
+            [ h1 [] [ text problem.question ]
+            , ul []
+                (List.indexedMap
+                    (\index answer ->
+                        -- events map to raw guesses (in this case, an Int)
+                        li [ onClick index ] [ text answer ]
+                    )
+                    problem.answers
+                )
+            ]
+        ]
+
+
+styledView : Context Guess -> Problem -> Html Guess
+styledView context problem =
+    div [ style containerStyle ]
+        [ div [ style contentStyle ]
+            [ h1 [] [ text problem.question ]
+            , ul
+                [ style listStyle
+                ]
+                (List.indexedMap
+                    (\index answer ->
+                        let
+                            isGuessedBySelf =
+                                context.ownGuess == (Just index)
+
+                            isMarkedCorrect =
+                                (index == problem.correct) && (isGuessedBySelf || context.isRoundOver)
+                        in
+                            li
+                                [ onClick index
+                                , style <|
+                                    listItemBaseStyle isGuessedBySelf isMarkedCorrect
+                                ]
+                                [ text answer ]
+                    )
+                    problem.answers
+                )
+            ]
+        ]
+
+
+evaluate : Problem -> Guess -> Float
+evaluate problem guess =
+    -- a correct guess maps to a higher evaluation
+    if (guess == problem.correct) then
+        100
+    else
+        0
+
+
+problemGenerator : Random.Generator Problem
+problemGenerator =
+    generatorFromList
+        { question = "🇱🇻 Latvia"
+        , answers = [ "Tallin", "Riga", "Vilnius", "Moscow" ]
+        , correct = 1
+        }
+        -- a list of problems identical to the record above
+        problems
 
 
 
@@ -219,8 +229,8 @@ listStyle =
     ]
 
 
-listItemBaseStyle : List ( String, String )
-listItemBaseStyle =
+listItemBaseStyle : Bool -> Bool -> List ( String, String )
+listItemBaseStyle isGuessedBySelf isMarkedCorrect =
     [ ( "margin", "12px" )
     , ( "display", "inline-block" )
     , ( "border-width", "1px" )
@@ -229,3 +239,22 @@ listItemBaseStyle =
     , ( "padding", "8px 16px" )
     , ( "border-radius", "6px" )
     ]
+        ++ [ ( "border-color"
+             , if isGuessedBySelf then
+                "#333333"
+               else
+                "transparent"
+             )
+           , ( "background-color"
+             , if isMarkedCorrect then
+                "#333333"
+               else
+                "transparent"
+             )
+           , ( "color"
+             , if isMarkedCorrect then
+                "#FFFFFF"
+               else
+                "#333333"
+             )
+           ]
