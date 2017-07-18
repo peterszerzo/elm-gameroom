@@ -1,9 +1,11 @@
 port module Main exposing (..)
 
-import Json.Encode as JE
-import Json.Decode as JD
+import Time
+import Random
 import Color
 import Window
+import Json.Encode as JE
+import Json.Decode as JD
 import Html exposing (Html, div)
 import Html.Attributes exposing (width, height, style)
 import Html.Events exposing (onClick)
@@ -12,21 +14,145 @@ import Math.Vector4 as Vector4 exposing (Vec4, vec4)
 import Math.Matrix4 as Matrix4
 import WebGL
 import Gameroom exposing (..)
-import Gameroom.Utils exposing (generatorFromList)
+
+
+-- Problem
 
 
 type alias Problem =
-    Int
+    List Car
+
+
+problemEncoder : Problem -> JE.Value
+problemEncoder problem =
+    List.map carEncoder problem |> JE.list
+
+
+problemDecoder : JD.Decoder Problem
+problemDecoder =
+    JD.list carDecoder
+
+
+problemGenerator : Random.Generator Problem
+problemGenerator =
+    Random.list 4 carGenerator
+
+
+
+-- Guess
 
 
 type alias Guess =
-    Bool
+    Int
 
 
-port outgoing : JE.Value -> Cmd msg
+guessEncoder : Guess -> JE.Value
+guessEncoder =
+    JE.int
 
 
-port incoming : (JE.Value -> msg) -> Sub msg
+guessDecoder : JD.Decoder Guess
+guessDecoder =
+    JD.int
+
+
+
+-- Car
+
+
+type alias Car =
+    { acceleration : Float
+    , maxSpeed : Float
+    , engineBlowsAt : Maybe Float
+    }
+
+
+carEncoder : Car -> JE.Value
+carEncoder car =
+    JE.object
+        [ ( "acceleration", JE.float car.acceleration )
+        , ( "maxSpeed", JE.float car.acceleration )
+        , ( "engineBlowsAt", car.engineBlowsAt |> Maybe.map JE.float |> Maybe.withDefault JE.null )
+        ]
+
+
+carDecoder : JD.Decoder Car
+carDecoder =
+    JD.map3 Car
+        (JD.field "acceleration" JD.float)
+        (JD.field "maxSpeed" JD.float)
+        (JD.field "engineBlowsAt" (JD.nullable JD.float))
+
+
+carGenerator : Random.Generator Car
+carGenerator =
+    Random.map3 Car
+        (Random.float 0.375 0.75)
+        (Random.float 1.5 3)
+        (Random.map2
+            (\engineBlowsAt blowProbabilityFactor ->
+                if blowProbabilityFactor > 0.8 then
+                    Just engineBlowsAt
+                else
+                    Nothing
+            )
+            (Random.float 0.6 0.9)
+            (Random.float 0 1)
+        )
+
+
+carPosition : Time.Time -> Car -> Float
+carPosition rawTime car =
+    let
+        time =
+            rawTime / 5000
+
+        maxSpeedTime =
+            car.maxSpeed / car.acceleration
+
+        maxSpeedDistance =
+            car.acceleration * (maxSpeedTime ^ 2) / 2
+
+        idealDistance =
+            if (time < maxSpeedTime) then
+                car.acceleration * (time ^ 2) / 2
+            else
+                maxSpeedDistance + car.maxSpeed * (time - maxSpeedTime)
+    in
+        min (Maybe.withDefault 1 car.engineBlowsAt) idealDistance
+
+
+carColor : Int -> Color.Color
+carColor index =
+    case index of
+        0 ->
+            red
+
+        1 ->
+            lightGrey
+
+        2 ->
+            black
+
+        3 ->
+            purple
+
+        _ ->
+            purple
+
+
+
+-- Raw shape
+
+
+type alias Shape =
+    { nodes : List ( Float, Float, Float )
+    , faces : List ( Int, Int, Int )
+    }
+
+
+
+-- WebGL types
 
 
 type alias Vertex =
@@ -36,50 +162,25 @@ type alias Vertex =
     }
 
 
-type alias CarSpecs =
-    { acceleration : Float
-    , maxSpeed : Float
+type alias Varyings =
+    { vColor : Vec4
     }
 
 
-type alias Car =
-    { color : Color.Color
-    , specs : CarSpecs
-    , lateralPosition : Float
+type alias Uniforms =
+    { transform : Matrix4.Mat4
+    , perspective : Matrix4.Mat4
     }
 
 
-cars : List Car
-cars =
-    [ { color = red
-      , specs =
-            { acceleration = 0.5
-            , maxSpeed = 2
-            }
-      , lateralPosition = -1
-      }
-    , { color = lightGrey
-      , specs =
-            { acceleration = 0.375
-            , maxSpeed = 3
-            }
-      , lateralPosition = -0.33
-      }
-    , { color = black
-      , specs =
-            { acceleration = 0.75
-            , maxSpeed = 1.5
-            }
-      , lateralPosition = 0.33
-      }
-    , { color = purple
-      , specs =
-            { acceleration = 0.625
-            , maxSpeed = 2.5
-            }
-      , lateralPosition = 1
-      }
-    ]
+
+-- Ports
+
+
+port outgoing : JE.Value -> Cmd msg
+
+
+port incoming : (JE.Value -> msg) -> Sub msg
 
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
@@ -88,21 +189,33 @@ main =
         [ basePath "/fast-and-moebius"
         , unicodeIcon "🏎️"
         , name "Fast and Moebius"
-        , subheading "Engines and linear algebra! (dev in progress, not yet playable)"
+        , subheading "Engines and linear algebra!"
         , instructions "Which car is the winner?"
         , responsiblePorts { outgoing = outgoing, incoming = incoming }
         ]
         { view =
             (\context problem ->
                 let
-                    ticks =
-                        context.roundTime / 16
-
                     perspective_ =
-                        perspective ticks
+                        perspective context.roundTime
                 in
                     div []
-                        [ viewNav context.ownGuess
+                        [ div
+                            [ style
+                                [ ( "position", "absolute" )
+                                , ( "bottom", "40px" )
+                                , ( "left", "50%" )
+                                , ( "transform", "translateX(-50%)" )
+                                , ( "z-index", "100" )
+                                , ( "cursor", "pointer" )
+                                ]
+                            ]
+                          <|
+                            List.map
+                                (\index ->
+                                    viewButton (carColor index) { isHighlighted = (context.ownGuess == Just index), guess = index }
+                                )
+                                [ 0, 1, 2, 3 ]
                         , viewWebglContainer context.windowSize <|
                             [ WebGL.entity
                                 vertexShader
@@ -112,59 +225,36 @@ main =
                                 , transform = Matrix4.identity
                                 }
                             ]
-                                ++ (List.map
-                                        (\car ->
+                                ++ (List.indexedMap
+                                        (\index car ->
                                             let
-                                                t =
-                                                    ticks / 100
-
-                                                vMax =
-                                                    car.specs.maxSpeed
-
-                                                a =
-                                                    car.specs.acceleration
-
-                                                tMax =
-                                                    vMax / a
-
                                                 carAngle =
-                                                    if (t < tMax) then
-                                                        a * (t ^ 2) / 2
-                                                    else
-                                                        a * (tMax ^ 2) / 2 + vMax * (t - tMax)
+                                                    carPosition context.roundTime car |> (*) (2 * pi)
+
+                                                color =
+                                                    carColor index
                                             in
                                                 WebGL.entity
                                                     vertexShader
                                                     fragmentShader
-                                                    (carMesh car.color)
+                                                    (carMesh color)
                                                     { perspective = perspective_
-                                                    , transform = carTransform car.lateralPosition carAngle
+                                                    , transform = carTransform (((toFloat index) - 1.5) / 1.5) carAngle
                                                     }
                                         )
-                                        cars
+                                        problem
                                    )
                         ]
             )
         , evaluate =
             (\problem guess ->
-                if (problem == 0) then
-                    (if guess then
-                        100
-                     else
-                        0
-                    )
-                else
-                    (if guess then
-                        0
-                     else
-                        100
-                    )
+                1
             )
-        , problemDecoder = JD.int
-        , problemEncoder = JE.int
-        , guessDecoder = JD.bool
-        , guessEncoder = JE.bool
-        , problemGenerator = generatorFromList -3 [ -2, -1, 0, 1, 2, 3 ]
+        , problemDecoder = problemDecoder
+        , problemEncoder = problemEncoder
+        , guessDecoder = guessDecoder
+        , guessEncoder = guessEncoder
+        , problemGenerator = problemGenerator
         }
 
 
@@ -176,10 +266,10 @@ perspective : Float -> Matrix4.Mat4
 perspective time =
     let
         theta =
-            (sin (time / 800)) * pi / 6
+            (sin (time / 800 / 16)) * pi / 6
 
         phi =
-            pi / 6
+            pi / 8
 
         eye =
             vec3
@@ -187,15 +277,15 @@ perspective time =
                 (cos theta * cos phi)
                 (sin phi)
                 |> Vector3.scale
-                    (2.5
-                        - ((time / 1200) |> clamp 0 0.8)
+                    (2
+                        - ((time / 35000) |> clamp 0 0.2)
                     )
     in
         Matrix4.mul (Matrix4.makePerspective 45 1 0.01 100)
             (Matrix4.makeLookAt eye (vec3 0 0 0) (vec3 0 0 1))
 
 
-viewWebglContainer : Window.Size -> List WebGL.Entity -> Html Bool
+viewWebglContainer : Window.Size -> List WebGL.Entity -> Html Guess
 viewWebglContainer windowSize children =
     let
         minWH =
@@ -220,27 +310,7 @@ viewWebglContainer windowSize children =
             children
 
 
-viewNav : Maybe Guess -> Html Bool
-viewNav ownGuess =
-    div
-        [ style
-            [ ( "position", "absolute" )
-            , ( "bottom", "40px" )
-            , ( "left", "50%" )
-            , ( "transform", "translateX(-50%)" )
-            , ( "z-index", "100" )
-            , ( "cursor", "pointer" )
-            ]
-        ]
-    <|
-        List.map
-            (\car ->
-                viewButton car.color { isHighlighted = (ownGuess == Just True), guess = True }
-            )
-            cars
-
-
-viewButton : Color.Color -> { isHighlighted : Bool, guess : Bool } -> Html Bool
+viewButton : Color.Color -> { isHighlighted : Bool, guess : Guess } -> Html Guess
 viewButton color { isHighlighted, guess } =
     div
         [ style <|
@@ -264,12 +334,6 @@ viewButton color { isHighlighted, guess } =
         , onClick guess
         ]
         []
-
-
-type alias Shape =
-    { nodes : List ( Float, Float, Float )
-    , faces : List ( Int, Int, Int )
-    }
 
 
 
@@ -297,7 +361,9 @@ colorToVec4 color_ =
 colorToString : Color.Color -> String
 colorToString color =
     Color.toRgb color
-        |> (\{ red, green, blue, alpha } -> "rgba(" ++ (toString red) ++ "," ++ (toString green) ++ "," ++ (toString blue) ++ "," ++ (toString alpha) ++ ")")
+        |> (\{ red, green, blue, alpha } ->
+                "rgba(" ++ (toString red) ++ "," ++ (toString green) ++ "," ++ (toString blue) ++ "," ++ (toString alpha) ++ ")"
+           )
 
 
 cyan : Color.Color
@@ -339,7 +405,7 @@ moebiusMesh : WebGL.Mesh Vertex
 moebiusMesh =
     let
         res =
-            161
+            101
 
         radius =
             0.5
@@ -534,17 +600,6 @@ carShape =
 -- Shaders
 
 
-type alias Varyings =
-    { vColor : Vec4
-    }
-
-
-type alias Uniforms =
-    { transform : Matrix4.Mat4
-    , perspective : Matrix4.Mat4
-    }
-
-
 vertexShader : WebGL.Shader Vertex Uniforms Varyings
 vertexShader =
     [glsl|
@@ -557,7 +612,7 @@ varying vec4 vColor;
 const vec3 lightDirection = vec3(0.0, 0.0, 1.0);
 void main () {
   gl_Position = (perspective * transform) * vec4(position, 1.0);
-  float brightness = 0.6 + dot(lightDirection, normalize(normal)) * 0.4;
+  float brightness = 0.68 + dot(lightDirection, normalize(normal)) * 0.32;
   vColor = vec4(color.r * brightness, color.g * brightness, color.b * brightness, color.a);
 }
 |]
