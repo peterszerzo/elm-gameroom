@@ -7,7 +7,7 @@ import Styles.Constants exposing (..)
 -- Utilities
 
 
-centered : List Mixin
+centered : List Style
 centered =
     [ maxWidth (px 540)
     , maxHeight (pct 100)
@@ -19,7 +19,7 @@ centered =
     ]
 
 
-standardBoxShadow : List Mixin
+standardBoxShadow : List Style
 standardBoxShadow =
     [ property "box-shadow" "0 0 18px rgba(0, 0, 0, 0.08), 0 0 6px rgba(0, 0, 0, 0.16)"
     ]
@@ -29,7 +29,7 @@ standardBoxShadow =
 --  Typography
 
 
-heroType : List Mixin
+heroType : List Style
 heroType =
     [ fontSize (Css.rem 2.5)
     , property "font-weight" "300"
@@ -38,7 +38,7 @@ heroType =
     ]
 
 
-subheroType : List Mixin
+subheroType : List Style
 subheroType =
     [ fontSize (Css.rem 2.25)
     , property "font-weight" "300"
@@ -47,7 +47,7 @@ subheroType =
     ]
 
 
-headingType : List Mixin
+headingType : List Style
 headingType =
     [ fontSize (Css.rem 1.5)
     , property "font-weight" "300"
@@ -56,7 +56,7 @@ headingType =
     ]
 
 
-bodyType : List Mixin
+bodyType : List Style
 bodyType =
     [ fontSize (Css.rem 1)
     , property "font-weight" "400"
@@ -70,7 +70,7 @@ bodyType =
 -- Buttons
 
 
-button : List Mixin
+button : List Style
 button =
     [ color (hex white)
     , cursor pointer
@@ -109,7 +109,7 @@ button =
         ++ standardBoxShadow
 
 
-buttonDisabled : List Mixin
+buttonDisabled : List Style
 buttonDisabled =
     [ borderColor (hex darkGrey)
     , color (hex darkGrey)
