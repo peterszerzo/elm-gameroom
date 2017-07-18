@@ -1,6 +1,6 @@
 {
     "version": "3.0.0",
-    "summary": "Multiplayer guessing game framework",
+    "summary": "Framework for custom multiplayer games",
     "repository": "https://github.com/peterszerzo/elm-gameroom.git",
     "license": "BSD3",
     "source-directories": [
