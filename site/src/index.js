@@ -31,8 +31,7 @@
     var scriptTag = document.createElement('script')
     scriptTag.src = '/home.js?' + window.__ELM_GAMEROOM_HASH__
     scriptTag.onload = function () {
-      console.log(games)
-      var app = window.Elm.Main.embed(rootNode, games)
+      var app = window.Elm.Main.embed(rootNode)
     }
     document.body.appendChild(scriptTag)
   }

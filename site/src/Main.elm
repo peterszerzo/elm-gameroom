@@ -2,10 +2,10 @@ module Main exposing (..)
 
 import Time
 import AnimationFrame
-import Html exposing (Html, div, h1, p, a, text, program)
+import Html exposing (Html, div, h1, p, a, text, program, node)
 import Html.Attributes exposing (class, href)
-import Svg exposing (svg, use)
-import Svg.Attributes exposing (xlinkHref)
+import Views.Logo
+import Styles exposing (cssText, CssClasses(..), localClass)
 
 
 main : Program Never Model Msg
@@ -56,8 +56,9 @@ update msg model =
 
 view : Model -> Html msg
 view model =
-    div [ class "elm-gameroom-home" ] <|
-        [ svg [] [ use [ xlinkHref "#logo" ] [] ]
+    div [ localClass [ Root ] ] <|
+        [ node "style" [] [ cssText |> text ]
+        , Views.Logo.view
         , h1 [] [ text "Play elm-gamerooms" ]
         , p [] [ text "Hey, thanks for stopping by. Here are some playables for you and your friends:" ]
         ]

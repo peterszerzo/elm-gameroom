@@ -1,10 +1,10 @@
 #!/bin/sh
 
-DIST=site/dist
-SRC=site/src
+DIST=dist
 EXAMPLES=(spacecraterball counterclockwooze lettero the-capitalist fast-and-moebius)
 
 if [ $1 = "build" ]; then
+  cd site
   rm -rf $DIST
   mkdir $DIST
 
@@ -29,7 +29,8 @@ elif [ $1 = "deploy" ]; then
   cd $DIST
   firebase deploy
 elif [ $1 = "run" ]; then
-  elm-live $SRC/Main.elm --output $SRC/home.js --dir=$SRC --open --debug --pushstate
+  cd site
+  elm-live src/Main.elm --output src/home.js --dir=src --open --debug --pushstate
 else
   echo "Not a valid command. Use either build, deploy or run."
 fi
