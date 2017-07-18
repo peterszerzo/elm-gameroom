@@ -6,6 +6,7 @@ import Css exposing (..)
 import Css.Elements exposing (svg, h1)
 import Css.Namespace exposing (namespace)
 import Styles.Shared
+import Styles.Mixins
 
 
 cssNamespace : String
@@ -28,14 +29,22 @@ css =
             , display block
             , descendants
                 [ svg
-                    [ width (px 60)
-                    , height (px 60)
+                    [ width (px 80)
+                    , height (px 80)
                     , margin2 (px 20) auto
                     ]
                 , h1
                     [ property "font-weight" "300"
                     ]
                 ]
+            ]
+         , class Link Styles.Mixins.button
+         , class SimpleLink
+            [ textDecoration none
+            , color (hex "2D739E")
+            , borderBottom3 (px 1) solid currentColor
+            , property "transition" "all 0.3s"
+            , hover [ color (hex "3890c6") ]
             ]
          ]
             |> namespace cssNamespace

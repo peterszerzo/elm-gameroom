@@ -40,7 +40,7 @@ heroType =
 
 subheroType : List Style
 subheroType =
-    [ fontSize (Css.rem 2.25)
+    [ fontSize (Css.rem 2)
     , property "font-weight" "300"
     , letterSpacing (Css.rem 0.05)
     , margin3 (px 20) auto (px 20)

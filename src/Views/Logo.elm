@@ -2,7 +2,7 @@ module Views.Logo exposing (view)
 
 import Html exposing (Html)
 import Svg exposing (svg, polygon)
-import Svg.Attributes exposing (points, viewBox, width, height, stroke, strokeWidth, fill)
+import Svg.Attributes exposing (points, viewBox, width, height, stroke, strokeWidth, fill, transform)
 import Styles.Constants exposing (..)
 
 

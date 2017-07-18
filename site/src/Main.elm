@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Time
 import AnimationFrame
-import Html exposing (Html, div, h1, p, a, text, program, node)
+import Html exposing (Html, div, h1, h2, p, a, text, program, node)
 import Html.Attributes exposing (class, href)
 import Views.Logo
 import Styles exposing (cssText, CssClasses(..), localClass)
@@ -59,13 +59,14 @@ view model =
     div [ localClass [ Root ] ] <|
         [ node "style" [] [ cssText |> text ]
         , Views.Logo.view
-        , h1 [] [ text "Play elm-gamerooms" ]
+        , h1 [] [ text "elm-gameroom" ]
+        , h2 [] [ text "Framework for custom multiplayer games" ]
         , p [] [ text "Hey, thanks for stopping by. Here are some playables for you and your friends:" ]
         ]
             ++ (List.map
                     (\game ->
                         a
-                            [ class "elm-gameroom-home-link"
+                            [ localClass [ Link ]
                             , href ("/" ++ game)
                             ]
                             [ text game ]
@@ -75,7 +76,7 @@ view model =
             ++ [ p []
                     [ text "This is a demo for the "
                     , a
-                        [ class "elm-gameroom-home-simple-link"
+                        [ localClass [ SimpleLink ]
                         , href "http://package.elm-lang.org/packages/peterszerzo/elm-gameroom/latest"
                         ]
                         [ text "elm-gameroom" ]
