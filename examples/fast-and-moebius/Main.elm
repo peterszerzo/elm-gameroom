@@ -440,8 +440,8 @@ moebiusTransform angle lateralOffset normalOffset =
         rotateX =
             Matrix4.makeRotate angle
                 (vec3
-                    (cos (angle + pi / 2))
-                    (sin (angle + pi / 2))
+                    -sinAngle
+                    cosAngle
                     0
                 )
     in
