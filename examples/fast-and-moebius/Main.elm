@@ -239,7 +239,7 @@ main =
                                                     fragmentShader
                                                     (carMesh color)
                                                     { perspective = perspective_
-                                                    , transform = carTransform (((toFloat index) - 1.5) / 1.5) carAngle
+                                                    , transform = carTransform (((toFloat index) - 1.5) / 1.5 * 0.66) carAngle
                                                     }
                                         )
                                         problem
@@ -401,17 +401,59 @@ brighten fact =
 -- Terrain
 
 
+moebiusRadius : Float
+moebiusRadius =
+    0.5
+
+
+moebiusWidth : Float
+moebiusWidth =
+    0.25
+
+
+moebiusTransform : Float -> Float -> Float -> Matrix4.Mat4
+moebiusTransform angle lateralOffset normalOffset =
+    let
+        sinAngle =
+            sin angle
+
+        cosAngle =
+            cos angle
+
+        translateXY =
+            Matrix4.makeTranslate (vec3 (moebiusRadius * cosAngle) (moebiusRadius * sinAngle) 0)
+
+        translateZ =
+            Matrix4.makeTranslate (vec3 0 0 normalOffset)
+
+        translateY =
+            Matrix4.makeTranslate
+                (vec3
+                    (-0.5 * moebiusWidth * lateralOffset * cosAngle)
+                    (-0.5 * moebiusWidth * lateralOffset * sinAngle)
+                    0
+                )
+
+        rotateZ =
+            Matrix4.makeRotate (angle + pi / 2) (vec3 0 0 1)
+
+        rotateX =
+            Matrix4.makeRotate angle
+                (vec3
+                    (cos (angle + pi / 2))
+                    (sin (angle + pi / 2))
+                    0
+                )
+    in
+        [ translateXY, rotateX, translateY, translateZ, rotateZ ]
+            |> List.foldl (\current accumulator -> Matrix4.mul accumulator current) Matrix4.identity
+
+
 moebiusMesh : WebGL.Mesh Vertex
 moebiusMesh =
     let
         res =
             101
-
-        radius =
-            0.5
-
-        width =
-            0.25
     in
         List.repeat (res + 3) 0
             |> List.indexedMap
@@ -420,33 +462,24 @@ moebiusMesh =
                         angle =
                             2 * pi * (toFloat i) / (toFloat res)
 
-                        isEven =
-                            rem i 2 == 0
-
-                        r =
-                            if isEven then
-                                radius - (width / 2) * (cos angle)
+                        lateralOffset =
+                            if rem i 2 == 0 then
+                                -1
                             else
-                                radius + (width / 2) * (cos angle)
+                                1
+
+                        transform =
+                            (moebiusTransform angle lateralOffset 0)
+
+                        vertex =
+                            Matrix4.transform transform (vec3 0 0 0)
+
+                        normal =
+                            Matrix4.transform transform (vec3 0 0 1)
                     in
                         Vertex
-                            (vec3
-                                ((cos angle) * r)
-                                ((sin angle) * r)
-                                ((width / 2)
-                                    * (sin angle)
-                                    * (if isEven then
-                                        1
-                                       else
-                                        -1
-                                      )
-                                )
-                            )
-                            (vec3
-                                (-(cos angle) * (sin angle))
-                                (-(sin angle) * (sin angle))
-                                (cos angle)
-                            )
+                            vertex
+                            normal
                             (colorToVec4 cyan)
                 )
             |> WebGL.triangleStrip
@@ -465,37 +498,8 @@ type alias TrianglesShape =
 
 carTransform : Float -> Float -> Matrix4.Mat4
 carTransform lateralPosition carAngle =
-    let
-        translateXY =
-            Matrix4.makeTranslate (vec3 (0.5 * (cos carAngle)) (0.5 * (sin carAngle)) 0)
-
-        translateZ =
-            Matrix4.makeTranslate (vec3 0 0 0.025)
-
-        translateY =
-            Matrix4.makeTranslate
-                (vec3
-                    (-0.08 * lateralPosition * (carAngle + pi / 2 |> sin))
-                    (0.08 * lateralPosition * (carAngle + pi / 2 |> cos))
-                    0
-                )
-
-        rotateZ =
-            Matrix4.makeRotate (carAngle + pi / 2) (vec3 0 0 1)
-
-        rotateX =
-            Matrix4.makeRotate (carAngle)
-                (vec3
-                    (cos (carAngle + pi / 2))
-                    (sin (carAngle + pi / 2))
-                    0
-                )
-
-        scale =
-            Matrix4.makeScale (vec3 0.4 0.4 0.4)
-    in
-        [ translateXY, rotateX, translateY, translateZ, rotateZ, scale ]
-            |> List.foldl (\current accumulator -> Matrix4.mul accumulator current) Matrix4.identity
+    Matrix4.mul (moebiusTransform carAngle lateralPosition 0.025)
+        (Matrix4.makeScale (vec3 0.4 0.4 0.4))
 
 
 carMesh : Color.Color -> WebGL.Mesh Vertex
