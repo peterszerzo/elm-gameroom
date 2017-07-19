@@ -224,6 +224,13 @@ main =
                                 { perspective = perspective_
                                 , transform = Matrix4.identity
                                 }
+                            , WebGL.entity
+                                vertexShader
+                                fragmentShader
+                                (finishLineMesh context.roundTime)
+                                { perspective = perspective_
+                                , transform = Matrix4.identity
+                                }
                             ]
                                 ++ (List.indexedMap
                                         (\index car ->
@@ -449,6 +456,90 @@ moebiusTransform angle lateralOffset normalOffset =
             |> List.foldl (\current accumulator -> Matrix4.mul accumulator current) Matrix4.identity
 
 
+finishLineMesh : Time.Time -> WebGL.Mesh Vertex
+finishLineMesh time =
+    let
+        origin =
+            (vec3 0 0 0)
+
+        sinTime =
+            sin (time / 3000)
+
+        a =
+            0.05 + 0.02 * sinTime
+
+        b =
+            0.3 + 0.06 * sinTime
+
+        h =
+            0.05
+
+        pt1 =
+            Matrix4.transform (moebiusTransform 0 -(1 + b) h) origin
+
+        pt2 =
+            Matrix4.transform (moebiusTransform a -(1 + b) h) origin
+
+        pt3 =
+            Matrix4.transform (moebiusTransform a (1 + b) h) origin
+
+        pt4 =
+            Matrix4.transform (moebiusTransform 0 (1 + b) h) origin
+
+        pt5 =
+            Matrix4.transform (moebiusTransform 0 -(1 + b) -h) origin
+
+        pt6 =
+            Matrix4.transform (moebiusTransform a -(1 + b) -h) origin
+
+        pt7 =
+            Matrix4.transform (moebiusTransform a (1 + b) -h) origin
+
+        pt8 =
+            Matrix4.transform (moebiusTransform 0 (1 + b) -h) origin
+
+        normal =
+            vec3 0 0 1
+
+        color_ =
+            colorToVec4 purple
+    in
+        [ ( Vertex pt1 normal color_
+          , Vertex pt2 normal color_
+          , Vertex pt3 normal color_
+          )
+        , ( Vertex pt3 normal color_
+          , Vertex pt4 normal color_
+          , Vertex pt1 normal color_
+          )
+        , ( Vertex pt5 normal color_
+          , Vertex pt6 normal color_
+          , Vertex pt7 normal color_
+          )
+        , ( Vertex pt7 normal color_
+          , Vertex pt8 normal color_
+          , Vertex pt5 normal color_
+          )
+        , ( Vertex pt1 normal color_
+          , Vertex pt5 normal color_
+          , Vertex pt6 normal color_
+          )
+        , ( Vertex pt1 normal color_
+          , Vertex pt6 normal color_
+          , Vertex pt2 normal color_
+          )
+        , ( Vertex pt3 normal color_
+          , Vertex pt7 normal color_
+          , Vertex pt8 normal color_
+          )
+        , ( Vertex pt8 normal color_
+          , Vertex pt4 normal color_
+          , Vertex pt3 normal color_
+          )
+        ]
+            |> WebGL.triangles
+
+
 moebiusMesh : WebGL.Mesh Vertex
 moebiusMesh =
     let
@@ -471,14 +562,14 @@ moebiusMesh =
                         transform =
                             (moebiusTransform angle lateralOffset 0)
 
-                        vertex =
+                        pt =
                             Matrix4.transform transform (vec3 0 0 0)
 
                         normal =
                             Matrix4.transform transform (vec3 0 0 1)
                     in
                         Vertex
-                            vertex
+                            pt
                             normal
                             (colorToVec4 cyan)
                 )
