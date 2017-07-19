@@ -63,7 +63,7 @@ type alias DetailedSpec problem guess =
     , roundDuration : Time.Time
     , cooldownDuration : Time.Time
     , clearWinnerEvaluation : Maybe Float
-    , ports : Ports.Ports (Msg problem guess)
+    , ports : Maybe (Ports.Ports (Msg problem guess))
     , inlineStyle : Bool
     , peripheralUi : Bool
     , view : Context guess -> problem -> Html.Html guess
@@ -124,7 +124,7 @@ buildDetailedSpec options spec =
                     { spec | clearWinnerEvaluation = Just maxEvaluation }
 
                 SetPorts p ->
-                    { spec | ports = p }
+                    { spec | ports = Just p }
 
                 NoInlineStyle ->
                     { spec | inlineStyle = False }
@@ -140,7 +140,7 @@ buildDetailedSpec options spec =
         , roundDuration = 4 * Time.second
         , cooldownDuration = 2 * Time.second
         , clearWinnerEvaluation = Nothing
-        , ports = Ports.init
+        , ports = Nothing
         , view = spec.view
         , inlineStyle = True
         , peripheralUi = True
@@ -152,3 +152,10 @@ buildDetailedSpec options spec =
         , guessDecoder = spec.guessDecoder
         }
         options
+
+
+sendToPort : DetailedSpec problem guess -> (Encode.Value -> Cmd (Msg problem guess))
+sendToPort spec =
+    spec.ports
+        |> Maybe.map .outgoing
+        |> Maybe.withDefault (always Cmd.none)

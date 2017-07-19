@@ -16,6 +16,7 @@ import Views.Scoreboard as Scoreboard
 import Views.Timer as Timer
 import Views.Notification as Notification
 import Views.Loader as Loader
+import Views.NoMultiplayer as NoMultiplayer
 import Page.Game.Views.Styles exposing (CssClasses(..), localClass, localClassList)
 
 

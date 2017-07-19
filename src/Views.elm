@@ -12,6 +12,7 @@ import Page.NewRoom.Views
 import Page.NotFound.Views
 import Page.Tutorial.Views
 import Views.Layout
+import Views.NoMultiplayer
 
 
 view : Spec.DetailedSpec problem guess -> Model problem guess -> Html (Msg problem guess)
@@ -20,18 +21,27 @@ view spec model =
         isHome =
             model.route == Route.Home
 
+        noMultiplayer =
+            spec.ports == Nothing
+
         content =
             case model.route of
                 Route.Home ->
                     Page.Home.Views.view spec
 
                 Route.Game game ->
-                    Page.Game.Views.view spec model.windowSize game
-                        |> Html.map GameMsg
+                    if noMultiplayer then
+                        Views.NoMultiplayer.view
+                    else
+                        Page.Game.Views.view spec model.windowSize game
+                            |> Html.map GameMsg
 
                 Route.NewRoom newRoom ->
-                    Page.NewRoom.Views.view newRoom
-                        |> Html.map NewRoomMsg
+                    if noMultiplayer then
+                        Views.NoMultiplayer.view
+                    else
+                        Page.NewRoom.Views.view newRoom
+                            |> Html.map NewRoomMsg
 
                 Route.NotFound ->
                     Page.NotFound.Views.view

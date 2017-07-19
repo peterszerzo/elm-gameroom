@@ -13,6 +13,7 @@ import Views.Header
 import Views.Header.Styles
 import Views.Notification.Styles
 import Views.Scoreboard.Styles
+import Views.NoMultiplayer.Styles
 import Views.Timer.Styles
 import Page.Game.Views.Styles
 import Page.Home.Views.Styles
@@ -58,6 +59,7 @@ css =
             ++ Views.Footer.Styles.styles
             ++ Views.Header.Styles.styles
             ++ Views.Notification.Styles.styles
+            ++ Views.NoMultiplayer.Styles.styles
             ++ Views.Scoreboard.Styles.styles
             ++ Views.Timer.Styles.styles
             ++ Page.Game.Views.Styles.styles

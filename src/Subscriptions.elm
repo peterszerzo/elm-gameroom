@@ -19,7 +19,10 @@ subscriptions :
     -> Sub (Messages.Msg problem guess)
 subscriptions spec model =
     Sub.batch
-        [ spec.ports.incoming
+        [ (spec.ports
+            |> Maybe.map .incoming
+            |> Maybe.withDefault (always Sub.none)
+          )
             (\val ->
                 val
                     |> JD.decodeValue (InMsg.decoder spec.problemDecoder spec.guessDecoder)

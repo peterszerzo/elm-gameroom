@@ -90,7 +90,7 @@ main =
         , subheading "A futuristic physics game"
         , instructions "Will the rock land inside the crater or bounce off?"
         , clearWinner 100
-        , responsiblePorts { incoming = incoming, outgoing = outgoing }
+          -- , responsiblePorts { incoming = incoming, outgoing = outgoing }
         ]
         { view =
             (\context problem ->
@@ -377,7 +377,6 @@ ballMesh =
                     , Vertex pt2 normal color_
                     , Vertex pt3 normal color_
                     )
-                        |> Debug.log "bal"
             )
         |> WebGL.triangles
 
