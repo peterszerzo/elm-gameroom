@@ -101,6 +101,29 @@ carGenerator =
         )
 
 
+carTime : Car -> Maybe Time.Time
+carTime car =
+    let
+        maxSpeedTime =
+            car.maxSpeed / car.acceleration
+
+        maxSpeedDistance =
+            car.acceleration * (maxSpeedTime ^ 2) / 2
+    in
+        case car.engineBlowsAt of
+            Just _ ->
+                Nothing
+
+            Nothing ->
+                (if maxSpeedDistance > 1 then
+                    sqrt <| 2 / car.acceleration
+                 else
+                    (1 - maxSpeedDistance) / car.maxSpeed
+                )
+                    |> (*) 5000
+                    |> Just
+
+
 carPosition : Time.Time -> Car -> Float
 carPosition rawTime car =
     let
@@ -191,6 +214,7 @@ main =
         , name "Fast and Moebius"
         , subheading "Engines and linear algebra!"
         , instructions "Which car is the winner?"
+        , roundDuration (10 * Time.second)
         , responsiblePorts { outgoing = outgoing, incoming = incoming }
         ]
         { view =
@@ -213,7 +237,16 @@ main =
                           <|
                             List.map
                                 (\index ->
-                                    viewButton (carColor index) { isHighlighted = (context.ownGuess == Just index), guess = index }
+                                    viewButton (carColor index)
+                                        { isHighlighted = (context.ownGuess == Just index)
+                                        , guess =
+                                            case context.ownGuess of
+                                                Just guess ->
+                                                    Nothing
+
+                                                Nothing ->
+                                                    Just index
+                                        }
                                 )
                                 [ 0, 1, 2, 3 ]
                         , viewWebglContainer context.windowSize <|
@@ -255,7 +288,11 @@ main =
             )
         , evaluate =
             (\problem guess ->
-                1
+                List.drop guess problem
+                    |> List.head
+                    |> Maybe.andThen carTime
+                    |> Maybe.map (\time -> 15000 - time)
+                    |> Maybe.withDefault 0
             )
         , problemDecoder = problemDecoder
         , problemEncoder = problemEncoder
@@ -317,10 +354,10 @@ viewWebglContainer windowSize children =
             children
 
 
-viewButton : Color.Color -> { isHighlighted : Bool, guess : Guess } -> Html Guess
+viewButton : Color.Color -> { isHighlighted : Bool, guess : Maybe Guess } -> Html Guess
 viewButton color { isHighlighted, guess } =
     div
-        [ style <|
+        ([ style <|
             [ ( "display", "inline-block" )
             , ( "width", "45px" )
             , ( "height", "45px" )
@@ -329,7 +366,7 @@ viewButton color { isHighlighted, guess } =
             , ( "color", colorToString color )
             , ( "background-color", "currentColor" )
             , ( "border-radius", "50%" )
-            , ( "border"
+            , ( "outline"
               , "2px solid "
                     ++ (if isHighlighted then
                             "currentColor"
@@ -338,8 +375,9 @@ viewButton color { isHighlighted, guess } =
                        )
               )
             ]
-        , onClick guess
-        ]
+         ]
+            ++ (guess |> Maybe.map (\g -> [ onClick g ]) |> Maybe.withDefault [])
+        )
         []
 
 
@@ -463,16 +501,16 @@ finishLineMesh time =
             (vec3 0 0 0)
 
         sinTime =
-            sin (time / 3000)
+            sin (time / 1000)
 
         a =
             0.05 + 0.02 * sinTime
 
         b =
-            0.3 + 0.06 * sinTime
+            0
 
         h =
-            0.05
+            0.01
 
         pt1 =
             Matrix4.transform (moebiusTransform 0 -(1 + b) h) origin
@@ -486,23 +524,11 @@ finishLineMesh time =
         pt4 =
             Matrix4.transform (moebiusTransform 0 (1 + b) h) origin
 
-        pt5 =
-            Matrix4.transform (moebiusTransform 0 -(1 + b) -h) origin
-
-        pt6 =
-            Matrix4.transform (moebiusTransform a -(1 + b) -h) origin
-
-        pt7 =
-            Matrix4.transform (moebiusTransform a (1 + b) -h) origin
-
-        pt8 =
-            Matrix4.transform (moebiusTransform 0 (1 + b) -h) origin
-
         normal =
             vec3 0 0 1
 
         color_ =
-            colorToVec4 purple
+            colorToVec4 lightGrey
     in
         [ ( Vertex pt1 normal color_
           , Vertex pt2 normal color_
@@ -511,30 +537,6 @@ finishLineMesh time =
         , ( Vertex pt3 normal color_
           , Vertex pt4 normal color_
           , Vertex pt1 normal color_
-          )
-        , ( Vertex pt5 normal color_
-          , Vertex pt6 normal color_
-          , Vertex pt7 normal color_
-          )
-        , ( Vertex pt7 normal color_
-          , Vertex pt8 normal color_
-          , Vertex pt5 normal color_
-          )
-        , ( Vertex pt1 normal color_
-          , Vertex pt5 normal color_
-          , Vertex pt6 normal color_
-          )
-        , ( Vertex pt1 normal color_
-          , Vertex pt6 normal color_
-          , Vertex pt2 normal color_
-          )
-        , ( Vertex pt3 normal color_
-          , Vertex pt7 normal color_
-          , Vertex pt8 normal color_
-          )
-        , ( Vertex pt8 normal color_
-          , Vertex pt4 normal color_
-          , Vertex pt3 normal color_
           )
         ]
             |> WebGL.triangles
