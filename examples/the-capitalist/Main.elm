@@ -16,7 +16,7 @@ import Gameroom.Context exposing (Context)
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
     gameWith
-        [ basePath "/thecapitalist"
+        [ basePath "/the-capitalist"
         , unicodeIcon "💰"
         , name "The Capitalist"
         , subheading "Oh, not that kind, though, more like a person who knows the capital of a lot of countries.."
