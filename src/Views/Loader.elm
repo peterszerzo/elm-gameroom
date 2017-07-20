@@ -1,4 +1,4 @@
-module Views.Loader exposing (..)
+module Views.Loader exposing (view)
 
 import Html exposing (Html, text)
 

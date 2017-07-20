@@ -1,10 +1,14 @@
 elm-stuff
+node_modules
 repl-temp-*
 .DS_Store
 .env
 examples/**/elm.js
-examples/**/app.js
+examples/**/talk-to-ports.js
+examples/**/db
 examples/**/200.html
-demosite/dist
+site/dist
+site/src/home.js
 documentation.json
 tmp
+*.log

@@ -4,7 +4,7 @@
  * @param {object} ports - Elm ports
  * @return {object} ports
  */
- (function (root, factory) {
+ ;(function (root, factory) {
    if (typeof module === 'object' && module.exports) {
      module.exports = factory(root)
    } else {

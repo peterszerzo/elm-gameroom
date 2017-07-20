@@ -1,20 +1,21 @@
 port module Main exposing (..)
 
+import Random
+import Json.Encode as JE
+import Json.Decode as JD
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Json.Encode as JE
-import Json.Decode as JD
-import Gameroom exposing (program, Model, Msg, Ports)
-import Gameroom.Spec exposing (Spec)
-import Gameroom.Utilities exposing (generatorFromList)
+import Gameroom exposing (..)
 
 
 -- Types
 
 
 type alias Problem =
-    String
+    { word : String
+    , startAngle : Float
+    }
 
 
 type alias Guess =
@@ -27,13 +28,7 @@ type alias Guess =
 
 spec : Spec Problem Guess
 spec =
-    { copy =
-        { icon = "✏️"
-        , name = "Lettero"
-        , subheading = "A mildly frustrating wordgame!"
-        , instructions = "There is a word in there somewhere - tap its first letter!"
-        }
-    , view =
+    { view =
         (\context problem ->
             div
                 [ style
@@ -42,21 +37,23 @@ spec =
                     , ( "height", "75vmin" )
                     , ( "top", "50%" )
                     , ( "left", "50%" )
-                    , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0) rotate(" ++ ((context.animationTicksSinceNewRound |> toFloat) / 5 |> toString) ++ "deg)" )
+                    , ( "transform", "scale(1.0, 1.0) translate3d(-50%, -50%, 0) rotate(" ++ (context.roundTime / 80 |> toString) ++ "deg)" )
                     ]
                 ]
-                (problem
+                (problem.word
                     |> String.toList
                     |> List.indexedMap
                         (\index character ->
                             let
                                 angle =
                                     (index |> toFloat)
-                                        / (problem
+                                        / (problem.word
                                             |> String.length
                                             |> toFloat
                                           )
-                                        |> (*) (2 * pi)
+                                        * 2
+                                        * pi
+                                        + problem.startAngle
 
                                 isGuessedBySelf =
                                     context.ownGuess == (Just index)
@@ -107,24 +104,42 @@ spec =
                         )
                 )
         )
-    , isGuessCorrect = (\problem guess -> (guess == 0))
+    , evaluate =
+        (\problem guess ->
+            if (guess == 0) then
+                100
+            else
+                0
+        )
     , problemGenerator =
-        generatorFromList "perrywinkle" <|
-            [ "gingerberry", "apples", "vineyard", "is", "tablespoon", "cutlery", "laborer" ]
-                ++ [ "grenade", "coaster", "mahogany", "burrito", "cilantro", "kettle" ]
-                ++ [ "revenue", "stool", "ginger", "electricity", "purple", "backpack" ]
-                ++ [ "phone", "bill", "family", "cucumber", "terrific", "towel", "tower" ]
-                ++ [ "lightbulb", "leaf", "loaf", "parrot", "rack", "rope", "poor", "strap" ]
-                ++ [ "faucet", "lipstick", "grapefruit", "pickle", "woodpecker" ]
+        Random.map2 Problem
+            (generatorFromList "perrywinkle" <|
+                [ "gingerberry", "apples", "vineyard", "is", "tablespoon", "cutlery", "laborer" ]
+                    ++ [ "grenade", "coaster", "mahogany", "burrito", "cilantro", "kettle" ]
+                    ++ [ "revenue", "stool", "ginger", "electricity", "purple", "backpack" ]
+                    ++ [ "phone", "bill", "family", "cucumber", "terrific", "towel", "tower" ]
+                    ++ [ "lightbulb", "leaf", "loaf", "parrot", "rack", "rope", "poor", "strap" ]
+                    ++ [ "faucet", "lipstick", "grapefruit", "pickle", "woodpecker" ]
+            )
+            (Random.float 0 (2 * pi))
     , guessEncoder = JE.int
     , guessDecoder = JD.int
-    , problemEncoder = JE.string
-    , problemDecoder = JD.string
+    , problemEncoder =
+        (\problem ->
+            JE.object
+                [ ( "word", JE.string problem.word )
+                , ( "startAngle", JE.float problem.startAngle )
+                ]
+        )
+    , problemDecoder =
+        JD.map2 Problem
+            (JD.field "word" JD.string)
+            (JD.field "startAngle" JD.float)
     }
 
 
 
--- Config
+-- Ports
 
 
 port outgoing : JE.Value -> Cmd msg
@@ -133,13 +148,20 @@ port outgoing : JE.Value -> Cmd msg
 port incoming : (JE.Value -> msg) -> Sub msg
 
 
-ports : Ports (Msg Problem Guess)
-ports =
-    { outgoing = outgoing
-    , incoming = incoming
-    }
+
+-- Main
 
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    Gameroom.programAt "lettero" spec ports
+    gameWith
+        [ basePath "/lettero"
+        , unicodeIcon "✏️"
+        , name "Lettero"
+        , subheading "A mildly frustrating wordgame!"
+        , instructions "There is a word in there somewhere - tap its first letter!"
+        , clearWinner 100
+        , responsiblePorts { incoming = incoming, outgoing = outgoing }
+        , noPeripheralUi
+        ]
+        spec

@@ -1,15 +1,14 @@
 port module Main exposing (..)
 
 import Random
+import Json.Encode as JE
+import Json.Decode as JD
 import Html exposing (Html, div, text, span)
 import Html.Attributes exposing (class, style, attribute)
 import Html.Events exposing (onClick)
 import Svg exposing (polygon, svg, g, circle)
 import Svg.Attributes exposing (width, height, viewBox, points, transform, r, cx, cy, fill, stroke, strokeWidth)
-import Json.Encode as JE
-import Json.Decode as JD
-import Gameroom exposing (program, Model, Msg, Ports)
-import Gameroom.Spec exposing (Spec)
+import Gameroom exposing (..)
 
 
 -- Types
@@ -40,13 +39,7 @@ grey =
 
 spec : Spec Problem Guess
 spec =
-    { copy =
-        { icon = "🕒"
-        , name = "Counterclockwooze"
-        , subheading = "A dizzying geometric game for the family"
-        , instructions = "One of the shapes spins the other way - care to find it?"
-        }
-    , view =
+    { view =
         (\context problem ->
             div
                 [ class "spinning-shapes-container"
@@ -112,7 +105,7 @@ spec =
                                             )
                                         , attribute "transform"
                                             ("rotate("
-                                                ++ ((context.animationTicksSinceNewRound |> toFloat)
+                                                ++ ((context.roundTime / 16)
                                                         |> (*) 0.5
                                                         |> (*)
                                                             (if index == 0 then
@@ -133,7 +126,13 @@ spec =
                     )
                 ]
         )
-    , isGuessCorrect = (\problem guess -> (guess == 0))
+    , evaluate =
+        (\problem guess ->
+            if guess == 0 then
+                100
+            else
+                0
+        )
     , problemGenerator =
         Random.list 10 (Random.map2 Point (Random.float 0 1) (Random.float 0 1))
     , guessEncoder = JE.int
@@ -166,17 +165,19 @@ port outgoing : JE.Value -> Cmd msg
 port incoming : (JE.Value -> msg) -> Sub msg
 
 
-ports : Ports (Msg Problem Guess)
-ports =
-    { outgoing = outgoing
-    , incoming = incoming
-    }
-
-
 
 -- Program
 
 
 main : Program Never (Model Problem Guess) (Msg Problem Guess)
 main =
-    Gameroom.programAt "counterclockwooze" spec ports
+    gameWith
+        [ basePath "/counterclockwooze"
+        , unicodeIcon "🕒"
+        , name "Counterclockwooze"
+        , subheading "A dizzying geometric game for the family"
+        , instructions "One of the shapes spins the other way - care to find it?"
+        , clearWinner 100
+        , responsiblePorts { outgoing = outgoing, incoming = incoming }
+        ]
+        spec

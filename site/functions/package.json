@@ -1,0 +1,9 @@
+{
+  "name": "test",
+  "description": "Test function",
+  "dependencies": {
+    "cors": "^2.8.1",
+    "firebase-admin": "^4.1.1",
+    "firebase-functions": "^0.5.1"
+  }
+}

@@ -2,65 +2,60 @@ module Router exposing (..)
 
 import Navigation
 import UrlParser exposing (..)
-import Models.NewRoom
-import Models.Game
-import Models.Tutorial
+import Data.Route exposing (Route(..))
+import Page.NewRoom.Models
+import Page.Game.Models
+import Page.Tutorial.Models
 
 
-type Route problem guess
-    = Home
-    | NewRoom Models.NewRoom.NewRoom
-    | Tutorial (Models.Tutorial.Tutorial problem guess)
-    | Game (Models.Game.Game problem guess)
-    | NotOnBaseRoute
-    | NotFound
+startsWithBase : String -> String -> Bool
+startsWithBase basePath path_ =
+    String.left (String.length basePath) path_ == basePath
 
 
-startsWithBase : Maybe String -> String -> Bool
-startsWithBase baseSlug path_ =
-    case baseSlug of
-        Nothing ->
-            True
-
-        Just baseSlug ->
-            (String.left ((String.length baseSlug) + 1) path_) == ("/" ++ baseSlug)
-
-
-sWithBaseSlug : Maybe String -> String -> Parser a a
-sWithBaseSlug baseSlug slug =
-    case baseSlug of
-        Just baseSlug ->
-            if slug == "" then
-                s baseSlug
-            else
-                s baseSlug </> s slug
-
-        Nothing ->
+sWithBasePath : String -> String -> Parser a a
+sWithBasePath basePath slug =
+    -- Redefines UrlParser's 's' function to take into account a base path.
+    let
+        baseSlug =
+            String.dropLeft 1 basePath
+    in
+        if baseSlug == "" then
             s slug
+        else
+            (if slug == "" then
+                s baseSlug
+             else
+                s baseSlug </> s slug
+            )
 
 
-matchers : Maybe String -> UrlParser.Parser (Route problem guess -> a) a
-matchers baseSlug =
+matchers : String -> UrlParser.Parser (Route problem guess -> a) a
+matchers basePath =
     let
         s_ =
-            sWithBaseSlug baseSlug
+            sWithBasePath basePath
     in
         UrlParser.oneOf
             [ s_ "" |> map Home
-            , s_ "tutorial" |> map (Tutorial Models.Tutorial.init)
+            , s_ "tutorial" |> map (Tutorial Page.Tutorial.Models.init)
             , s_ "rooms"
                 </> string
                 </> string
-                |> map (\roomId playerId -> Models.Game.init roomId playerId |> Game)
-            , s_ "new" |> map (NewRoom Models.NewRoom.init)
+                |> map
+                    (\roomId playerId ->
+                        Page.Game.Models.init roomId playerId
+                            |> Game
+                    )
+            , s_ "new" |> map (NewRoom Page.NewRoom.Models.init)
             ]
 
 
-parse : Maybe String -> Navigation.Location -> Route problem guess
-parse baseSlug location =
-    if startsWithBase baseSlug location.pathname then
+parse : String -> Navigation.Location -> Route problem guess
+parse basePath location =
+    if startsWithBase basePath location.pathname then
         location
-            |> UrlParser.parsePath (matchers baseSlug)
+            |> UrlParser.parsePath (matchers basePath)
             |> Maybe.withDefault NotFound
     else
         NotOnBaseRoute

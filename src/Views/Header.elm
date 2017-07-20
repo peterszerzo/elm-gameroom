@@ -1,7 +1,7 @@
-module Views.Header exposing (..)
+module Views.Header exposing (view)
 
 import Html exposing (Html, header, text)
-import Messages exposing (Msg(..))
+import Messages exposing (Msg)
 import Views.Link as Link
 import Views.Header.Styles exposing (CssClasses(..), localClass)
 

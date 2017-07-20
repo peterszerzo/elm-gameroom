@@ -1,4 +1,4 @@
-module Views.Attribution exposing (..)
+module Views.Attribution exposing (view)
 
 import Html exposing (Html, div, p, a, span, text)
 import Html.Attributes exposing (href)

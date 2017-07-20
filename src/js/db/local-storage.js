@@ -3,7 +3,7 @@
  * Only works if both clients are in the same browser window.
  * => only useful for testing games.
  */
- (function (root, factory) {
+ ;(function (root, factory) {
    if (typeof module === 'object' && module.exports) {
      module.exports = factory(root)
    } else {
