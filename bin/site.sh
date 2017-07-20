@@ -17,10 +17,12 @@ if [ $1 = "build" ]; then
   cp $SRC/index.js $DIST
 
   elm-make src/Main.elm --output $DIST/home.js
+  uglifyjs $DIST/home.js -o $DIST/home.js --compress --mangle
 
   for EXAMPLE in "${EXAMPLES[@]}"
   do
     elm-make ../examples/$EXAMPLE/Main.elm --output $DIST/$EXAMPLE.js
+    uglifyjs $DIST/$EXAMPLE.js -o $DIST/$EXAMPLE.js --compress --mangle
   done
 
   echo ""

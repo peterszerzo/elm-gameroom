@@ -10,7 +10,7 @@ For some context, see [this talk](https://www.youtube.com/watch?v=sBCz6atTRZk).
 
 You can try some games made with the framework by playing in two tabs of the same browser - and this will be tremendously useful as you write your own games later on.
 
-To do that, install elm-live: `npm i -g elm-live`. Then run the following command: `bin/run-example.sh $NAME`, where `$NAME` is a folder name within `./examples`, either `counterclockwooze`, `lettero`, `spacecraterball` or `the-capitalist`.
+To do that, install elm-live: `npm i -g elm-live`. Then run the following command: `bin/example.sh $NAME`, where `$NAME` is a folder name within `./examples`, either `counterclockwooze`, `lettero`, `spacecraterball` or `the-capitalist`.
 
 ## Making your own game
 
