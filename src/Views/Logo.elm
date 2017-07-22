@@ -23,8 +23,8 @@ polygons =
             , ( 13.33, -13.33 )
             ]
       , color = cyan
-      , transform = ( 0, 2 )
-      , transformPhase = pi / 2
+      , transform = ( 0, 0 )
+      , transformPhase = 0
       }
     , { coords =
             [ ( 30.0, -30.0 )
@@ -41,8 +41,8 @@ polygons =
             , ( 30.0, 15.05 )
             ]
       , color = black
-      , transform = ( 0, 0 )
-      , transformPhase = 0
+      , transform = ( 0, 1 )
+      , transformPhase = 4 * pi / 3
       }
     , { coords =
             [ ( 3.33, -17.55 )
@@ -50,8 +50,8 @@ polygons =
             , ( 3.33, 9.12 )
             ]
       , color = red
-      , transform = ( 0, 4 )
-      , transformPhase = pi / 2
+      , transform = ( 0, 3 )
+      , transformPhase = pi
       }
     , { coords =
             [ ( -3.33, 6.0 )
@@ -59,8 +59,8 @@ polygons =
             , ( -30.0, 6.0 )
             ]
       , color = blue
-      , transform = ( 0, 0 )
-      , transformPhase = 0
+      , transform = ( 0, 1.5 )
+      , transformPhase = pi / 3
       }
     , { coords =
             [ ( -16.67, -14.16 )
@@ -68,8 +68,8 @@ polygons =
             , ( -3.33, -1.17 )
             ]
       , color = cyan
-      , transform = ( 0, 0 )
-      , transformPhase = 0
+      , transform = ( 0, 1.6 )
+      , transformPhase = 2 * pi / 3
       }
     , { coords =
             [ ( -30.0, -3.33 )
