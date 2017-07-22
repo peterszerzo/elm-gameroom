@@ -1,4 +1,4 @@
-module Views.Logo exposing (view)
+module Views.Logo exposing (view, animatedView)
 
 import Html exposing (Html)
 import Time
@@ -11,6 +11,7 @@ type alias Polygon =
     { coords : List ( Float, Float )
     , color : String
     , transform : ( Float, Float )
+    , transformPhase : Float
     }
 
 
@@ -22,7 +23,8 @@ polygons =
             , ( 13.33, -13.33 )
             ]
       , color = cyan
-      , transform = ( 0, 0 )
+      , transform = ( 0, 2 )
+      , transformPhase = pi / 2
       }
     , { coords =
             [ ( 30.0, -30.0 )
@@ -31,6 +33,7 @@ polygons =
             ]
       , color = blue
       , transform = ( 0, 0 )
+      , transformPhase = 0
       }
     , { coords =
             [ ( 16.67, 1.71 )
@@ -39,6 +42,7 @@ polygons =
             ]
       , color = black
       , transform = ( 0, 0 )
+      , transformPhase = 0
       }
     , { coords =
             [ ( 3.33, -17.55 )
@@ -46,7 +50,8 @@ polygons =
             , ( 3.33, 9.12 )
             ]
       , color = red
-      , transform = ( 0, 0 )
+      , transform = ( 0, 4 )
+      , transformPhase = pi / 2
       }
     , { coords =
             [ ( -3.33, 6.0 )
@@ -55,6 +60,7 @@ polygons =
             ]
       , color = blue
       , transform = ( 0, 0 )
+      , transformPhase = 0
       }
     , { coords =
             [ ( -16.67, -14.16 )
@@ -63,6 +69,7 @@ polygons =
             ]
       , color = cyan
       , transform = ( 0, 0 )
+      , transformPhase = 0
       }
     , { coords =
             [ ( -30.0, -3.33 )
@@ -71,34 +78,48 @@ polygons =
             ]
       , color = black
       , transform = ( 0, 0 )
+      , transformPhase = 0
       }
     ]
 
 
-viewPolygon : Int -> Polygon -> Html msg
-viewPolygon index { coords, color } =
-    polygon
-        [ points
-            (coords
-                |> List.map
-                    (\( x, y ) ->
-                        (toString x) ++ "," ++ (toString (-y))
-                    )
-                |> String.join " "
-            )
-        , stroke "#FFF"
-        , strokeWidth "1.5"
-        , fill ("#" ++ color)
-        ]
-        []
+viewPolygon : Float -> Time.Time -> Polygon -> Html msg
+viewPolygon amplitude time { coords, color, transform, transformPhase } =
+    let
+        sinTime =
+            sin (time / 1000 + transformPhase)
+
+        factor =
+            amplitude * sinTime
+
+        dx =
+            factor * (Tuple.first transform)
+
+        dy =
+            factor * (Tuple.second transform)
+    in
+        polygon
+            [ points
+                (coords
+                    |> List.map
+                        (\( x, y ) ->
+                            (toString (x + dx)) ++ "," ++ (toString (-(y + dy)))
+                        )
+                    |> String.join " "
+                )
+            , stroke "#FFF"
+            , strokeWidth "1.5"
+            , fill ("#" ++ color)
+            ]
+            []
 
 
 view : Html msg
 view =
-    svg [ viewBox "-30 -30 60 60" ] (List.indexedMap viewPolygon polygons)
+    animatedView 0 0
 
 
-animatedView : Time.Time -> Html msg
-animatedView time =
-    -- TODO: implement
-    view
+animatedView : Float -> Time.Time -> Html msg
+animatedView amplitude time =
+    svg [ viewBox "-30 -30 60 60" ]
+        (List.map (viewPolygon amplitude time) polygons)

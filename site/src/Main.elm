@@ -29,7 +29,7 @@ games =
 
 
 type alias Model =
-    { time : Float
+    { time : Time.Time
     }
 
 
@@ -58,10 +58,8 @@ view : Model -> Html msg
 view model =
     div [ localClass [ Root ] ] <|
         [ node "style" [] [ cssText |> text ]
-        , Views.Logo.view
-        , h1 [] [ text "elm-gameroom" ]
-        , h2 [] [ text "Framework for custom multiplayer games" ]
-        , p [] [ text "Hey, thanks for stopping by. Here are some playables for you and your friends:" ]
+        , Views.Logo.animatedView 1 model.time
+        , h1 [] [ text "hey :) come play some elm-gamerooms" ]
         ]
             ++ (List.map
                     (\game ->

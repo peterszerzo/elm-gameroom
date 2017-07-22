@@ -25,6 +25,12 @@ standardBoxShadow =
     ]
 
 
+intenseBoxShadow : List Style
+intenseBoxShadow =
+    [ property "box-shadow" "0 0 30px rgba(0, 0, 0, 0.2), 0 0 10px rgba(0, 0, 0, 0.4)"
+    ]
+
+
 
 --  Typography
 
@@ -102,9 +108,7 @@ button =
             ]
         ]
     , focus
-        [ outline3 (px 2) solid (hex blue)
-        , outlineOffset (px 2)
-        ]
+        intenseBoxShadow
     ]
         ++ standardBoxShadow
 
