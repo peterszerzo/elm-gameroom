@@ -4,7 +4,6 @@ import Dict
 import Json.Decode as JD
 import Json.Encode as JE
 import Data.Guess as Guess
-import Constants exposing (nullString)
 
 
 type alias PlayerId =
@@ -58,20 +57,25 @@ extractGuesses players =
 
 encoder : (guess -> JE.Value) -> (Player guess -> JE.Value)
 encoder guessEncoder player =
-    JE.object
+    JE.object <|
         [ ( "id", JE.string player.id )
         , ( "roomId", JE.string player.roomId )
         , ( "isReady", JE.bool player.isReady )
         , ( "score", JE.int player.score )
-        , ( "guess"
-          , case player.guess of
-                Nothing ->
-                    JE.string nullString
-
-                Just guess ->
-                    JE.object [ ( "value", guessEncoder guess.value ), ( "madeAt", JE.float guess.madeAt ) ]
-          )
         ]
+            ++ (player.guess
+                    |> Maybe.map
+                        (\guess ->
+                            [ ( "guess"
+                              , JE.object
+                                    [ ( "value", guessEncoder guess.value )
+                                    , ( "madeAt", JE.float guess.madeAt )
+                                    ]
+                              )
+                            ]
+                        )
+                    |> Maybe.withDefault []
+               )
 
 
 collectionEncoder : (guess -> JE.Value) -> (Players guess -> JE.Value)
@@ -93,18 +97,4 @@ decoder guessDecoder =
         (JD.field "roomId" JD.string)
         (JD.field "isReady" JD.bool)
         (JD.field "score" JD.int)
-        (JD.field "guess"
-            (JD.oneOf
-                [ JD.string
-                    |> JD.andThen
-                        (\s ->
-                            if s == nullString then
-                                JD.succeed Nothing
-                            else
-                                JD.fail "Guess not recognized"
-                        )
-                , Guess.decoder guessDecoder
-                    |> JD.andThen (\g -> JD.succeed (Just g))
-                ]
-            )
-        )
+        (JD.maybe (JD.field "guess" (Guess.decoder guessDecoder)))

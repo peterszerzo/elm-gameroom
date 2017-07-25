@@ -8,7 +8,7 @@ import Page.NewRoom.Messages exposing (Msg(..))
 import Page.NewRoom.Views.Styles exposing (CssClasses(..), localClass, localClassList)
 import Views.Loader
 import Views.Notification
-import Constants
+import Copy
 
 
 viewForm : Model -> List (Html Msg)
@@ -18,8 +18,8 @@ viewForm model =
             (String.length model.roomId > 0)
                 && (model.playerIds |> List.map (\playerId -> String.length playerId > 0) |> List.all identity)
     in
-        [ h2 [ localClass [ Title ] ] [ text Constants.newRoomPageTitle ]
-        , p [] [ text Constants.newRoomFormIntroCopy ]
+        [ h2 [ localClass [ Title ] ] [ text Copy.newRoomPageTitle ]
+        , p [] [ text Copy.newRoomFormIntro ]
         , form
             [ onSubmit CreateRequest
             ]
@@ -86,7 +86,7 @@ viewForm model =
             (if not model.entriesUrlized || model.isUrlizedNotificationDismissed then
                 Nothing
              else
-                Just Constants.casualNamesWarningCopy
+                Just Copy.casualNamesWarning
             )
             (Just DismissUrlizeNotification)
         ]

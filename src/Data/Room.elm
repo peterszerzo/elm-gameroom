@@ -5,7 +5,6 @@ import Json.Decode as JD
 import Json.Encode as JE
 import Data.Player as Player
 import Data.Round as Round
-import Constants exposing (nullString)
 
 
 -- Type definitions
@@ -197,19 +196,19 @@ setScores maybeWinnerId room =
 
 encoder : (problem -> JE.Value) -> (guess -> JE.Value) -> Room problem guess -> JE.Value
 encoder problemEncoder guessEncoder room =
-    JE.object
+    JE.object <|
         [ ( "id", JE.string room.id )
         , ( "host", JE.string room.host )
         , ( "players", Player.collectionEncoder guessEncoder room.players )
-        , ( "round"
-          , case room.round of
-                Nothing ->
-                    JE.string nullString
-
-                Just round ->
-                    Round.encoder problemEncoder round
-          )
         ]
+            ++ (room.round
+                    |> Maybe.map
+                        (\round ->
+                            [ ( "round", Round.encoder problemEncoder round )
+                            ]
+                        )
+                    |> Maybe.withDefault []
+               )
 
 
 
@@ -221,19 +220,5 @@ decoder problemDecoder guessDecoder =
     JD.map4 Room
         (JD.field "id" JD.string)
         (JD.field "host" JD.string)
-        (JD.field "round"
-            (JD.oneOf
-                [ JD.string
-                    |> JD.andThen
-                        (\s ->
-                            if s == nullString then
-                                JD.succeed Nothing
-                            else
-                                JD.fail "Not recognized"
-                        )
-                , Round.decoder problemDecoder
-                    |> JD.andThen (\round -> JD.succeed (Just round))
-                ]
-            )
-        )
+        (JD.maybe (JD.field "round" (Round.decoder problemDecoder)))
         (JD.field "players" (JD.dict (Player.decoder guessDecoder)))

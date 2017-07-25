@@ -1,55 +1,45 @@
-module Constants exposing (..)
-
--- Miscellaneous
-
-
-nullString : String
-nullString =
-    -- If a value (room data, player data) doesn't exist in storage, this string is inserted instead. This is necessary because some storage services like Firebase are weird with non-existent values while retrieving data.
-    "__elm-gameroom__null__"
-
-
+module Copy exposing (..)
 
 -- Copy
 
 
-correctGuessCopy : String
-correctGuessCopy =
+correctGuess : String
+correctGuess =
     "Correct - let's see if you made it the fastest.."
 
 
-incorrectGuessCopy : String
-incorrectGuessCopy =
+incorrectGuess : String
+incorrectGuess =
     "Not quite, not quite unfortunately.."
 
 
-evaluatedGuessCopy : String
-evaluatedGuessCopy =
+evaluatedGuess : String
+evaluatedGuess =
     "This is scoring you a ${}. Let's see how the others are doing.."
 
 
-winCopy : String
-winCopy =
+win : String
+win =
     "Nice job, you win!"
 
 
-loseCopy : String
-loseCopy =
+lose : String
+lose =
     "This one goes to ${}. Go get them in the next round!"
 
 
-tieCopy : String
-tieCopy =
+tie : String
+tie =
     "It's a tie, folks, it's a tie.."
 
 
-tutorialStartupCopy : String
-tutorialStartupCopy =
+tutorialStartup : String
+tutorialStartup =
     "Hey, let's practice. Click the button to get a game problem you can solve."
 
 
-tutorialEvaluatedGuessCopy : String
-tutorialEvaluatedGuessCopy =
+tutorialEvaluatedGuess : String
+tutorialEvaluatedGuess =
     "This one will score you a ${}. Can you do better?"
 
 
@@ -58,11 +48,11 @@ newRoomPageTitle =
     "Game on!"
 
 
-newRoomFormIntroCopy : String
-newRoomFormIntroCopy =
+newRoomFormIntro : String
+newRoomFormIntro =
     "But first, some forms.. In order to play with your friends, use this form to create your very own room. You’ll then be able to share links unique to each player, control when you feel ready, and be on your way!"
 
 
-casualNamesWarningCopy : String
-casualNamesWarningCopy =
+casualNamesWarning : String
+casualNamesWarning =
     "We took the liberty to make your names casual and URL-friendly for your convenience :)."

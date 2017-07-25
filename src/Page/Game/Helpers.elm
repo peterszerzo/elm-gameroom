@@ -4,7 +4,7 @@ import Data.Spec as Spec
 import Page.Game.Models exposing (Model, getOwnGuess)
 import Data.Room as Room
 import Data.RoundTime as RoundTime
-import Constants
+import Copy
 import Utils
 
 
@@ -26,12 +26,12 @@ getNotificationContent spec model =
                                 case spec.clearWinnerEvaluation of
                                     Just clearWinnerEval ->
                                         if eval == clearWinnerEval then
-                                            Constants.correctGuessCopy
+                                            Copy.correctGuess
                                         else
-                                            Constants.incorrectGuessCopy
+                                            Copy.incorrectGuess
 
                                     Nothing ->
-                                        Utils.template Constants.evaluatedGuessCopy (toString eval)
+                                        Utils.template Copy.evaluatedGuess (toString eval)
                         )
                         (getOwnGuess model)
                         room.round
@@ -40,11 +40,11 @@ getNotificationContent spec model =
                         |> Maybe.map
                             (\winnerId ->
                                 if winnerId == model.playerId then
-                                    Constants.winCopy
+                                    Copy.win
                                 else
-                                    Utils.template Constants.loseCopy winnerId
+                                    Utils.template Copy.lose winnerId
                             )
-                        |> Maybe.withDefault Constants.tieCopy
+                        |> Maybe.withDefault Copy.tie
                         |> Just
 
             Nothing ->

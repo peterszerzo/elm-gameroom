@@ -10,7 +10,7 @@ import Page.Tutorial.Messages exposing (Msg(..))
 import Page.Tutorial.Views.Styles exposing (CssClasses(..), localClass)
 import Views.Notification
 import Utils
-import Constants
+import Copy
 
 
 view :
@@ -35,9 +35,9 @@ view spec windowSize model =
                                     spec.instructions
 
                                 Just guess ->
-                                    Utils.template Constants.tutorialEvaluatedGuessCopy (spec.evaluate problem guess |> toString)
+                                    Utils.template Copy.tutorialEvaluatedGuess (spec.evaluate problem guess |> toString)
                         )
-                    |> Maybe.withDefault Constants.tutorialStartupCopy
+                    |> Maybe.withDefault Copy.tutorialStartup
                     |> Just
                 )
                 Nothing
